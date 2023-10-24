@@ -4,9 +4,9 @@ import Generic from "./helpers/Generic.js";
 
 /*
 	Todo: 
-	- Fade between audio
+	- Improve transition from combat -> normal by adding a bit of fade out time
 	- Connect to game
-	- Setup editor
+	
 */
 
 
@@ -275,6 +275,19 @@ class Audio{
 
 	}
 
+	stopMusic( fadeMethod = 'bar' ){
+
+		let cur = this.musicTracks[this.musicActiveTrack];
+		this.musicActiveTrack = '';
+
+		if( !cur )
+			return;
+
+		cur.stop(fadeMethod, (fadeMethod === 'fade' ? 10 : 0), true);
+
+
+	}
+
 	setActiveMusicTrack( track, fadeMethod = 'bar' ){
 
 		if( !this.musicTracks.hasOwnProperty(track) )
@@ -299,8 +312,6 @@ class Audio{
 
 		this.musicActiveTrack = track;
 		this.musicActiveLabel = nTrack.label;
-		const time = this.getCurrentTime();
-
 
 		let timeOffs = 0;
 		if( curTrack ){
@@ -601,13 +612,13 @@ class AudioMusic extends Generic{
 		this.name = '';
 		this.author = '';
 		
-		this.loop = '';
 		this.bpm = 0;
 		this.vol = 0.5;
 
 		this.intro = '';
 		this.intro_point = 1;			// nr of bars when the intro "hits"
-
+		
+		this.loop = '';
 		this.in = 1;					// nr of bars. 1-indexed
 		this.out = 1;					// <2 = use entire length
 		this.transition_points = [];	// bar nrs that make for good transition points. 1-indexed
@@ -814,14 +825,14 @@ class AudioMusic extends Generic{
 				outro.buffer = this._buf_outro;
 				outro.start(stopTime-this.getOutroStartTime());
 				this._snd_outro = outro;
-				deactivateTimeout = outro.buffer.duration + nextBar - time;
+				deactivateTimeout = outro.buffer.duration + stopTime - outroTime - time;
 
 			}
 			else
 				deactivateTimeout = stopTime-time;
 
-			this._gain_loop.gain.setValueAtTime(0, stopTime);
-			this._snd_loop.stop(stopTime+10);
+			this._gain_loop.gain.setTargetAtTime(0, stopTime, this.getBarTime()*2*2/10);
+			this._snd_loop.stop(stopTime+this.getBarTime()*2);
 			
 
 		}
@@ -963,62 +974,32 @@ class AudioMusic extends Generic{
 
 
 // Debug
-window.testAudio = async soundKit => {
-	
-	let override = {
-		loop : '/media/audio/music/looptest_loop.ogg',
-		intro : '/media/audio/music/looptest_intro.ogg',
-		outro : '/media/audio/music/looptest_outro.ogg',
-		bpm : 130,
-		in : 2,
-		out : 4,
-		intro_point : 2,
-		outro_point : 2
-	};
-	
-	let idleData = {
-		label : 'ambient',
-		loop : '/media/audio/music/portswood_loop.ogg',
-		intro : '/media/audio/music/portswood_intro.ogg',
-		outro : '/media/audio/music/portswood_outro.ogg',
-		bpm : 100,
-		in : 2,
-		out : 92,
-		vol : 1,
-		intro_point : 2,
-		outro_point : 2,
-		transition_points : [
-			2, 10, 18, 26, 34, 42, 50, 52, 60, 68, 76, 84, 92
-		],
-	};
-	let combatData = {
-		label : 'combat',
-		loop : '/media/audio/music/portswood_hard_loop.ogg',
-		intro : '/media/audio/music/portswood_hard_intro.ogg',
-		outro : '/media/audio/music/portswood_hard_outro.ogg',
-		bpm : 100,
-		in : 2,
-		out : 66,
-		vol : 1,
-		intro_point : 2,
-		outro_point : 2 ,
-		transition_points : [
-			2, 10, 18, 26, 33, 34, 42, 50, 58, 66
-		],
-	};
 
- 
-	const ch = new Audio('test', false);
-	ch.setVolume(1);
-	const ambient = new AudioMusic(idleData);
-	const battle = new AudioMusic(combatData);
-	const audioOverride = new AudioMusic(override);
-	await ch.attachMusic(Audio.Tracks.ambient, ambient);
-	await ch.attachMusic(Audio.Tracks.combat, battle);
-	await ch.attachMusic(Audio.Tracks.rp, audioOverride);
-	ch.setActiveMusicTrack(Audio.Tracks.ambient);
-	//await ss.activate(ch);
-	window.music = ch;
+let testAudioChannel;
+let lastChannel = false;
+window.testAudio = async soundKit => {
+	if( !testAudioChannel )
+		testAudioChannel = new Audio('test', false);
+	
+	let kit = glib.get(soundKit, 'AudioMusic');
+	if( !window.game ){
+		kit = mod.getAssetById('audioMusic', soundKit);
+		if( kit )
+			kit = new AudioMusic(kit);
+	}
+	if( !kit )
+		throw new Error("Kit not found", soundKit);
+
+	lastChannel = !lastChannel;
+	let ch = Audio.Tracks.ambient;
+	if( lastChannel )
+		ch = Audio.Tracks.combat;
+	
+	await testAudioChannel.attachMusic(ch, kit);
+	testAudioChannel.setActiveMusicTrack(ch);
+	window.testMusic = testAudioChannel;
+	
+	console.log("Type testMusic into the console to access the music channel object");
 
 };
 

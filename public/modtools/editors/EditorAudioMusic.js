@@ -2,7 +2,10 @@ import HelperAsset from './HelperAsset.js';
 import { AudioMusic } from '../../classes/Audio.js';
 import Generic from '../../classes/helpers/Generic.js';
 import Regions from '../../ext/wavesurfer/regions.esm.js';
+import Timeline from '../../ext/wavesurfer/timeline.esm.js';
 import WaveSurfer from '../../ext/wavesurfer/wavesurfer.esm.js';
+import Multitrack from '../../ext/wavesurfer/multitrack.js';
+
 
 const DB = 'audioMusic',
 	CONSTRUCTOR = AudioMusic;
@@ -26,31 +29,35 @@ export function asset(){
 	html += '<div class="labelFlex">';
 		if( !asset._h && !asset._mParent )
 			html += '<label>Label: <input type="text" name="label" class="saveable" value="'+esc(dummy.label)+'" /></label>';
-		html += '<label>URL <input type="text" class="saveable" name="url" value="'+esc(dummy.url)+'" /></label>';
+
 		html += '<label>Track Name <input type="text" class="saveable" name="name" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Author <input type="text" class="saveable" name="author" value="'+esc(dummy.author)+'" /></label>';
-		html += '<label>Loop <input type="checkbox" class="saveable" name="loop" '+(dummy.loop ? 'checked' : '')+' /></label><br />';
-		html += '<label>Volume <input type="number" min=0 max=1 step=0.01 class="saveable" name="vol" value="'+(+dummy.vol || 0)+'" /></label><br />';
-		html += '<label>BPM <input type="number" min=10 max=300 step=1 class="saveable" name="bpm" value="'+(+dummy.bpm || 0)+'" /></label><br />';
-		html += '<label title="Bars">In: <input type="number" min=-1 step=1 class="saveable" name="in" value="'+(parseInt(dummy.in) || 0)+'" /></label><br />';
-		html += '<label title="Bars">Out: <input type="number" min=-1 step=1 class="saveable" name="out" value="'+(parseInt(dummy.out) || 0)+'" /></label><br />';
+		html += '<label>Volume <input type="number" min=0 max=1 step=0.01 class="saveable" name="vol" value="'+(+dummy.vol || 0)+'" /></label>';
+		html += '<label>BPM <input type="number" min=10 max=300 step=1 class="saveable redraw" name="bpm" value="'+(+dummy.bpm || 0)+'" /></label>';
+		
+	html += '</div><div class="labelFlex">';	
+
+		html += '<label>Loop URL <input type="text" class="saveable redraw" name="loop" value="'+esc(dummy.loop)+'" /></label>';
+		html += '<label title="Bars">In: <input type="number" min=-1 step=1 class="saveable redraw" name="in" value="'+(parseInt(dummy.in) || 0)+'" /></label><br />';
+		html += '<label title="Bars">Out: <input type="number" min=-1 step=1 class="saveable redraw" name="out" value="'+(parseInt(dummy.out) || 0)+'" /></label><br />';
+	html += '</div><div class="labelFlex">';	
+		
+		html += '<label>Transition Points: <div class="transitionPoints"></div><input type="button" class="addTransitionPoint" value="+ Add" /></label>';
+	
+	html += '</div><div class="labelFlex">';	
+
+		html += '<label>Intro URL <input type="text" class="saveable redraw" name="intro" value="'+esc(dummy.intro)+'" /></label>';
+		html += '<label title="Bars">In: <input type="number" min=1 step=1 class="saveable redraw" name="intro_point" value="'+(parseInt(dummy.intro_point) || 0)+'" /></label><br />';
+
+	html += '</div><div class="labelFlex">';	
+
+		html += '<label>Outro URL <input type="text" class="saveable redraw" name="outro" value="'+esc(dummy.outro)+'" /></label>';
+		html += '<label title="Bars">Out: <input type="number" min=1 step=1 class="saveable redraw" name="outro_point" value="'+(parseInt(dummy.outro_point) || 0)+'" /></label><br />';
+
 	html += '</div>';
 
 	html += '<div class="audioRender main"></div>';
 	html += '<input type="button" value="Play/Pause" class="mainPlay" />';
-	html += '<label>Loop <input type="checkbox" class="mainLoop" /></label>';
-
-	html += '<div class="labelFlex">';
-		html += '<label>Combat URL <input type="text" class="saveable" name="url_combat" value="'+esc(dummy.url_combat)+'" /></label><br />';
-		html += '<label>Combat Track Name <input type="text" class="saveable" name="name_combat" value="'+esc(dummy.name_combat)+'" /></label>';
-		html += '<label>Combat Author <input type="text" class="saveable" name="author_combat" value="'+esc(dummy.author_combat)+'" /></label>';
-		html += '<label>Combat Volume <input type="number" min=0 max=1 step=0.01 class="saveable" name="vol_combat" value="'+(+dummy.vol_combat || 0)+'" /></label><br />';
-		html += '<label>Combat BPM <input type="number" min=10 max=300 step=1 class="saveable" name="bpm_combat" value="'+(+dummy.bpm_combat || 0)+'" /></label><br />';
-		html += '<label title="Bars">Combat In: <input type="number" min=-1 step=1 class="saveable" name="in_combat" value="'+(parseInt(dummy.in_combat) || 0)+'" /></label><br />';
-		html += '<label title="Bars">Combat Out: <input type="number" min=-1 step=1 class="saveable" name="out_combat" value="'+(parseInt(dummy.out_combat) || 0)+'" /></label><br />';
-	html += '</div>';
-
-	html += '<div class="audioRender combat"></div>';
 	
 	//html += 'Conditions: <br />';
 	//html += '<div class="conditions"></div>';
@@ -58,75 +65,256 @@ export function asset(){
 
 	this.setDom(html);
 
+	
 	const 
-		domUrl = this.dom.querySelector("input[name=url]"),
 		domIn = this.dom.querySelector("input[name=in]"),
 		domOut = this.dom.querySelector("input[name=out]"),
+		domOutroPoint = this.dom.querySelector("input[name=outro_point]"),
+		domIntroPoint = this.dom.querySelector("input[name=intro_point]"),
+		domBpm = this.dom.querySelector("input[name=bpm]"),
 		domPlay = this.dom.querySelector("input.mainPlay"),
-		domLoop = this.dom.querySelector("input.mainLoop")
+		domLoop = this.dom.querySelector("input[name=loop]"),
+		domIntro = this.dom.querySelector("input[name=intro]"),
+		domOutro = this.dom.querySelector("input[name=outro]"),
+		domAddTransitionPoints = this.dom.querySelector("input.addTransitionPoint"),
+		domTransitionPoints = this.dom.querySelector("div.transitionPoints")
 	;
 
-	const bpmToTime = (bar, bpm) => {
-		return bar*4*60/bpm;
-	}
+	// Helper for the viewer
+	let loopFile, introFile, outroFile, loading;
+	this._multitrack = null;
 
-	const redrawRegions = () => {
+	const height = 64;
+	const waveColor = '#DDFFDD';
+	
+
+	// Draws the multitrack viewer
+	const drawViewer = async () => {
+
+		const introTime = AudioMusic.barToTime(domIntroPoint.value-1 || 0, +domBpm.value);
+		const outroTime = AudioMusic.barToTime(domOutroPoint.value-1 || 0, +domBpm.value);
+		const loopStart = AudioMusic.barToTime(domIn.value-1 || 0, +domBpm.value);
+		const loopEnd = AudioMusic.barToTime(domOut.value-1 || 0, +domBpm.value);
+
+		// If a file is changed, restart
+		if( domIntro.value !== introFile || domLoop.value !== loopFile || domOutro.value !== outroFile ){
+
+			loopFile = domLoop.value;
+			introFile = domIntro.value;
+			outroFile = domOutro.value;
+
+			if( this._multitrack )
+				this._multitrack.destroy();
+
+			// Need all 3 for it to function
+			if( !loopFile || !introFile || !outroFile )
+				return;
+
+			const tracks = [
+				{
+					id: 0,
+					draggable : false,
+					startPosition : introTime-loopStart,
+					url : loopFile,
+					envelope : false,
+					options : {
+						height,
+						waveColor
+					},
+					markers : [] // Todo: these need to be populated
+				}
+			];
+
+			if( introFile )
+				tracks.push({
+					id : 1,
+					url : introFile,
+					startPosition : 0,
+					draggable : false,
+					envelope : false,
+					options : {
+						height,
+						waveColor
+					},
+					markers : []
+				});
+
+			if( outroFile )
+				tracks.push({
+					id : 2,
+					url : outroFile,
+					startPosition : loopEnd-outroTime,
+					draggable : false,
+					envelope : false,
+					options : {
+						height,
+						waveColor
+					},
+					markers : [
+						{
+							time : outroTime,
+							color : 'rgba(255,100,100,.25)',
+							drag : false,
+						}
+					]
+				});
+
+			// Disable the play button until we load
+			domPlay.disabled = true;
+			domPlay.onclick = false;
+			this._multitrack = Multitrack.create(
+				tracks,
+				{
+					container : document.querySelector('.audioRender.main'),
+					trackBackground : '#232323',
+					dragBounds : true,
+				}
+			);
+			loading = new Promise(res => {
+				this._multitrack.once('canplay', () => {
+
+					domPlay.disabled = false;
+					domPlay.onclick = () => {
+						this._multitrack.isPlaying() ? this._multitrack.pause() : this._multitrack.play();
+					};
+					res();
+
+				});
+			});
+			
+		}
+
+		await loading;
+
+		const loopMarkerPlugin = this._multitrack.wavesurfers[0].plugins[0];
+		loopMarkerPlugin.clearRegions();
+
+		// Loop
+		let idx = this._multitrack.tracks.findIndex(el => el.id === 0);
+		this._multitrack.tracks[idx].startPosition = introTime-loopStart;
 		
-		let start = bpmToTime(Math.max(+domIn.value, 0), dummy.bpm);
-		let end = +domOut.value;
-		if( end < 1 )
-			end = this._wsa.getDuration();
-		else
-			end = bpmToTime(end, dummy.bpm);
 
-		console.log(start, end);
+		// intro
+		idx = this._multitrack.tracks.findIndex(el => el.id === 1);
+		if( ~idx ){
+			
+			const plugin = this._multitrack.wavesurfers[idx].plugins[0];
+			plugin.clearRegions();
+			plugin.addRegion({
+				start : introTime,
+				color : '#AAFFAA',
+				resize : false,
+				drag : false,
+			});
 
-		const color = 'rgba(0,50,0,.25)';
-		this._wsaRegion.setOptions({
-			start : start, 
-			end : end, 
-			color : color
+		}
+
+		// outro
+		idx = this._multitrack.tracks.findIndex(el => el.id === 2);
+		if( ~idx ){
+			
+			const plugin = this._multitrack.wavesurfers[idx].plugins[0];
+			plugin.clearRegions();
+			plugin.addRegion({
+				start : outroTime,
+				color : '#FFAAAA',
+				resize : false,
+				drag : false,
+			});
+			this._multitrack.tracks[idx].startPosition = loopEnd-outroTime;
+
+		}
+
+		console.log(this._multitrack);
+		this._multitrack.rendering.setContainerOffsets();
+
+		//const outMarkerRegion = this._multitrack.wavesurfers[2].plugins[0].regions[0];
+		
+
+		// Rebuild transition points
+		for( let bar of dummy.transition_points ){
+			let time = AudioMusic.barToTime(bar-1, +domBpm.value);
+			loopMarkerPlugin.addRegion({
+				start : time,
+				color : 'rgba(255,100,100,.25)',
+				resize : false,
+				drag : false,
+			});
+		}
+		loopMarkerPlugin.addRegion({
+			content : 'IN',
+			color : '#AAFFAA',
+			start : loopStart,
+			drag : false,
+		});
+		loopMarkerPlugin.addRegion({
+			content : 'OUT',
+			color : '#FFAAAA',
+			start : loopEnd,
+			drag : false,
 		});
 		
 
+		
 	};
 
-	this._wsa = WaveSurfer.create({
-		container: '.audioRender.main',
-		waveColor: '#4F4A85',
-		progressColor: '#383351',
-		url: dummy.url,
-	});
-	this._wsa.on('ready', () => {
-		setTimeout(redrawRegions, 1); // Library is busted
-	});
+	drawViewer();
 
-	let regions = this._wsa.registerPlugin(Regions.create());
-	this._wsaRegion = regions.addRegion({
-		start :0,
-		end: 10,
-		content: 'Loop points',
-		drag: false,
-		resize: false,
-	});
-	regions.on('region-out', () => {
-		
-		if( domLoop.checked )
-			this._wsaRegion.play();
-		
-	});
-	
+	// Bind events
+	this.dom.querySelectorAll('.redraw').forEach(element => element.onchange = drawViewer);
 
-	domIn.onchange = domOut.onchange = () => redrawRegions();
-	domPlay.onclick = () => {
-		if( this._wsa.isPlaying() )
-			this._wsa.stop();
-		else
-			this._wsa.play();
+
+
+	// Transition point editor
+	// Handles the transition points input
+	const compileTransitionPoints = () => {
+
+		const ch = [...domTransitionPoints.children];
+		const out = [];
+		for( let child of ch ){
+			let v = parseInt(child.value);
+			if( !isNaN(v) && !out.includes(v) )
+				out.push(v);
+		}
+		out.sort((a,b) => a < b ? -1 : 1);
+		if( toArray(asset.transition_points).join(',') !== out.join(',') ){
+			
+			asset.transition_points = out;
+			dummy.transition_points = out.slice();
+			modtools.setDirty(true);
+			drawViewer();
+			
+		}
+
 	};
+	const onTransitionPointClick = event => {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		if( !event.ctrlKey )
+			return;
+		
+		event.currentTarget.remove();
+		compileTransitionPoints();
+
+	};
+	const addTransitionPoint = val => {
+
+		const input = document.createElement("input");
+		input.type = 'number';
+		input.min = 1;
+		input.step = 1;
+		input.dataset.idx = domTransitionPoints.children.length;
+		input.value = val;
+		input.onclick = onTransitionPointClick;
+		input.onchange = compileTransitionPoints;
+		domTransitionPoints.append(input);
+
+	};
+	domAddTransitionPoints.onclick = addTransitionPoint;
+	for( let tp of dummy.transition_points )
+		addTransitionPoint(tp);
 	
 	window.wsa = this._wsa;
-	console.log(window.wsa);
 
 	// Set asset tables
 	//this.dom.querySelector("div.conditions").appendChild(assetTable(this, asset, "conditions"));

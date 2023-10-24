@@ -11,7 +11,7 @@ import Quest, { QuestReward, QuestObjective, QuestObjectiveEvent } from './Quest
 import PlayerTemplate, { PlayerTemplateLoot } from './templates/PlayerTemplate.js';
 import AssetTemplate, { MaterialTemplate } from './templates/AssetTemplate.js';
 import DungeonTemplate, { DungeonTemplateSub } from './templates/DungeonTemplate.js';
-import { AudioKit } from './Audio.js';
+import { AudioKit, AudioMusic } from './Audio.js';
 import Player from './Player.js';
 import HitFX from './HitFX.js';
 import Roleplay, { RoleplayStage, RoleplayStageOption, RoleplayStageOptionGoto } from './Roleplay.js';
@@ -2106,6 +2106,7 @@ Mod.getLibTypes = function(){
 		'bookPages' : BookPage,
 		'audioKits' : AudioKit,
 		'audioTriggers' : AudioTrigger,
+		'audioMusic' : AudioMusic,
 		'hitFX' : HitFX,
 		'dungeonTemplates' : DungeonTemplate,
 		'dungeonSubTemplates' : DungeonTemplateSub,
