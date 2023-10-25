@@ -45,6 +45,8 @@ export default class Roleplay extends Generic{
 		this.gameActions = [];		// Ran after building the targetPlayers list. The main purpose of having this here is to allow sorting players BEFORE starting the RP.
 		this.closeActions = [];		// Ran whenever the RP is closed. Can be useful to remove characters in expEvts.
 
+		this.music = '';			// label of an asset, never turned to an object
+
 		this.vars = new Collection({}, this);	// Like dungeonvars, but tied to an RP. Loaded onto by state. 
 		this._vars = null;	// Vars we're working on
 
@@ -92,6 +94,7 @@ export default class Roleplay extends Generic{
 			playerConds : Condition.saveThese(this.playerConds, full),
 			once : this.once,
 			portrait : this.portrait,
+			music : this.music,
 			_targetPlayers : this._targetPlayers,
 			_vars : vars.save(full),
 		};

@@ -66,7 +66,10 @@ class Dungeon extends Generic{
 		this.ambiance_volume = 0.2;
 		this.lowpass = 0;			// Lowpass filter. Lower value cuts off high frequencies. -1 uses from cell mesh
 		this.reverb = '';			// Reverb. Empty uses from cell mesh.
-		this.reverbWet = 0;		// Reverb mix. Between 0 (no reverb) and 1 (full). -1 uses from cell mesh
+		this.reverbWet = 0;			// Reverb mix. Between 0 (no reverb) and 1 (full). -1 uses from cell mesh
+
+		this.music = '';			// label of an asset, never turned to an object
+		this.music_combat = '';		// label of an asset, never turned to an object
 
 		this.passives = [];
 		this.consumables = [];		// Additional items you can find in this dungeon, that aren't marked as generic found items.
@@ -126,7 +129,8 @@ class Dungeon extends Generic{
 			lowpass : this.lowpass,
 			reverb : this.reverb,
 			reverbWet : this.reverbWet,
-
+			music : this.music,
+			music_combat : this.music_combat,
 		};
 
 		// Full or mod

@@ -3,6 +3,7 @@ import HelperTags from './HelperTags.js';
 import Window from '../WindowManager.js';
 import * as EditorAsset from './EditorAsset.js';
 import * as EditorWrapper from './EditorWrapper.js';
+import * as EditorAudioMusic from './EditorAudioMusic.js';
 import { Effect, Wrapper } from '../../classes/EffectSys.js';
 import Dungeon, { DungeonRoom, DungeonRoomAsset } from '../../classes/Dungeon.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -52,6 +53,10 @@ export function asset(){
 
 	html += '</div>';
 
+	html += '<span title="">Ambient Music:</span> <div class="music"></div>';
+	html += '<span title="">Combat Music:</span> <div class="music_combat"></div>';
+
+
 	html += 'Vars (this is a key/value object that can be acted upon by game actions and used in conditions):<br />';
 	html += '<textarea class="json" name="vars">'+esc(JSON.stringify(dummy.vars))+'</textarea><br />';
 
@@ -60,6 +65,8 @@ export function asset(){
 
 	html += '<span title="Consumables you can find in chests here, other than assets marked as randomLoot">Unique consumables:</span> <div class="consumables"></div>';
 	html += '<span title="">Passives:</span> <div class="passives"></div>';
+
+
 
 	html += 'Rooms: <div class="rooms"></div>';
 
@@ -79,6 +86,8 @@ export function asset(){
 	// Bind linked objects
 	this.dom.querySelector("div.consumables").appendChild(EditorAsset.assetTable(this, asset, "consumables"));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
+	this.dom.querySelector("div.music").appendChild(EditorAudioMusic.assetTable(this, asset, "music", true));
+	this.dom.querySelector("div.music_combat").appendChild(EditorAudioMusic.assetTable(this, asset, "music_combat", true));
 
 	// Todo: Bind rooms
 
@@ -138,6 +147,13 @@ export function help(){
 
 	out += '<h3>Free roam:</h3>'+
 		'<p>Removes all the "back" buttons on doors. Useful for dungeons with no defined start or end, such as when navigating the outdoor world.</p>';
+
+	out += '<h3>Ambient music:</h3>'+
+		'<p>Sets ambient music to play.</p>';
+	out += '<h3>Combat music:</h3>'+
+		'<p>Sets combat music to play.</p>';
+	
+	
 
 	out += '<h3>Vars:</h3>'+
 		'<p>JSON object of variables that can be set in the dungeon by things like levers or custom game actions.</p>';

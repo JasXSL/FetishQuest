@@ -73,9 +73,62 @@ export default class Encounter extends Generic{
 		this.respawn = 0;			// Time to respawn
 		this.difficulty_adjust = 0;	// Offsets from difficulty. Can be useful when adding a friendly NPC
 
+		this.music = '';			// label of an asset, never turned to an object
+		this.music_combat = '';		// label of an asset, never turned to an object
+
 		this.time_started = -1;
 
 		this.load(data);
+	}
+
+	save( full ){
+
+		const out = {};
+		if( full ){
+			
+			out.startText = this.startText;
+			out.wrappers = Wrapper.saveThese(this.wrappers, full);
+			out.label = this.label;
+			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
+			out.conditions = Condition.saveThese(this.conditions, full);
+			out.respawn = this.respawn;
+			out.difficulty_adjust = this.difficulty_adjust;
+			out.wipe_override = this.wipe_override;
+			out.events = EncounterEvent.saveThese(this.events, full);
+			out.isEvt = this.isEvt;
+			out.evtWeight = this.evtWeight;
+
+		}
+
+		// Players are needed in the current encounter for services to work
+		if( full || this === window.game?.encounter )
+			out.players = Player.saveThese(this.players, full);
+
+		out.friendly = this.friendly;
+		out.game_actions = GameAction.saveThese(this.game_actions, full);
+		out.completion_actions = GameAction.saveThese(this.completion_actions, full);
+		out.passives = Wrapper.saveThese(this.passives, full);
+		out.music = this.music;
+		out.music_combat = this.music_combat;
+
+		out.player_conditions = this.player_conditions;
+		if( this.player_conditions && this.player_conditions.save ){
+			out.player_conditions = this.player_conditions.save(full);
+		}
+		
+		if( full !== "mod" ){
+			out.id = this.id;
+			out.completed = this.completed;
+			out.started = this.started;
+			out.time_started = this.time_started;
+		}
+		else{
+			out.desc = this.desc;
+			this.g_sanitizeDefaults(out);
+		}
+		// Not really gonna need a full because these are never output to webplayers
+		return out;
+
 	}
 
 	getDifficulty(){
@@ -293,53 +346,7 @@ export default class Encounter extends Generic{
 		
 	}
 
-	save( full ){
-
-		const out = {};
-		if( full ){
-			
-			out.startText = this.startText;
-			out.wrappers = Wrapper.saveThese(this.wrappers, full);
-			out.label = this.label;
-			out.player_templates = PlayerTemplate.saveThese(this.player_templates, full);
-			out.conditions = Condition.saveThese(this.conditions, full);
-			out.respawn = this.respawn;
-			out.difficulty_adjust = this.difficulty_adjust;
-			out.wipe_override = this.wipe_override;
-			out.events = EncounterEvent.saveThese(this.events, full);
-			out.isEvt = this.isEvt;
-			out.evtWeight = this.evtWeight;
-
-		}
-
-		// Players are needed in the current encounter for services to work
-		if( full || this === window.game?.encounter )
-			out.players = Player.saveThese(this.players, full);
-
-		out.friendly = this.friendly;
-		out.game_actions = GameAction.saveThese(this.game_actions, full);
-		out.completion_actions = GameAction.saveThese(this.completion_actions, full);
-		out.passives = Wrapper.saveThese(this.passives, full);
-
-		out.player_conditions = this.player_conditions;
-		if( this.player_conditions && this.player_conditions.save ){
-			out.player_conditions = this.player_conditions.save(full);
-		}
-		
-		if( full !== "mod" ){
-			out.id = this.id;
-			out.completed = this.completed;
-			out.started = this.started;
-			out.time_started = this.time_started;
-		}
-		else{
-			out.desc = this.desc;
-			this.g_sanitizeDefaults(out);
-		}
-		// Not really gonna need a full because these are never output to webplayers
-		return out;
-
-	}
+	
 	
 	validate( event, debug ){
 

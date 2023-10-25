@@ -4,9 +4,9 @@ import Generic from "./helpers/Generic.js";
 
 /*
 	Todo: 
-	- Improve transition from combat -> normal by adding a bit of fade out time
-	- Connect to game
-	
+	- Need a way to duck away music while specific UI cues are playing, such as sleeping or victory/loss
+	- Settings should show the currently playing song
+
 */
 
 
@@ -27,6 +27,10 @@ class Audio{
 		this.Tracks.encounter,
 		this.Tracks.combat,
 		this.Tracks.ambient,
+	];
+	static TrackCombat = [
+		this.Tracks.combat,
+		this.Tracks.encounterCombat
 	];
 
 	static master;
@@ -57,8 +61,8 @@ class Audio{
 		localStorage.masterVolume = volume;
 	}
 
-	static async _begin(){
-
+	static reset(){
+		this.master?.close();
 		const master = new AudioContext();
 		const masterGain = master.createGain();
 		masterGain._name = 'MASTER';
@@ -66,13 +70,20 @@ class Audio{
 
 		this.master = master;
 		this.masterGain = masterGain;
-
+		
 		if( !isNaN(localStorage.masterVolume) )
 			this.setMasterVolume(+localStorage.masterVolume);
 		else
 			this.setMasterVolume(0.3);
 
 
+	}
+
+	static async _begin(){
+
+		this.reset();
+
+		// reverbs only need to load once per session, not game
 		for( let i in this.reverbs ){
 			this.reverbs[i] = AudioSound.getDecodedBuffer('/media/audio/reverb/'+i+'.ogg');
 		}
@@ -100,7 +111,7 @@ class Audio{
 	// A channel has 2 paths to masterGain:
 	// src -> (gain)dry -> (gain)gain -> (lowpass)lowpass -> master
 	// src -> (gain)reverbInput -> (reverb)reverb -> (gain)reverbSpecificGain -> (gaint)wet -> (gain)gain -> (lowpass)lowpass -> master
-	constructor( id, use3d = true ){
+	constructor( id, use3d = true, startVolume = 1.0 ){
 		
 		if( !Audio.begun )
 			throw new Error('Call Audio.begin before creating a channel');
@@ -141,12 +152,13 @@ class Audio{
 		this.lowpass._n = 'ch_lowpass';
 
 		this.musicActiveTrack = '';
-		this.musicActiveLabel = '';
+		this.musicActiveObj = null;
 		this.musicTracks = {};
 		for( let i in Audio.Tracks )
 			this.musicTracks[i] = null;
 
 		this.hasReverb = false;
+		this.combat = false;
 
 		Audio.loading.then(() => {
 
@@ -169,12 +181,16 @@ class Audio{
 		});
 
 		this.use3d = use3d;
-		this.volume = 1.0;
+		this.volume = startVolume;
 		this.id = id;
 		if( !isNaN(localStorage[this.id+'Volume']) )
 			this.volume = localStorage[this.id+'Volume'];
 		this.setVolume(this.volume);
 
+	}
+
+	destructor(){
+		this.setMusic({});
 	}
 
 	async play( url, volume = 1.0, loop = false, x = 0, y = 0, z = -1 ){
@@ -216,6 +232,12 @@ class Audio{
 		this.wet.gain.setValueAtTime(wet, ct);
 		this.dry.gain.setValueAtTime(1.0-wet, ct);
 
+	}
+
+	setCombat( on = false, refresh = false ){
+		this.combat = on;
+		if( refresh )
+			this.playHighestPriority();
 	}
 
 	async setReverb( id ){
@@ -270,62 +292,117 @@ class Audio{
 		if( this.musicTracks[track]?.label === audioMusic.label )
 			return;
 
-		this.musicTracks[track] = audioMusic;
-		await audioMusic.activate(this);
+		this.musicTracks[track] = audioMusic.activate(this);
+		this.musicTracks[track]._label = audioMusic.label; // Attach a _label to the promise, since we're storing a promise
+
+		return this.musicTracks[track];
 
 	}
 
-	stopMusic( fadeMethod = 'bar' ){
+	// same keys as Audio.Tracks, using labels
+	async setMusic( obj ){
 
-		let cur = this.musicTracks[this.musicActiveTrack];
-		this.musicActiveTrack = '';
-
-		if( !cur )
-			return;
-
-		cur.stop(fadeMethod, (fadeMethod === 'fade' ? 10 : 0), true);
-
-
-	}
-
-	setActiveMusicTrack( track, fadeMethod = 'bar' ){
-
-		if( !this.musicTracks.hasOwnProperty(track) )
-			throw new Error("Music track not found: "+track);
-		
-		if( this.musicActive === track )
-			return;
-		
-		const curTrack = this.musicTracks[this.musicActiveTrack],
-			curLabel = curTrack?.label,
-			nTrack = this.musicTracks[track],
-			nLabel = nTrack?.label
-		;
-
-		// No such track set
-		if( !nTrack )
-			return;
-
-		// Same track is already playing
-		if( curLabel === nLabel )
-			return;
-
-		this.musicActiveTrack = track;
-		this.musicActiveLabel = nTrack.label;
-
-		let timeOffs = 0;
-		if( curTrack ){
+		for( let i in this.musicTracks ){
 			
-			let minIntroTime = nTrack.getIntroStartTime();
-			const isFade = fadeMethod === 'fade';
-			if( isFade )
-				minIntroTime = 10.0;
-			timeOffs = curTrack.stop(fadeMethod, minIntroTime, false, true)-minIntroTime;
-			if( isFade )
-				timeOffs = this.getCurrentTime()+2;
+			if( this.musicTracks[i]?.label === obj[i] )
+				continue;
+			
+			if( obj[i] )
+				this.attachMusic(i, glib.get(obj[i], 'AudioMusic'));
+			else
+				this.musicTracks[i] = null;
 
 		}
-		nTrack.play(timeOffs);
+
+		this.playHighestPriority();
+
+	}
+
+	stopMusic( fadeMethod = '' ){
+		return this.setActiveMusicTrack('', fadeMethod);		
+	}
+
+	// Checks the highest priority music and plays it unless it's already playing
+	playHighestPriority(){
+		
+		let trackToPlay = '';
+		for( let type of Audio.TrackOrder ){
+
+			if( !this.musicTracks[type] )
+				continue;
+			if( !this.combat && Audio.TrackCombat.includes(type) )
+				continue;
+			
+			trackToPlay = type;
+			break;
+
+		}
+
+		this.setActiveMusicTrack(trackToPlay);
+
+	}
+
+	// Gets label of active track. Note that it may just be queued into a transition.
+	getActiveTrackLabel(){
+		return this.musicTracks[this.musicActiveTrack]?._label;
+	}
+
+	// empty fade method uses bar by default unless the AudioMusic object has fade set to a time in MS
+	async setActiveMusicTrack( track = '', fadeMethod = '' ){
+
+		this.musicActiveTrack = track; // Set up here so we can compare it later, but activeObj is set once it loads
+
+		const curLabel = this.musicActiveObj?.label;
+
+		// This track is already playing
+		if( curLabel === this.musicTracks[track]?._label )
+			return;
+
+		// Wait for the track to load
+		const nTrackPromise = this.musicTracks[track]; // This is a promise that resolves to the AudioMusic object
+		const nTrack = await nTrackPromise;
+
+		// The currently playing music has changed while we were loading
+		if( nTrackPromise?._label !== this.getActiveTrackLabel() )
+			return;
+
+		// Stop the previous track if it exists
+		let timeOffs = 0;
+		if( this.musicActiveObj ){
+			
+			let minIntroTime = nTrack?.getIntroStartTime() || 0;
+			let ft = parseInt(nTrack?.fade);
+			if( this.musicActiveObj.fade_out )
+				ft = this.musicActiveObj.fade_out; // Fade out settings takes priority
+
+			// If fadeMethod is empty and the incoming track has fade set, we force fade
+			if( !fadeMethod && ft )
+				fadeMethod = 'fade';
+			const isFade = fadeMethod === 'fade';
+			if( isFade )
+				minIntroTime = ft/1000 || 10.0;
+			timeOffs = this.musicActiveObj.stop(fadeMethod, minIntroTime, false, true)-minIntroTime;
+			if( isFade )
+				timeOffs = this.getCurrentTime(); // start the new sound immediately
+
+		}
+
+		// a 0 timeoffs occurs when we stop a track that hasn't started, in that case we'll use the previously set entry time
+		// This isn't graceful. Should probably rewrite this to keep the previous playing one until the new one starts....
+		if( timeOffs > 0 )
+			this._nextStart = timeOffs;
+		// Also not graceful. But if the stopping point is in the past, we'll need to set it to NOW
+		if( this.getCurrentTime() > this._nextStart ){
+			this._nextStart = this.getCurrentTime();
+		}
+
+		if( nTrack ){
+			//console.log("startingin", this._nextStart-this.getCurrentTime());
+			nTrack.play(this._nextStart || this.getCurrentTime());
+		}
+		
+		this.musicActiveObj = nTrack;
+
 
 	}
 
@@ -614,6 +691,8 @@ class AudioMusic extends Generic{
 		
 		this.bpm = 0;
 		this.vol = 0.5;
+		this.fade = 0;					// When set to a time in MS, we'll perform a simple fade, and start this track immediately 
+		this.fade_out = 0;				// When set to a time in MS, we'll perform a simple fade. Take priority over the incoming track's fade
 
 		this.intro = '';
 		this.intro_point = 1;			// nr of bars when the intro "hits"
@@ -648,7 +727,6 @@ class AudioMusic extends Generic{
 		this.load(data);
 	}
 
-	
 	save( full ){
 		const out = {
 			label : this.label,
@@ -663,12 +741,22 @@ class AudioMusic extends Generic{
 			out : this.out,
 			outro : this.outro,
 			outro_point : this.outro_point,
+			fade : this.fade,
+			fade_out : this.fade_out,
+			transition_points : this.transition_points,
 		};
 		if( full ){
 		}
 		return out;
 	}
 
+
+	rebase(){
+		this.g_rebase();	// Super
+	}
+
+	
+	
 	getMaster(){
 		return this.parent.getMaster();
 	}
@@ -679,7 +767,6 @@ class AudioMusic extends Generic{
 
 	// Frees up memory
 	deactivate(){
-		console.log("Deactivating");
 		this.reset();
 		this._buf_loop = this._buf_intro = this._buf_outro = this._snd_loop = this._snd_intro = this._snd_outro = null;
 	}
@@ -687,16 +774,6 @@ class AudioMusic extends Generic{
 	async activate( channel ){
 
 		this.parent = channel;
-
-		// Create gain and hook it up to the music channel
-		if( !this._gain_intro ){
-			this._gain_intro = this.getMaster().createGain();
-			this._gain_intro.connect(this.parent.dry);
-			this._gain_outro = this.getMaster().createGain();
-			this._gain_outro.connect(this.parent.dry);
-			this._gain_loop = this.getMaster().createGain();
-			this._gain_loop.connect(this.parent.dry);
-		}
 
 		const promises = [];
 		if( !this._buf_loop )
@@ -708,6 +785,8 @@ class AudioMusic extends Generic{
 		
 		// Wait for buffers to load
 		await Promise.all(promises);
+
+		return this;
 
 	}
 
@@ -752,7 +831,7 @@ class AudioMusic extends Generic{
 
 		}
 
-		//console.log("Next transition point in: ", nearest, "seconds, bar #", nearestT, "delta", delta, curTime, this._started);
+		//console.debug("Next transition point in: ", nearest, "seconds, bar #", nearestT, "delta", delta, curTime, this._started);
 
 		return nearest+curTime;
 
@@ -776,20 +855,26 @@ class AudioMusic extends Generic{
 			loopDur = loopOutPoint-loopInPoint,
 			stOffs = this._started+loopInPoint, // Makes the first trigger negative, allowing it to play immediately
 			delta = time-stOffs,
-			curLoops = Math.floor(delta/loopDur),
-			nextStart = (curLoops+1)*loopDur-loopInPoint+stOffs,
-			nextTimer = nextStart+loopDur-time-0.8
+			curLoops = Math.floor(delta/loopDur)
 		;
+
+		let nextStart = (curLoops+1)*loopDur-loopInPoint+stOffs;
+		let nextTimer = nextStart+loopDur-time-0.8;
+
 
 		// We stop here. 0.1 is a failsafe for float issues
 		if( this._stopped && nextStart+0.1 > this._stopped )
 			return;
 
-		const mainLoop = this.getMaster().createBufferSource();
-		mainLoop.buffer = this._buf_loop;
-		mainLoop.connect(this._gain_loop);
-		mainLoop.start(nextStart);
-		this._snd_loop = mainLoop;
+		// we start playing at -1
+		if( curLoops > -2 ){
+			const mainLoop = this.getMaster().createBufferSource();
+			mainLoop.buffer = this._buf_loop;
+			mainLoop.connect(this._gain_loop);
+			mainLoop.start(nextStart);
+			this._snd_loop = mainLoop;
+		}
+		clearTimeout(this._loopTimer);
 		this._loopTimer = setTimeout(() => this.scheduleLoop(), nextTimer*1000);
 
 	}
@@ -802,6 +887,15 @@ class AudioMusic extends Generic{
 	stop( stopType = '', fade = 0, deactivateOnComplete = false, ignoreOutro = false ){
 		
 		const time = this.getCurrentTime();
+		// This was scheduled but didn't play anything yet. We can yeet it immediately
+		if( time < this._started ){
+			this._snd_intro?.stop(time);
+			this._snd_loop?.stop(time);
+			this._snd_outro?.stop(time);
+			this.reset();
+			return 0;
+		}
+
 		let stopTime = time;
 		fade = +fade || 0;
 		let deactivateTimeout = 0;
@@ -862,7 +956,6 @@ class AudioMusic extends Generic{
 
 		}
 
-		
 		this._stopped = stopTime;
 		return stopTime;
 
@@ -870,21 +963,24 @@ class AudioMusic extends Generic{
 
 	// Stops all sounds and resets all settings
 	reset(){
-		const time = this.getCurrentTime();
-		this._stopped = false;
 		clearTimeout(this._loopTimer);
 		clearTimeout(this._cleanupTimer);
 		clearTimeout(this._deactivateTimeout);
 		clearTimeout(this._cleanupTimer);
-		this._snd_loop?.stop(time);
-		this._snd_intro?.stop(time);
-		this._snd_outro?.stop(time);
-		this._gain_intro.gain.setValueAtTime(this.vol, time);
-		this._gain_loop.gain.setValueAtTime(this.vol, time);
-		this._gain_outro.gain.setValueAtTime(this.vol, time);
 	}
 
 	play( startTime ){
+
+		const master = this.getMaster();
+		// Create new connections each time we play
+		this._gain_intro = master.createGain();
+		this._gain_intro.connect(this.parent.dry);
+		this._gain_outro = master.createGain();
+		this._gain_outro.connect(this.parent.dry);
+		this._gain_loop = master.createGain();
+		this._gain_loop.connect(this.parent.dry);
+
+		this._stopped = 0;
 
 		const time = this.getCurrentTime();
 		this.reset();
@@ -895,7 +991,6 @@ class AudioMusic extends Generic{
 		else
 			startTime = startTime-time;
 
-		const master = this.getMaster();
 
 		this._started = time+startTime;
 
@@ -910,6 +1005,8 @@ class AudioMusic extends Generic{
 			//console.log("Starting", this.label, "at", time+startTime);
 
 		}
+
+		//console.log("Play triggered on", this.label, "start time in", this._started-time, "startTime", startTime);
 
 		this.scheduleLoop();
 
@@ -932,10 +1029,7 @@ class AudioMusic extends Generic{
 		this.g_autoload(data);
 	}
 
-	rebase(){
-		this.g_rebase();	// Super
-	}
-
+	
 
 	// Gets time of one bar
 	getBarTime(){
@@ -975,11 +1069,10 @@ class AudioMusic extends Generic{
 
 // Debug
 
-let testAudioChannel;
+
 let lastChannel = false;
 window.testAudio = async soundKit => {
-	if( !testAudioChannel )
-		testAudioChannel = new Audio('test', false);
+	window.setupTestAudio();
 	
 	let kit = glib.get(soundKit, 'AudioMusic');
 	if( !window.game ){
@@ -995,13 +1088,20 @@ window.testAudio = async soundKit => {
 	if( lastChannel )
 		ch = Audio.Tracks.combat;
 	
-	await testAudioChannel.attachMusic(ch, kit);
-	testAudioChannel.setActiveMusicTrack(ch);
-	window.testMusic = testAudioChannel;
+	await window.testMusic.attachMusic(ch, kit);
+	window.testMusic.setActiveMusicTrack(ch);
 	
-	console.log("Type testMusic into the console to access the music channel object");
+	
+	
 
 };
+
+window.setupTestAudio = function(){
+	if( window.testMusic )
+		return;
+	window.testMusic = new Audio('test', false);
+	console.log("Type testMusic into the console to access the music channel object");
+}
 
 
 export {AudioSound, AudioKit, AudioMusic};

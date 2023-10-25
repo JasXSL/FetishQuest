@@ -1091,7 +1091,9 @@ class WebGL{
 			}
 		});
 
-		let start = dice.rotation.toVector3();
+		console.log(dice.rotation);
+		let start = new THREE.Vector3();
+		start.setFromEuler(dice.rotation);
 		let dir = new THREE.Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);
 		dir['xyz'.charAt(Math.floor(Math.random()*3))] = 0;
 		dir = dir.normalize().multiplyScalar(Math.PI*2);
@@ -1113,8 +1115,8 @@ class WebGL{
 		
 		dice.userData?.rotationTween?.stop();
 		dice.userData?.returnTween?.stop();
-		const start = dice.rotation.toVector3();
-		const end = dice.userData.startRot.toVector3();
+		const start = new THREE.Vector3().setFromEuler(dice.rotation);
+		const end = new THREE.Vector3().setFromEuler(dice.userData.startRot);
 		dice.userData.returnTween = new TWEEN.Tween(start)
 			.to(end, 400)
 			.easing(TWEEN.Easing.Bounce.Out)

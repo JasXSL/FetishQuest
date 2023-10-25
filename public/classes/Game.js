@@ -127,9 +127,14 @@ export default class Game extends Generic{
 		this.ui.destructor();
 		Game.net.destructor();
 		this.renderer.destructor();
-		this.setMusic();
 		this.setAmbient();
 		this.setRainSound();
+		this.audio_ambient.destructor();
+		this.audio_music.destructor();
+		this.audio_fx.destructor();
+		this.audio_ui.destructor();
+		this.audio_voice.destructor();
+		Audio.reset();
 		GameEvent.reset();
 
 	}
@@ -378,19 +383,15 @@ export default class Game extends Generic{
 	// Std load
 	async load( data ){
 
-		console.log("Loading game");
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 
 		this.audio_fx = new Audio("fx");
 		this.audio_ambient = new Audio('ambient', false);
-		this.audio_music = new Audio('music', false);
+		this.audio_music = new Audio('music', false, 0.15);
 		this.audio_ui = new Audio('ui', true);
 		this.audio_voice = new Audio('voice', true);
 		
 		this.g_autoload(data);
-		console.log("Game save loaded");
-
-		
 
 		// Custom ad-hoc libraries do not need to be rebased
 		for( let i in this.libAsset )
@@ -451,6 +452,7 @@ export default class Game extends Generic{
 		this.encounter.onPlacedInWorld( false );	// Sets up event bindings and such
 
 		this.refreshPlayerVisibility();
+		this.refreshMusic();
 		console.log("Game loaded");
 
 	}
@@ -790,6 +792,7 @@ export default class Game extends Generic{
 			target :game.getMyActivePlayer(),
 		}).raise();
 		this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);
+		this.refreshMusic();
 
 	}
 	// Draw quest completed message
@@ -1325,19 +1328,25 @@ export default class Game extends Generic{
 		return +localStorage.masterVolume || 0;
 	}
 	// Supply falsy url to fade out
-	async setMusic( url, volume = 1.0, loop = false ){
+	async refreshMusic(){
 
-		if( this.active_music )
-			this.active_music.stop(3000);
-		if( !url )
-			return;
+		// figure out what music should be played
+		const obj = {
+			[Audio.Tracks.ambient] : this.dungeon.music,
+			[Audio.Tracks.combat] : this.dungeon.music_combat,
+			[Audio.Tracks.encounter] : this.encounter.music,
+			[Audio.Tracks.encounterCombat] : this.encounter.music_combat,
+			[Audio.Tracks.rp] : this.roleplay?.music,
+		};
+		this.audio_music.setCombat(this.battle_active, false);
 		
-		this.active_music_file = url;
-		let song = await this.audio_music.play( url, volume, loop );
-		if( url !== this.active_music_file )
-			song.stop(0);
-		else
-			this.active_music = song;
+		// Makes it easier if music refreshes are triggered rapidly
+		clearTimeout(this._musicChange);
+		this._musicChange = setTimeout(() => {
+			this.audio_music.setMusic(obj);
+			//console.log("Setting music", obj);
+		}, 10);
+		
 	}
 	// Unlike music, ambiance won't restart if you supply a url that's already playing
 	async setAmbient( url, volume = 1.0, loop = true ){
@@ -2620,6 +2629,8 @@ export default class Game extends Generic{
 		if( encounter.isEvt )
 			this.encounter.setCompleted(true);
 
+		this.refreshMusic();
+
 		// Purge is needed after each overwrite
 		this.save();
 		this.ui.draw();
@@ -2710,7 +2721,7 @@ export default class Game extends Generic{
 		//log.log('Tail B');
 
 		this.renderer.onBattleStateChange();
-
+		this.refreshMusic();
 		//log.log('Tail C');
 
 
@@ -3135,6 +3146,7 @@ export default class Game extends Generic{
 			this.ui.toggle(true);
 
 		this.save();
+		this.refreshMusic();
 
 	}
 

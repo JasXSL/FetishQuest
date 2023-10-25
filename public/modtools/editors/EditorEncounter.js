@@ -1,7 +1,5 @@
 import HelperAsset from './HelperAsset.js';
-import HelperTags from './HelperTags.js';
-import { Effect, Wrapper } from '../../classes/EffectSys.js';
-import GameEvent from '../../classes/GameEvent.js';
+import * as EditorAudioMusic from './EditorAudioMusic.js';
 import Encounter from '../../classes/Encounter.js';
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorEncounterEvent from './EditorEncounterEvent.js';
@@ -42,6 +40,9 @@ export function asset(){
 		html += '<label title="Lets you increase or decrease difficulty, 1 = 100% more difficult">Difficulty Adjust: <input type="number" step=0.01 min=-0.95 name="difficulty_adjust" class="saveable" value="'+esc(dummy.difficulty_adjust)+'" /></label>';
 	html += '</div>';
 
+	html += '<span title="">Ambient Music:</span> <div class="music"></div>';
+	html += '<span title="">Combat Music:</span> <div class="music_combat"></div>';
+
 
 	html += '<span title="Players that MUST be in this event. If difficulty is not satisfied on start, it can add additional players from player_templates below">Players: </span><div class="players"></div>';
 	html += '<span>Player Templates: </span><div class="player_templates"></div>';
@@ -75,6 +76,8 @@ export function asset(){
 	this.dom.querySelector("div.wrappers").appendChild(EditorWrapper.assetTable(this, asset, "wrappers"));
 	this.dom.querySelector("div.player_templates").appendChild(EditorPlayerTemplate.assetTable(this, asset, "player_templates"));
 	this.dom.querySelector("div.players").appendChild(EditorPlayer.assetTable(this, asset, "players"));
+	this.dom.querySelector("div.music").appendChild(EditorAudioMusic.assetTable(this, asset, "music", true));
+	this.dom.querySelector("div.music_combat").appendChild(EditorAudioMusic.assetTable(this, asset, "music_combat", true));
 
 	// Handle collection with multiple assets
 	this.dom.querySelectorAll("div.player_conditions > div[data-label]").forEach(el => {
@@ -84,6 +87,7 @@ export function asset(){
 
 	});
 
+	
 
 	HelperAsset.autoBind( this, asset, DB);
 
@@ -141,6 +145,14 @@ export function help(){
 			'<td>Difficulty Adjust</td>'+
 			'<td>Increase or decrease difficulty. 0.5 = half difficulty, 1.0 = double, 0 = normal.</td>'+
 		'</tr>'+
+		'<tr>'+
+			'<td>Ambient Music</td>'+
+			'<td>Overrides the dungeon ambient music.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Combat Music</td>'+
+			'<td>Overrides the dungeon combat music.</td>'+
+		'</tr>'+	
 		'<tr>'+
 			'<td>Players</td>'+
 			'<td>Players that should be in the encounter. These are always added.</td>'+

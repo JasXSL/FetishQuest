@@ -7,6 +7,7 @@ import * as EditorRoleplayStage from './EditorRoleplayStage.js';
 import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import * as EditorRoleplayStageOptionGoto from './EditorRoleplayStageOptionGoto.js';
 import * as EditorGraph from './EditorGraph.js';
+import * as EditorAudioMusic from './EditorAudioMusic.js';
 
 import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
@@ -254,6 +255,7 @@ export function asset(){
 		html += '<label title="">Auto Play Once (req auto play) <input type="checkbox" class="saveable" name="apOnce" '+(dummy.apOnce ? 'checked' : '')+' /></label>';
 		html += '<label title="Makes RP vars save when you exit the RP, and they can be used in formulas. See cheat sheet.">rpVars persistent <input type="checkbox" class="saveable" name="vars_persistent" '+(dummy.vars_persistent ? 'checked' : '')+' /></label>';
 	html += '</div>';
+	html += '<span title="">Music:</span> <div class="music"></div>';
 
 	html += '<label title="Player in encounter to tie it to">Player: </label><div class="player"></div>';
 
@@ -261,6 +263,7 @@ export function asset(){
 
 	html += '<input type="button" value="Outliner" class="rpNodeEditor" /><br />';
 
+	
 
 	// Conditions
 	html += 'Conditions: <div class="conditions"></div>';
@@ -294,6 +297,7 @@ export function asset(){
 	this.dom.querySelector("div.player").appendChild(EditorPlayer.assetTable(this, asset, "player", true));
 	this.dom.querySelector("div.gameActions").appendChild(EditorGameAction.assetTable(this, asset, "gameActions", false));
 	this.dom.querySelector("div.closeActions").appendChild(EditorGameAction.assetTable(this, asset, "closeActions", false));
+	this.dom.querySelector("div.music").appendChild(EditorAudioMusic.assetTable(this, asset, "music", true));
 	this.dom.querySelector("input.rpNodeEditor").onclick = () => {
 		window.mod.buildNodeEditor(
 			this.id,
@@ -380,6 +384,10 @@ export function help(){
 		'<tr>'+
 			'<td>Auto Play</td>'+
 			'<td>Automatically play the RP (used when tying the RP to an encounter).</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Music</td>'+
+			'<td>Sets a musical score to play while this RP is active.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Player</td>'+

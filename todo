@@ -9,10 +9,37 @@ x Add game actions to run when a story starts
 Bugs:
 t Brutus is visible but not veroniquette when entering her inn during the quest
 t Fox very painful not working? Need testing.
-- Sometimes the hand icon shows up incorrectly when hovering over items
 x Could the loading be made faster by only loading in unique items and ONE of the max item needed in each cell. Then moving the items around and rescaling etc when changing cell?
 x Overhaul audio system
+- Sometimes the hand icon shows up incorrectly when hovering over items
 - Music
+	- See audio.js todo
+	- General theme tracks:
+		- Forest: [DONE]
+		- Port: Something sailor-y
+		- Cave: Something with lots of echo and reverb. Plucks.
+		- Demons: ???
+		- Skeletal: Xylophones and Trombones
+		- Village: Something relaxed and fairly happy
+		- Inn: Something upbeat
+		- Holy: Organs and choir?
+		- Sewers: ???
+		- Bog: Banjo and washboard?
+		- Upperclass: harpsichord and violins
+		- Spooky: Something spooky for portswood west and the haunted house. Something 
+		- Underwater: Rhodes?
+		- Farm: Acoustic guitar? Something with country elements.
+	- Special occasion tracks
+		- Yuug city: Something regal, lots of brass. No combat theme needed.
+		- Tentacle wrestling: Definitely needs electric guitars
+		- A theme for Chad? Maybe something inspired by that one aerobics theme.
+		- Main theme for the main menu?
+	- Needed cues:
+		- Battle won
+		- Battle lost
+		- Sleep
+
+
 
 Minor Features:
 - Should be able to have a stack syntax somewhere in descriptions, like %%10 to multiply 10 against stacks
