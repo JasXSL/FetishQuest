@@ -32,16 +32,18 @@ export function asset(){
 
 		html += '<label>Track Name <input type="text" class="saveable" name="name" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label>Author <input type="text" class="saveable" name="author" value="'+esc(dummy.author)+'" /></label>';
+		html += '<label title="URL to a full render of the song for players to download, such as soundcloud">Download Link <input type="text" class="saveable" name="dl" value="'+esc(dummy.dl)+'" /></label>';
 		html += '<label>Volume <input type="number" min=0 max=1 step=0.01 class="saveable" name="vol" value="'+(+dummy.vol || 0)+'" /></label>';
 		html += '<label>BPM <input type="number" min=10 max=300 step=1 class="saveable redraw" name="bpm" value="'+(+dummy.bpm || 0)+'" /></label>';
 		html += '<label title="Use simple crossfade when swapping TO this track. This is the fade time in milliseconds.">Simple Fade In <input type="number" min=0 step=1 class="saveable" name="fade" value="'+(parseInt(dummy.fade) || 0)+'" /></label>';
 		html += '<label title="Use simple crossfade when swapping FROM this track. This is the fade time in milliseconds. Overrides any IN fade set.">Simple Fade Out <input type="number" min=0 step=1 class="saveable" name="fade_out" value="'+(parseInt(dummy.fade_out) || 0)+'" /></label>';
 		
 	html += '</div><div class="labelFlex">';	
-
+	
 		html += '<label>Loop URL <input type="text" class="saveable redraw" name="loop" value="'+esc(dummy.loop)+'" /></label>';
 		html += '<label title="Bars">In: <input type="number" min=-1 step=1 class="saveable redraw" name="in" value="'+(parseInt(dummy.in) || 0)+'" /></label><br />';
 		html += '<label title="Bars">Out: <input type="number" min=-1 step=1 class="saveable redraw" name="out" value="'+(parseInt(dummy.out) || 0)+'" /></label><br />';
+	
 	html += '</div><div class="labelFlex">';	
 		
 		html += '<label>Transition Points: <div class="transitionPoints"></div><input type="button" class="addTransitionPoint" value="+ Add" /></label>';

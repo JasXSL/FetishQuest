@@ -817,9 +817,10 @@ export default class StaticModal{
 					<strong>Main Volume:</strong> <input type="range" min=0 max=100 step=1 name="masterSoundVolume" /><br />
 					Ambient: <input type="range" min=0 max=100 step=1 name="ambientSoundVolume" />
 					Voice: <input type="range" min=0 max=100 step=1 name="voiceSoundVolume" />
-					Music: <input type="range" min=0 max=100 step=1 name="musicSoundVolume" /><br />
 					FX: <input type="range" min=0 max=100 step=1 name="fxSoundVolume" />
 					UI: <input type="range" min=0 max=100 step=1 name="uiSoundVolume" /><br />
+					Music: <input type="range" min=0 max=100 step=1 name="musicSoundVolume" /><br />
+					<div class="nowPlaying"></div>
 				`;
 			})
 			.addTab("Online", () => {
@@ -870,6 +871,11 @@ export default class StaticModal{
 					enableAI : $("div[data-action=enableAI]", this.getTabDom("Video"))
 				};
 
+				const audio = this.getTabDom('Audio')[0];
+				this.audio = {
+					nowPlaying : audio.querySelector('div.nowPlaying')
+				};
+				
 				const netgame = this.getTabDom("Online")[0];
 				this.netgame = {
 					connected : netgame.querySelector('div.connected'),
@@ -1040,6 +1046,8 @@ export default class StaticModal{
 				for( let i of genderInputs )
 					i.addEventListener('change', onGenderInputChanged);
 
+				
+
 			})
 			.setDraw(function(){
 
@@ -1109,6 +1117,8 @@ export default class StaticModal{
 				this.netgame.disconnected.classList.toggle('hidden', isConnected);
 				this.netgame.connected.classList.toggle('hidden', !isConnected);
 				
+				
+				
 
 				// First load
 				if( !this.drawn ){
@@ -1138,10 +1148,25 @@ export default class StaticModal{
 						this.refresh();
 					});
 
+					const drawMusic = () => {
+						const track = game.audio_music.musicActiveObj;
+						const text = 'Now playing "'+track.name+"\" by "+track.author+'.';
+						const a = document.createElement('a');
+						a.href = track.dl || track.loop;
+						a.target = '_blank';
+						a.classList.add("button");
+						a.innerText = text;
+						this.audio.nowPlaying.replaceChildren(a);
+					};
+					game.audio_music.bindMusicChanged( drawMusic );
+					drawMusic();
+
 				}
 
 				this.toggleTab('DM', game.is_host);
 
+
+				
 
 			});
 		

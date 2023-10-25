@@ -2,14 +2,6 @@ import Condition from "./Condition.js";
 import stdTag from "../libraries/stdTag.js";
 import Generic from "./helpers/Generic.js";
 
-/*
-	Todo: 
-	- Need a way to duck away music while specific UI cues are playing, such as sleeping or victory/loss
-	- Settings should show the currently playing song
-
-*/
-
-
 // Audio channel
 class Audio{
 
@@ -109,8 +101,8 @@ class Audio{
 	}
 
 	// A channel has 2 paths to masterGain:
-	// src -> (gain)dry -> (gain)gain -> (lowpass)lowpass -> master
-	// src -> (gain)reverbInput -> (reverb)reverb -> (gain)reverbSpecificGain -> (gaint)wet -> (gain)gain -> (lowpass)lowpass -> master
+	// src -> (gain)dry -> (gain)gain -> (lowpass)lowpass -> (gain)duck -> master
+	// src -> (gain)reverbInput -> (reverb)reverb -> (gain)reverbSpecificGain -> (gaint)wet -> (gain)gain -> (lowpass)lowpass -> (gain)duck -> master
 	constructor( id, use3d = true, startVolume = 1.0 ){
 		
 		if( !Audio.begun )
@@ -121,6 +113,7 @@ class Audio{
 
 		// Channel gain
 		this.gain = master.createGain();
+		this.duckGain = master.createGain();
 
 		// Channel lowpass
 		this.lowpass = master.createBiquadFilter();
@@ -147,9 +140,14 @@ class Audio{
 		this.gain.connect(this.lowpass); // gain -> lowpass
 		this.gain._o = this.lowpass;
 		this.gain._n = 'ch_gain';
-		this.lowpass.connect(masterGain); // lowpass -> master
-		this.lowpass._o = masterGain;
+		
+		this.lowpass.connect(this.duckGain); // lowpass -> master
+		this.lowpass._o = this.duckGain;
 		this.lowpass._n = 'ch_lowpass';
+
+		this.duckGain.connect(masterGain);
+		this.lowpass._o = masterGain;
+		this.lowpass._n = 'ch_duckGain';
 
 		this.musicActiveTrack = '';
 		this.musicActiveObj = null;
@@ -186,6 +184,8 @@ class Audio{
 		if( !isNaN(localStorage[this.id+'Volume']) )
 			this.volume = localStorage[this.id+'Volume'];
 		this.setVolume(this.volume);
+
+		this._onTrackChanged = [];
 
 	}
 
@@ -278,6 +278,39 @@ class Audio{
 
 	getMaster(){
 		return Audio.master;
+	}
+
+	// Duck away this channel for this amount of ms
+	duck( duration = 5000, toVal = 0.2, fadeIn = 1000, fadeOut = 4000){
+
+		
+		this.#tweenDuck(toVal, fadeIn);
+		clearTimeout(this._duckTimer);
+		this._duckTimer = setTimeout(() => {
+			this.#tweenDuck(1.0, fadeOut);
+		}, duration);
+
+	}
+
+	bindMusicChanged( fn ){
+		if( typeof fn !== "function" || this._onTrackChanged.includes(fn) )
+			return;
+		this._onTrackChanged.push(fn);
+	}
+
+	unbindMusicChanged( fn ){
+		let pos = this._onTrackChanged.indexOf(fn);
+		if( pos === -1 )
+			return;
+		this._onTrackChanged.splice(pos, 1);
+	}
+
+	// Private method that tweens
+	#tweenDuck(toVal, time){
+		
+		const curTime = this.getCurrentTime();
+		this.duckGain.gain.setTargetAtTime(toVal, curTime, time/1000*2/10);
+		
 	}
 
 	getMastergain(){
@@ -402,7 +435,8 @@ class Audio{
 		}
 		
 		this.musicActiveObj = nTrack;
-
+		for( let fn of this._onTrackChanged )
+			fn(nTrack);
 
 	}
 
@@ -688,7 +722,8 @@ class AudioMusic extends Generic{
 		
 		this.name = '';
 		this.author = '';
-		
+		this.dl = '';					// Optional download link for the full song
+
 		this.bpm = 0;
 		this.vol = 0.5;
 		this.fade = 0;					// When set to a time in MS, we'll perform a simple fade, and start this track immediately 
@@ -730,6 +765,7 @@ class AudioMusic extends Generic{
 	save( full ){
 		const out = {
 			label : this.label,
+			dl : this.dl,
 			name : this.name,
 			author : this.author,
 			loop : this.loop,

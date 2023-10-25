@@ -955,6 +955,9 @@ div.scroll{
 	#settings{
 		min-width: 50%;
 	}
+	#settings div[data-id=Audio] input{
+		padding:0;
+	}
 
 	#settings input[type=checkbox]{
 		pointer-events: none;
@@ -975,6 +978,12 @@ div.scroll{
 	}
 	#settings div.connected.host > .hideIfNotHost{
 		display:block;
+	}
+	#settings div.nowPlaying{
+		text-align: center;
+	}
+	#settings div.nowPlaying a{
+		text-decoration: none;
 	}
 	
 
