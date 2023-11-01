@@ -44,7 +44,6 @@ class WebGL{
 			config = {};
 
 		const conf = {
-			aa : localStorage.aa === undefined ? true : Boolean(+localStorage.aa),
 			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows,
 			fps : localStorage.fps === undefined || !window.game ? false : Boolean(+localStorage.fps),
 		};
@@ -148,10 +147,9 @@ class WebGL{
 		this.toggleFPS(conf.fps);
 
 
-		this.renderer = new THREE.WebGLRenderer({
-			//antialias : conf.aa,
-			//logarithmicDepthBuffer: true
-		});
+		this.renderer = new THREE.WebGLRenderer({antialias:true});
+		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
 		
 		if( conf.shadows ){
 			this.renderer.shadowMap.enabled = true;
@@ -253,7 +251,7 @@ class WebGL{
 		this.scene.add( sunSphere );
 		this.sunSphere = sunSphere;
 		
-		this.ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.4);
+		this.ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.2);
 		this.scene.add(this.ambientLight);
 
 
@@ -288,16 +286,15 @@ class WebGL{
 		light.position.z = 1000;
 		light.castShadow = true;
 		this.dirLight = light;
-		this.dirLight.intensity = 1;
+		this.dirLight.intensity = Math.PI*2;
 		this.scene.add(light);
 
 
-		this.lightningLight = new THREE.AmbientLight(0xFFFFFF, 3.0);
+		this.lightningLight = new THREE.AmbientLight(0xFFFFFF, 3.0*Math.PI);
 		this.lightningLight.name = 'lightning';
 		this.lightningLight.visible = false;
 		this.scene.add(this.lightningLight);
 
-		/*
 		let helper = new THREE.DirectionalLightHelper(light, 1000);
 		//this.scene.add(helper);
 		this.dirLightHelper = helper;
@@ -313,7 +310,7 @@ class WebGL{
 		//Create a helper for the shadow camera (optional)
 		helper = new THREE.CameraHelper( light.shadow.camera );
 		//this.scene.add( helper );
-		*/
+
 
 		let bg = new THREE.Mesh(new THREE.PlaneGeometry(10000,10000), new THREE.MeshStandardMaterial({color:0x222222}));
 		bg.rotation.x = -Math.PI/2;
@@ -764,7 +761,10 @@ class WebGL{
 			this._last_rc = time;
 			this.raycaster.setFromCamera( this.mouse, this.camera );
 			
-			const meshes = this.stage.group.children.concat(this.playerMarkers.filter(el => el));
+			const meshes = 
+				this.stage.group.children.filter(el => !el.userData.dungeonAsset?.room)
+				.concat(this.playerMarkers.filter(el => el))
+			;
 			let objCache = [];
 
 			let intersects = this.raycaster.intersectObjects( meshes, true )

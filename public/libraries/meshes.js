@@ -46,6 +46,8 @@ import {SkeletonUtils} from '../ext/SkeletonUtils.js';
 import GameEvent from '../classes/GameEvent.js';
 import Game from '../classes/Game.js';
 
+const INTENSITY_MULTIPLIER = 20000; // THREE.js overhauled the lighting, now all lights need to be multiplied by this
+
 class LibMesh{
 	constructor(data){
 		this.isRoom = data.isRoom;					// Set to true if this is a base room mesh		
@@ -902,7 +904,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.2, intensity:1},500)
+								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1006,7 +1008,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.2, intensity:1},500)
+								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1108,7 +1110,7 @@ function build(){
 						.start();
 						mesh.userData.tweens.tween_mid = a;
 
-						let light = new THREE.SpotLight(0xCC00FF, 1, 5000, .75, 0.5);
+						let light = new THREE.SpotLight(0xCC00FF, 1*INTENSITY_MULTIPLIER, 5000, .75, 0.5);
 						let helper = new THREE.SpotLightHelper(light);
 						light.position.y = 1300;
 						mesh.add(light, light.target);
@@ -1695,7 +1697,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.25, intensity:1},500)
+								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1733,7 +1735,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.25, intensity:1},500)
+								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1958,7 +1960,7 @@ function build(){
 					tags : [stdTag.mEmitter, stdTag.mFire, stdTag.mCandle],
 					onFlatten : function(mesh){
 						let y = 200, z = -24;
-						let light = new THREE.PointLight(0xFFDDAA, 0.5, 300, 2);
+						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 300, 2);
 						light.position.y = y+10;
 						light.position.z = z;
 						mesh.add(light);
@@ -2010,7 +2012,7 @@ function build(){
 						libMat.Candle.Wick,
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.SpotLight(0xFFDDAA, 0.5, 300, 1.3, 0.1);
+						let light = new THREE.SpotLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 300, 1.3, 0.1);
 						let z = -16, y = 198;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2063,7 +2065,7 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.PointLight(0xFFDDAA, 0.5, 1600, 2);
+						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 1600, 2);
 						let z = -13, y = 180;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2127,7 +2129,7 @@ function build(){
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 3000, 2);
 						let z = 0, y = 30;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2197,7 +2199,7 @@ function build(){
 					],
 					onFlatten : function(mesh){
 
-						let light = new THREE.PointLight(0xFFCC77, 0.5, 1000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 1000, 2);
 						let z = 0, y = 30;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2259,7 +2261,7 @@ function build(){
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 3000, 2);
 						let z = -3, y = 20;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2328,7 +2330,7 @@ function build(){
 					],
 					onFlatten : function(mesh){
 
-						let light = new THREE.PointLight(0xFFCC77, 0.5, 3000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 3000, 2);
 						let z = -2, y = 30;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2390,7 +2392,7 @@ function build(){
 						mesh.rotation.x = -Math.PI/2;
 						mesh.name = 'HITBOX';
 
-						const light = new THREE.SpotLight(0xAADDFF, 2, 1000, 0.5, 0.5);
+						const light = new THREE.SpotLight(0xAADDFF, 2*INTENSITY_MULTIPLIER, 1000, 0.5, 0.5);
 
 						const group = new THREE.Group();
 						group.add(mesh, light, light.target);
@@ -2424,7 +2426,7 @@ function build(){
 									return;
 								
 								
-								const light = new THREE.PointLight(0x4080FF, 1.5, 200, 0.5);
+								const light = new THREE.PointLight(0x4080FF, 1.5*INTENSITY_MULTIPLIER, 200, 0.5);
 								el.userData.light = light;
 								el.add(light);
 								/*
@@ -2513,7 +2515,7 @@ function build(){
 
 					onFlatten : function(mesh){
 
-						let light = new THREE.PointLight(0xFFDDAA, 0.5, 600, 2);
+						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 600, 2);
 						light.position.y = 50;
 						mesh.add(light);
 

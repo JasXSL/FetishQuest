@@ -58,10 +58,11 @@ class LibMaterial{
 		
 	}
 
-	getTexture( input ){
+	getTexture( input, mapType ){
 
 		let texture = input;
 		let props = {};
+		// This is needed to prevent it from cloning texture data?
 		if( typeof texture === "object" ){
 
 			props = texture;
@@ -72,6 +73,8 @@ class LibMaterial{
 
 		let map = LibMaterial.texCache.fetch('media/textures/'+texture);
 		map.wrapS = map.wrapT = THREE.RepeatWrapping;
+		if( mapType === 'map' )
+			map.colorSpace = THREE.SRGBColorSpace;
 		for( let prop in props ){
 			map[prop] = props[prop];
 		}
@@ -123,7 +126,7 @@ class LibMaterial{
 			if( m === 'envMap' )
 				mat[m] = cur;
 			else
-				mat[m] = this.getTexture(cur);
+				mat[m] = this.getTexture(cur, m);
 			if( mat.userData.settings )
 				mat.userData.settings[m] = mat[m];
 

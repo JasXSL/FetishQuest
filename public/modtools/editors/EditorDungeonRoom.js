@@ -440,7 +440,7 @@ class Editor{
 				control.setSpace( control.space === "local" ? "world" : "local" );
 			else if( event.key === 'Control' ){
 				control.setTranslationSnap( 100 );
-				control.setRotationSnap( THREE.Math.degToRad( 15 ) );
+				control.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
 			}
 			else if( event.key === "Delete" ){
 				this.removeMesh(control.object);
