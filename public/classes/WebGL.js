@@ -26,6 +26,10 @@ import Player from './Player.js';
 import { DungeonRoomAsset, DungeonRoomMarker } from './Dungeon.js';
 import Stats from '../ext/stats.module.js';
 import Game from './Game.js';
+import {GammaCorrectionShader} from '../ext/GammaCorrectionShader.js';
+import { ACESFilmicToneMappingShader } from '../ext/ACESFilmicToneMappingShader.js';
+import { HueSaturationShader } from '../ext/HueSaturationShader.js';
+
 
 window.g_THREE = THREE;
 
@@ -44,7 +48,8 @@ class WebGL{
 			config = {};
 
 		const conf = {
-			shadows : localStorage.shadows === undefined ? false : +localStorage.shadows,
+			shadows : localStorage.shadows === undefined ? false : Boolean(+localStorage.shadows),
+			aa : localStorage.aa === undefined ? false : Boolean(+localStorage.aa),
 			fps : localStorage.fps === undefined || !window.game ? false : Boolean(+localStorage.fps),
 		};
 		
@@ -147,8 +152,9 @@ class WebGL{
 		this.toggleFPS(conf.fps);
 
 
-		this.renderer = new THREE.WebGLRenderer({antialias:true});
-		this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		this.renderer = new THREE.WebGLRenderer({});
+		this.renderer.toneMapping = THREE.LinearToneMapping;
+		this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
 		
 		if( conf.shadows ){
@@ -157,8 +163,11 @@ class WebGL{
 		}
 
 		// Effects
-		this.composer = new EffectComposer( this.renderer );
+		this.composer = new EffectComposer(this.renderer);
+
 		this.composer.addPass( new RenderPass(this.scene, this.camera) );
+		
+		// BLUR
 		this.hblur = new ShaderPass(HorizontalBlurShader);
 		this.hblur.uniforms.h.value = 0.0025;
 		this.composer.addPass( this.hblur );
@@ -166,17 +175,37 @@ class WebGL{
 		this.vblur.uniforms.v.value = 0.0025;
 		this.composer.addPass( this.vblur );
 
-		this.aa = new ShaderPass(FXAAShader); 
-		this.aa.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
-		this.aa.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
-		this.aa.enabled = conf.aa;
-		this.composer.addPass(this.aa);
 		
+		
+		// Red thingy when combat starts?
 		this.colorShader = new ShaderPass(ColorifyShader);
 		this.colorShader.uniforms.color.value = new THREE.Color(2,1,1);
 		this.colorShader.enabled = false;
 		this.composer.addPass(this.colorShader);
 		
+
+		
+
+		
+		this.hueSaturation = new ShaderPass(HueSaturationShader);
+		this.hueSaturation.uniforms.saturation.value = 0.3;
+		this.composer.addPass(this.hueSaturation);
+		
+
+		this.toneMapping = new ShaderPass(ACESFilmicToneMappingShader);
+		this.composer.addPass(this.toneMapping);
+
+		this.gammaCorrection = new ShaderPass(GammaCorrectionShader);
+		this.composer.addPass(this.gammaCorrection);
+
+		// Antialiasing
+		this.aa = new ShaderPass(FXAAShader); 
+		this.aa.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
+		this.aa.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
+		this.aa.enabled = conf.aa;
+		this.composer.addPass(this.aa);
+
+		// Copy pass
 		const copypass = new ShaderPass(CopyShader);
 		copypass.renderToScreen = true;
 		this.composer.addPass( copypass );
@@ -251,7 +280,8 @@ class WebGL{
 		this.scene.add( sunSphere );
 		this.sunSphere = sunSphere;
 		
-		this.ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.2);
+		this.ambientLight = new THREE.AmbientLight(0xFFFFFF);
+		this.ambientLight.intensity = 2.0;
 		this.scene.add(this.ambientLight);
 
 
@@ -286,7 +316,7 @@ class WebGL{
 		light.position.z = 1000;
 		light.castShadow = true;
 		this.dirLight = light;
-		this.dirLight.intensity = Math.PI*2;
+		this.dirLight.intensity = 4;
 		this.scene.add(light);
 
 
@@ -398,9 +428,9 @@ class WebGL{
 
 	}
 
-	updateSize(){
-		let width = Math.round(window.innerWidth*this.width),
-			height = Math.round(window.innerHeight*this.height);
+	updateSize( width, height ){
+		width = width || Math.round(window.innerWidth*this.width);
+		height = height || Math.round(window.innerHeight*this.height);
 		
 		this.renderer.setSize(width, height);
 		this.renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
@@ -414,7 +444,9 @@ class WebGL{
 		this.fxRenderer.setSize(width, height);
 		this.fxCam.aspect = width/height;
 		this.fxCam.updateProjectionMatrix();
-		//this.aa.uniforms.resolution.value.set(width, height)
+		this.aa.material.uniforms[ 'resolution' ].value.x = 1 / ( width * window.devicePixelRatio );
+		this.aa.material.uniforms[ 'resolution' ].value.y = 1 / ( height * window.devicePixelRatio );
+
 	}
 
 	toggleOutdoors( outdoors ){
@@ -505,8 +537,6 @@ class WebGL{
 		let rain = game.getRain();
 		if( !isNaN(force) )
 			rain = force;
-
-			
 		// No need to change
 		if( rain !== this.cache_rain || force ){
 
@@ -662,7 +692,7 @@ class WebGL{
 
 		
 		const rain = window.game ? game.getRain() : 0;
-		this.scene.fog.density = !rain ? this.stage.room.getFog() || 0.0002 : this.stage.room.getFog() + 0.0001+rain*0.0008;
+		this.scene.fog.density = !rain ? this.stage.room.getFog() || 0.0001 : this.stage.room.getFog() + 0.0001+rain*0.0008;
 		
 		if( this.stage.room.outdoors ){
 
@@ -832,7 +862,8 @@ class WebGL{
 		if( this.onRender )
 			this.onRender();
 
-		if( USE_FX && window.game )
+		
+		if( USE_FX )
 			this.composer.render();
 		else
 			this.renderer.render( this.scene, this.camera);

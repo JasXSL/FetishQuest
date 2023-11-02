@@ -165,6 +165,8 @@ export default class Modtools{
 			fullControls : true,
 			enableGrid : true
 		});
+		this.webgl.hblur.enabled = this.webgl.vblur.enabled = false;
+
 		const gl = this.webgl;
 		const control = new TransformControls( gl.camera, gl.renderer.domElement, () => {});
 		this.transformControls = control;

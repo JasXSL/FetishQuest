@@ -47,6 +47,7 @@ import GameEvent from '../classes/GameEvent.js';
 import Game from '../classes/Game.js';
 
 const INTENSITY_MULTIPLIER = 20000; // THREE.js overhauled the lighting, now all lights need to be multiplied by this
+const INTENSITY_MULTIPLIER_HALF_DECAY = 2000;
 
 class LibMesh{
 	constructor(data){
@@ -267,6 +268,8 @@ class LibMesh{
 
 			let mixer = new THREE.AnimationMixer(mesh);
 			mesh.userData.mixer = mixer;
+
+			mesh.traverse(el => el.frustumCulled = false);
 
 			// Enable animations
 			for( let anim of animations ){
@@ -1960,7 +1963,7 @@ function build(){
 					tags : [stdTag.mEmitter, stdTag.mFire, stdTag.mCandle],
 					onFlatten : function(mesh){
 						let y = 200, z = -24;
-						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 300, 2);
+						let light = new THREE.PointLight(0xFFDDAA, INTENSITY_MULTIPLIER_HALF_DECAY, 300, 1);
 						light.position.y = y+10;
 						light.position.z = z;
 						mesh.add(light);
@@ -2012,7 +2015,7 @@ function build(){
 						libMat.Candle.Wick,
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.SpotLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 300, 1.3, 0.1);
+						let light = new THREE.SpotLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 300, 1.3, 0.1, 1);
 						let z = -16, y = 198;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2065,7 +2068,7 @@ function build(){
 						libMat.Metal.DarkGeneric,
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER, 1600, 2);
+						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 1600, 1);
 						let z = -13, y = 180;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2129,7 +2132,7 @@ function build(){
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 3000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 3000, 1);
 						let z = 0, y = 30;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2199,7 +2202,7 @@ function build(){
 					],
 					onFlatten : function(mesh){
 
-						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 1000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 1000, 1);
 						let z = 0, y = 30;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2261,7 +2264,7 @@ function build(){
 						{url:'media/audio/fireplace.ogg', volume:0.1}
 					],
 					onFlatten : function(mesh){
-						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 3000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 3000, 1);
 						let z = -3, y = 20;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2330,7 +2333,7 @@ function build(){
 					],
 					onFlatten : function(mesh){
 
-						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER, 3000, 2);
+						let light = new THREE.PointLight(0xFFCC77, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 3000, 1);
 						let z = -2, y = 30;
 						light.position.z = z;
 						light.position.y = y+20;
@@ -2392,7 +2395,7 @@ function build(){
 						mesh.rotation.x = -Math.PI/2;
 						mesh.name = 'HITBOX';
 
-						const light = new THREE.SpotLight(0xAADDFF, 2*INTENSITY_MULTIPLIER, 1000, 0.5, 0.5);
+						const light = new THREE.SpotLight(0xAADDFF, 2*INTENSITY_MULTIPLIER_HALF_DECAY, 1000, 0.5, 0.5, 1);
 
 						const group = new THREE.Group();
 						group.add(mesh, light, light.target);
@@ -2426,7 +2429,7 @@ function build(){
 									return;
 								
 								
-								const light = new THREE.PointLight(0x4080FF, 1.5*INTENSITY_MULTIPLIER, 200, 0.5);
+								const light = new THREE.PointLight(0x66BBFF, INTENSITY_MULTIPLIER_HALF_DECAY, 500, 1.25);
 								el.userData.light = light;
 								el.add(light);
 								/*

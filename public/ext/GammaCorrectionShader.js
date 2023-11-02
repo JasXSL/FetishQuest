@@ -1,15 +1,15 @@
 /**
- * Full-screen textured quad shader
+ * Gamma Correction Shader
+ * http://en.wikipedia.org/wiki/gamma_correction
  */
 
-const CopyShader = {
+const GammaCorrectionShader = {
 
-	name: 'CopyShader',
+	name: 'GammaCorrectionShader',
 
 	uniforms: {
 
-		'tDiffuse': { value: null },
-		'opacity': { value: 1.0 }
+		'tDiffuse': { value: null }
 
 	},
 
@@ -26,20 +26,18 @@ const CopyShader = {
 
 	fragmentShader: /* glsl */`
 
-		uniform float opacity;
-
 		uniform sampler2D tDiffuse;
 
 		varying vec2 vUv;
 
 		void main() {
 
-			vec4 texel = texture2D( tDiffuse, vUv );
-			gl_FragColor = opacity * texel;
+			vec4 tex = texture2D( tDiffuse, vUv );
 
+			gl_FragColor = sRGBTransferOETF( tex );
 
 		}`
 
 };
 
-export { CopyShader };
+export { GammaCorrectionShader };

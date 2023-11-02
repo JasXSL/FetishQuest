@@ -557,13 +557,15 @@ class Editor{
 			gl.renderer.domElement.width  = width;
 			gl.renderer.domElement.height = height;
 
+			gl.updateSize(width, height);
+			/*
 			gl.renderer.setSize(width, height);
 			gl.renderer.setPixelRatio(window.devicePixelRatio ? window.devicePixelRatio : 1);
 			gl.composer.setSize(width, height);
 			
 			gl.camera.aspect = width / height;
 			gl.camera.updateProjectionMatrix();
-
+			*/
 			/*
 			gl.fxRenderer.setSize(width, height);
 			gl.fxCam.aspect = width/height;
@@ -576,11 +578,10 @@ class Editor{
 		// The DOM will be inaccurate without the delay because HTML
 		setTimeout(onResize, 1);
 		
-		gl.updateSize = onResize;
+		//gl.updateSize = onResize;
 		win.onResize = onResize;
 
 		this.draw();
-
 
 		// Mesh add selector
 		win.dom.querySelector('div.assetInserter > select').onchange = () => {
