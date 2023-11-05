@@ -67,6 +67,7 @@ class Dungeon extends Generic{
 		this.lowpass = 0;			// Lowpass filter. Lower value cuts off high frequencies. -1 uses from cell mesh
 		this.reverb = '';			// Reverb. Empty uses from cell mesh.
 		this.reverbWet = 0;			// Reverb mix. Between 0 (no reverb) and 1 (full). -1 uses from cell mesh
+		this.sat = 1.3;				// Base saturation for dungeon
 
 		this.music = '';			// label of an asset, never turned to an object
 		this.music_combat = '';		// label of an asset, never turned to an object
@@ -131,6 +132,7 @@ class Dungeon extends Generic{
 			reverbWet : this.reverbWet,
 			music : this.music,
 			music_combat : this.music_combat,
+			sat : this.sat,
 		};
 
 		// Full or mod
@@ -713,6 +715,7 @@ class DungeonRoom extends Generic{
 		this.reverb = '';			// Reverb sound. Empty uses parent.
 		this.reverbWet = 0;			// Intensity of reverb. 0 uses parent
 
+		this.sat = 0;				// Saturation for room. 0 = use parent
 		this.fog = 0;				// Lets you override the scene fog level
 		this.dirLight = '';			// can be a hex code if you want to override default #808080
 
@@ -751,6 +754,7 @@ class DungeonRoom extends Generic{
 			reverb : this.reverb,
 			reverbWet : this.reverbWet,
 			lowpass : this.lowpass,
+			sat : this.sat,
 		};
 
 		if( full ){
@@ -963,7 +967,11 @@ class DungeonRoom extends Generic{
 		return lp;
 
 	}
-
+	getSaturation(){
+		if( !this.sat )
+			return this.parent.sat;
+		return this.sat;
+	}
 
 	/* ROOM CONNECTIONS */
 	// Returns an array of [X,Y,Z] which is the offset from this bearing

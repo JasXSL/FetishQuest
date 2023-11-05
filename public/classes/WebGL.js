@@ -688,12 +688,15 @@ class WebGL{
 		
 	}
 
+	// Updates fog and saturation
 	updateFog( currentHour ){
 
 		
 		const rain = window.game ? game.getRain() : 0;
 		this.scene.fog.density = !rain ? this.stage.room.getFog() || 0.0001 : this.stage.room.getFog() + 0.0001+rain*0.0008;
 		
+		this.hueSaturation.uniforms.saturation.value = this.stage.room.getSaturation()-1.0;
+
 		if( this.stage.room.outdoors ){
 
 			let swatches = [

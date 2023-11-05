@@ -130,6 +130,7 @@ export function asset(){
 		html += '<label title="Set to -1 to use dungeon ambiance vol">Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=-1 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
 		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
+		html += '<label title="Use 0 to use dungeon default.">Saturation: <input type="number" name="sat" class="saveable" step=0.01 min=0 max=2 value="'+esc(dummy.sat)+'" /></label>';
 
 		html += '<label>Room Mesh: <select class="roomBaseAsset">';
 		LibMesh.iterate((mesh, path) => {
@@ -535,7 +536,13 @@ class Editor{
 		const fogOverride = win.dom.querySelector('input[name=fog]');
 		fogOverride.addEventListener('change', () => {
 			this.room.fog = +fogOverride.value || 0;
-			console.log(this.room.fog);
+			this.draw();
+		});
+
+
+		const saturation = win.dom.querySelector('input[name=sat]');
+		saturation.addEventListener('change', () => {
+			this.room.sat = +saturation.value || 0;
 			this.draw();
 		});
 

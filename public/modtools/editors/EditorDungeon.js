@@ -37,6 +37,7 @@ export function asset(){
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
 		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
 		html += '<label>Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=0 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
+		html += '<label>Saturation: <input type="number" name="sat" class="saveable" step=0.01 min=0 max=2 value="'+esc(dummy.sat)+'" /></label>';
 		
 		html += '<div class="labelFlex">';
 			html += '<label>Reverb type: <select name="reverb" class="saveable">'+
