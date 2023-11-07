@@ -25,6 +25,18 @@ class DungeonTemplate extends Generic{
 		this.levers = true;
 		this.randomEncounters = false;	// Pick encounters at random instead of picking one
 
+		this.dirLight = '';			// If a room doesn't have dirLight, it can use the dungeon one
+		this.fog = 0;				// If a room doesn't have fog, it can use from the dungeon instead
+		this.ambiance = 'media/audio/ambiance/dungeon.ogg';
+		this.ambiance_volume = 0.2;
+		this.lowpass = 0;			// Lowpass filter. Lower value cuts off high frequencies. -1 uses from cell mesh
+		this.reverb = '';			// Reverb. Empty uses from cell mesh.
+		this.reverbWet = 0;			// Reverb mix. Between 0 (no reverb) and 1 (full). -1 uses from cell mesh
+		this.sat = 1.3;				// Base saturation for dungeon
+
+		this.music = '';			// label of an asset, never turned to an object
+		this.music_combat = '';		// label of an asset, never turned to an object
+
 		this.load(...args);
 
 	}
@@ -36,6 +48,16 @@ class DungeonTemplate extends Generic{
 			rooms : DungeonTemplateSub.saveThese(this.rooms, full),
 			encounters : DungeonTemplateSub.saveThese(this.encounters, full),
 			randomEncounters : this.randomEncounters,
+			dirLight : this.dirLight,
+			fog : this.fog,
+			ambiance : this.ambiance,
+			ambiance_volume : this.ambiance_volume,
+			lowpass : this.lowpass,
+			reverb : this.reverb,
+			reverbWet : this.reverbWet,
+			music : this.music,
+			music_combat : this.music_combat,
+			sat : this.sat,
 		};
 
 		if( full === "mod" )

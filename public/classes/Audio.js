@@ -724,7 +724,7 @@ class AudioMusic extends Generic{
 		this.author = '';
 		this.dl = '';					// Optional download link for the full song
 
-		this.bpm = 0;
+		this.bpm = 100;
 		this.vol = 0.5;
 		this.fade = 0;					// When set to a time in MS, we'll perform a simple fade, and start this track immediately 
 		this.fade_out = 0;				// When set to a time in MS, we'll perform a simple fade. Take priority over the incoming track's fade

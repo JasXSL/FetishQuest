@@ -28,6 +28,7 @@ import Encounter from './Encounter.js';
 import Player from './Player.js';
 import Game from './Game.js';
 import Calculator from './Calculator.js';
+import DungeonTemplate from './templates/DungeonTemplate.js';
 
 const interact_cooldowns = {};	// id:true etc
 
@@ -969,7 +970,7 @@ class DungeonRoom extends Generic{
 	}
 	getSaturation(){
 		if( !this.sat )
-			return this.parent.sat;
+			return this.parent?.sat || 1.3;
 		return this.sat;
 	}
 
@@ -2381,8 +2382,7 @@ Dungeon.EVENT_CHANCE = 0.4;
 Dungeon.generate = function( numRooms, kit, settings ){
 
 
-
-	let out = new this(settings);
+	let out = new Dungeon(settings);
 	out.label = '_procedural_';
 	out.id = '_procedural_';		// Both need to be procedural
 	out.procedural = game.time || 1;
@@ -2398,7 +2398,7 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	kit.rebase();	// Kit isn't auto rebased, do it now
 
-	if( !kit )
+	if( !(kit instanceof DungeonTemplate) )
 		throw 'Kit not found';
 
 
@@ -2868,7 +2868,17 @@ Dungeon.generate = function( numRooms, kit, settings ){
 
 	}
 
-
+	// Copy environment settings
+	out.dirLight = kit.dirLight;
+	out.fog = kit.fog;
+	out.ambiance = kit.ambiance;
+	out.ambiance_volume = kit.ambiance_volume;
+	out.lowpass = kit.lowpass;					// Lowpass filter. Lower value cuts off high frequencies. -1 uses from cell mesh
+	out.reverb = kit.reverb;					// Reverb. Empty uses from cell mesh.
+	out.reverbWet = kit.reverbWet;				// Reverb mix. Between 0 (no reverb) and 1 (full). -1 uses from cell mesh
+	out.sat = kit.sat;							// Base saturation for dungeon
+	out.music = kit.music;						// label of an asset, never turned to an object
+	out.music_combat = kit.music_combat;		// label of an asset, never turned to an object
 
 	out.rebase();
 	console.log(out);

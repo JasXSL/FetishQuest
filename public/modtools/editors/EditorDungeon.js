@@ -33,12 +33,12 @@ export function asset(){
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" /></label>';
 		html += '<label title="-1 = auto">Difficulty: <input type="number" min=-1 step=0.01 name="difficulty" class="saveable" value="'+esc(dummy.difficulty)+'" /></label>';
 		html += '<label title="Doesn\'t draw the back icon on doors">Free roam <input type="checkbox" class="saveable" name="free_roam" '+(dummy.free_roam ? 'checked' : '')+' /></label><br />';
+		
 		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
 		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
 		html += '<label>Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=0 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
 		html += '<label>Saturation: <input type="number" name="sat" class="saveable" step=0.01 min=0 max=2 value="'+esc(dummy.sat)+'" /></label>';
-		
 		html += '<div class="labelFlex">';
 			html += '<label>Reverb type: <select name="reverb" class="saveable">'+
 				'<option value="none">None</option>'+
@@ -172,6 +172,8 @@ export function help(){
 		'<p>Lets you set a fog override value for all indoor cells. Try it in the dungeon room editor first, then copy the value over to here.</p>';	
 	out += '<h3>Ambient light:</h3>'+
 		'<p>Lets you override the default ambient light of 0x808080</p>';	
+	out += '<h3>Saturation:</h3>'+
+		'<p>Adjusts the saturation. 1 is default, 0 complete grayscale.</p>';	
 	
 
 	const url = 'https://'+window.location.hostname+'/media/audio/ambiance/';
