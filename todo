@@ -11,6 +11,9 @@ t Brutus is visible but not veroniquette when entering her inn during the quest
 t Fox very painful not working? Need testing.
 x Could the loading be made faster by only loading in unique items and ONE of the max item needed in each cell. Then moving the items around and rescaling etc when changing cell?
 x Overhaul audio system
+x Encountered a null encounter in the cave (caused by no valid expevt found)
+- NPCs should only reroll if they can't cast something while their energy is full
+- Ladders are too bright
 - Sometimes the hand icon shows up incorrectly when hovering over items
 - Music
 	- See audio.js todo

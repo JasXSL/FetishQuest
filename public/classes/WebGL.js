@@ -403,7 +403,7 @@ class WebGL{
 	destructor(){
 
 		$(window).off('resize');
-		this.stage.destructor();
+		this.stage?.destructor();
 		this.renderer.dispose();
 		
 

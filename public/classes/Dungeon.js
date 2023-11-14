@@ -905,7 +905,8 @@ class DungeonRoom extends Generic{
 		this.encounter = new Encounter({
 			id : Encounter.ENCOUNTER_UNDEFINED,
 			label : 'undefined',
-			desc : 'template'
+			desc : 'template',
+			friendly : true,
 		}, this)
 	}
 
@@ -1367,6 +1368,7 @@ class DungeonRoom extends Generic{
 			completed : true,
 			id : Encounter.ENCOUNTER_NONE,
 			label : 'no_viable',
+			friendly : true,
 		}, this);
 
 		// Exploration event GENERATION

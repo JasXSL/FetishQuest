@@ -1149,14 +1149,18 @@ export default class StaticModal{
 					});
 
 					const drawMusic = () => {
-						const track = game.audio_music.musicActiveObj;
-						const text = 'Now playing "'+track.name+"\" by "+track.author+'.';
-						const a = document.createElement('a');
-						a.href = track.dl || track.loop;
-						a.target = '_blank';
-						a.classList.add("button");
-						a.innerText = text;
-						this.audio.nowPlaying.replaceChildren(a);
+						if( game?.audio_music?.musicActiveObj ){
+							const track = game.audio_music.musicActiveObj;
+							const text = 'Now playing "'+track.name+"\" by "+track.author+'.';
+							const a = document.createElement('a');
+							a.href = track.dl || track.loop;
+							a.target = '_blank';
+							a.classList.add("button");
+							a.innerText = text;
+							this.audio.nowPlaying.replaceChildren(a);
+						}
+						else
+							this.audio.nowPlaying.replaceChildren();
 					};
 					game.audio_music.bindMusicChanged( drawMusic );
 					drawMusic();

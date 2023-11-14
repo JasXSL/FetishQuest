@@ -129,11 +129,11 @@ export default class Game extends Generic{
 		this.renderer.destructor();
 		this.setAmbient();
 		this.setRainSound();
-		this.audio_ambient.destructor();
-		this.audio_music.destructor();
-		this.audio_fx.destructor();
-		this.audio_ui.destructor();
-		this.audio_voice.destructor();
+		this.audio_ambient?.destructor();
+		this.audio_music?.destructor();
+		this.audio_fx?.destructor();
+		this.audio_ui?.destructor();
+		this.audio_voice?.destructor();
 		Audio.reset();
 		GameEvent.reset();
 
@@ -1306,7 +1306,7 @@ export default class Game extends Generic{
 
 		}
 		
-		return this.audio_ui.play( 'media/audio/ui/'+sound+'.ogg', volume, false, x, y );
+		return this.audio_ui?.play( 'media/audio/ui/'+sound+'.ogg', volume, false, x, y );
 
 	}
 
