@@ -1606,10 +1606,10 @@ export default class Modtools{
 				<li>TeamN: SET: Sets value on all players belonging to a team, such as Team0 for the player team. GET: Sums the value of all players on said team.</li>
 			</ul>`;
 			html += '<p>You can also set an rpVar to a string by starting the value with $$. Note that trying to use a string var in a formula will throw an error, as formulas only work on numbers. Use mathVarCompare conditions to compare string vars instead.</p>';
-			html += '<p>To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myEvent_myVar_Target0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.</p>';
+			html += '<p>To access a player specific mathvar, the syntax is @@path_to_mathvar_Target, ex @@rp_myRoleplay_myVar_Target0 to get the mathvar myVar from the roleplay myEvent, for the first player of the event.</p>';
 			html += '<p>As a shortcut you can use %rp in a mathvar to target the currently active RP. Useful if you want use a set of conds/gameActions in multiple RPs. Ex if you have an active rp labeled "clickCounter" and var "numClicks", %rp_numClicks is the same as typing rp_clickCounter_numClicks</p>';
 			html += '<p>You can use %d the same way for dungeon vars.</p>';
-			html += '<p>You can combine @@ and %rp/%d to target the currently active RP, ex @@%rp_Target0 instead of rp_myEvent_myVar_Target0.</p>';
+			html += '<p>You can combine @@ and %rp/%d to target the currently active RP, ex @@%rp_Target0 instead of rp_myRoleplay_myVar_Target0.</p>';
 			html += '<p>The following examples assumes a game with 3 players (pl0, pl1, pl2) and an RP/Dungeon with the var "i" set to {"pl0":1,"pl1":0,"pl2":5}</p>';
 			html += '<table>';
 				html += '<tr><th>Asset Type</th><th>Formula</th><th>Result</th><th>Explanation</th></tr>';

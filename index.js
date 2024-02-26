@@ -79,6 +79,7 @@ process.on('unhandledRejection', (reason, p) => {
 
 const textureDir = __dirname+'/public/media/textures';
 const ambianceDir = __dirname+'/public/media/audio/ambiance';
+Express.static.mime.define({'application/wasm' : ['wasm']});
 app.use('/modtools2.html', (req, res) => {
 	res.redirect('/modtools.html');
 });

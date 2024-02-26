@@ -73,10 +73,12 @@ class LibMesh{
 		this.door = data.door || LibMesh.DoorTypes.DOOR_NONE;	// used for the procedural generator to figure out where a door can go. Their placement rotation matters. Where 0 = north, pi/2 = west...
 		this.doorRotOffs = data.doorRotOffs || 0;									// Helper for above in order to show which direction is forward
 
-		// Used in room audio. Lets you tie audio properties to a room asset
+		// Used for room meshes. Lets you tie audio properties to a room asset
 		this.reverb = data.reverb || '';
 		this.reverbWet = +data.reverbWet || 0.0;
 		this.lowpass = data.lowpass || 1.0;
+
+		this.no_randomish = Boolean(data.no_randomish);		// Don't include in the add randomish devtool feature
 
 		// helper flags
 		this.want_actions = data.want_actions;	// Array of GameAction types that this asset wants. If not, it gets highlighted in the editor. Use sub arrays for OR
@@ -2898,7 +2900,8 @@ function build(){
 						libMat.Solids.GreenArrow
 					],
 					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
-					doorRotOffs : Math.PI/2
+					doorRotOffs : Math.PI/2,
+					no_randomish : true,
 				}),
 				WiggleTest : new LibMesh({
 					url : 'tests/wiggletest.glb',
@@ -2947,7 +2950,8 @@ function build(){
 						if( window.game )
 							mesh.visible = false;
 
-					}
+					},
+					no_randomish : true,
 				}),
 				Treasure : new LibMesh({
 					auto_bounding_box : true,
@@ -2957,6 +2961,7 @@ function build(){
 						libMat.Solids.GreenArrow,
 					],
 					tags : [stdTag.mTREASURE_MARKER],
+					no_randomish : true,
 				}),
 			},		
 		},
@@ -4134,11 +4139,65 @@ function build(){
 						new LibMeshAttachment({path:"Cave.Room.R8x6River", always:true, rotation:new THREE.Vector3(-Math.PI/2,0,0), position:new THREE.Vector3(0,65,-90)}),
 					],
 					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
-
-
-
 					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
 				}),
+				MudA : new LibMesh({
+					isRoom : true,
+					url : 'rooms/mudcave_a.glb',
+					materials : [
+						libMat.Rock.WetCaveA,
+						libMat.Rock.WetCaveB,
+					],
+					attachments : [],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
+				}),
+				MudB : new LibMesh({
+					isRoom : true,
+					url : 'rooms/mudcave_b.glb',
+					materials : [
+						libMat.Rock.WetCaveA,
+						libMat.Rock.WetCaveB,
+					],
+					attachments : [],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
+				}),
+				MudC : new LibMesh({
+					isRoom : true,
+					url : 'rooms/mudcave_c.glb',
+					materials : [
+						libMat.Rock.WetCaveA,
+						libMat.Rock.WetCaveB,
+					],
+					attachments : [],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
+				}),
+				MudD : new LibMesh({
+					isRoom : true,
+					url : 'rooms/mudcave_d.glb',
+					materials : [
+						libMat.Rock.WetCaveA,
+						libMat.Rock.WetCaveB,
+					],
+					attachments : [],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
+				}),
+				MudE : new LibMesh({
+					isRoom : true,
+					url : 'rooms/mudcave_e.glb',
+					materials : [
+						libMat.Rock.WetCaveA,
+						libMat.Rock.WetCaveB,
+					],
+					attachments : [],
+					tags : [stdTag.mWall, stdTag.mWallRock, stdTag.mFloorRock],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
+				}),
+				
+				
 			},
 			Stalagmite : new LibMesh({
 				url : 'nature/stalag.JD',
@@ -4707,6 +4766,13 @@ function build(){
 					reverb : 'large_chamber', reverbWet : 0.35, lowpass : 0,
 				}),
 			},
+			Empty : new LibMesh({
+				url : function(){
+					return new THREE.Group();
+				},
+				isRoom : true,
+				reverb : 'large_chamber', reverbWet : 0.35, lowpass : 0,
+			}),
 
 
 		},

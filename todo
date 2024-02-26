@@ -17,6 +17,7 @@ x Encountered a null encounter in the cave (caused by no valid expevt found)
 - Sometimes the hand icon shows up incorrectly when hovering over items
 - Music
 	- See audio.js todo
+	- See FQ asset todo list
 	- General theme tracks:
 		- Forest: [DONE]
 		- Port: Something sailor-y

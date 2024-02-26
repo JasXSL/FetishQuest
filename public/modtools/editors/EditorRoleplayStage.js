@@ -109,6 +109,9 @@ export function nodeBlockUpdate( asset, block ){
 	if( asset.target && asset.target !== RoleplayStage.Target.auto )
 		out += '<div class="label">Target override: '+esc(asset.target)+'</div>';
 
+	if( asset.script )
+		out += '<div class="label" style="font-size:9px; font-style:italic">Script: '+esc(asset.script.substring(0,500))+'</div>';
+
 	block.setContent(out);
 
 	// Custom event bindings
@@ -181,7 +184,7 @@ export function asset(){
 		}
 		html += '</select></label>';
 
-		html += '<label title="Sets target for texts/game actions">Text/GA Target: <select name="target" class="saveable">';
+		html += '<label title="Sets target for texts/game actions">Text/GA/Script Target: <select name="target" class="saveable">';
 		for( let type in RoleplayStage.Target ){
 			const n = RoleplayStage.Target[type];
 			html += '<option value="'+n+'" '+(n === asset.target ? 'selected' : '')+'>'+type+'</option>';
@@ -197,8 +200,10 @@ export function asset(){
 	html += '<span title="Text conditions are checked and the first valid text is used">Texts: </span><div class="text"></div>';
 	html += '<span title="Sender is the person who triggered this stage, target is the player tied to the RP if possible">Game Actions: </span><div class="game_actions"></div>';
 
+	html += 'Math Script:<br /><textarea class="saveable" name="script">'+esc(dummy.script || '', true)+'</textarea>';
 
 	html += 'Responses: <div class="options"></div>';
+
 
 	this.setDom(html);
 

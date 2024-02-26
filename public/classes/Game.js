@@ -1161,11 +1161,41 @@ export default class Game extends Generic{
 
 
 
-	// Useful for console debugging, returns current dungeon vars
-	getActiveDungeonVars(){
+	// Useful for console debugging, returns current dungeon math vars. 
+	getDungeonMathVars( dungeon ){
+		if( typeof dungeon === "string" )
+			dungeon = glib.get(dungeon, 'Dungeon');
+		if( !dungeon )
+			dungeon = this.dungeon;
+		if( !(dungeon instanceof Dungeon) )
+			return {};
+
 		let out = {};
 		this.dungeon.appendMathVars(out, new GameEvent());
 		return out;
+	}
+
+	getDungeonVars( dungeon ){
+		
+		if( !dungeon )
+			dungeon = this.dungeon.label;
+
+		// Get default vars
+		let base = glib.get(dungeon, 'Dungeon');
+		if( !base )
+			base = {};
+		else{
+			base.loadState(); // Needed to get dvars modified by the game
+			base = base.vars;
+		}
+
+		// Shallow clone
+		let sd = {};
+		for( let i in base )
+			sd[i] = base[i];
+
+		return sd;
+
 	}
 
 	// Returns math vars for the game
@@ -1204,11 +1234,11 @@ export default class Game extends Generic{
 		for( let f of this.factions )
 			out['fac_'+f.label] = f.standing;
 
-		const rps = Roleplay.getPersistent();
+		const rps = Roleplay.getPersistent(); // This also loads state
 		rps.push(this.roleplay);
-		for( let rp of rps )
-			rp.appendMathVars(out, event);
-		
+		for( let rp of rps ){
+			rp.appendMathVars(out, event); 
+		}
 		// Dungeon vars
 		const dungeons = glib.getFull('Dungeon');
 		for( let d in dungeons )
@@ -2113,6 +2143,27 @@ export default class Game extends Generic{
 
 		}
 		return 0;
+
+	}
+
+	// Returns an array of enabled players that match conditions
+	getEnabledPlayersMatchingConditions( conditions = [], includeStashedFollowers = false ){
+
+		let players = this.getEnabledPlayers();
+		if( includeStashedFollowers  )
+			players = players.concat(this.followers);
+		
+		let out = [];
+		const evt = new GameEvent({});
+		for( let player of players ){
+
+			evt.sender = evt.target = player;
+			
+			if( Condition.all(conditions, evt) )
+				out.push(player);
+
+		}
+		return out;
 
 	}
 

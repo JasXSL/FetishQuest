@@ -843,6 +843,20 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.enabledPlayerLabel ){
+
+		setDefaultData({
+			label : [],
+			min : -1,
+		});
+
+		html += 'Player: <div class="label"></div>';
+		html += '<label>Min nr matches, -1 for all: <input type="number" min=-1 step=1 name="data::min" value="'+esc(asset.data.min)+'" class="saveable" /></label>';
+		fnBind = () => {
+			this.dom.querySelector("div.label").appendChild(EditorPlayer.assetTable(this, asset, "data::label", false));
+		};
+
+	}
 	else if( type === types.voice ){
 
 		setDefaultData({

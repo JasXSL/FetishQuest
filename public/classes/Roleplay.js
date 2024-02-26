@@ -230,6 +230,7 @@ export default class Roleplay extends Generic{
 	}
 
 
+	// Note: You probably want to call loadState before calling this unless it's the active RP 
 	appendMathVars( input, event ){
 
 		input['rp_targs'] = this._targetPlayers.length;
@@ -243,6 +244,56 @@ export default class Roleplay extends Generic{
 	// Returns an array of Player objects of this._targetPlayers found in the game player list
 	getTargetPlayers(){
 		return this._targetPlayers.map(el => game.getPlayerById(el)).filter(el => el);
+	}
+
+	shuffleTargetPlayers(){
+		shuffle(this._targetPlayers);
+	}
+
+	removeTargetPlayersByIndex( indexes ){
+		indexes = toArray(indexes);
+		let out = [];
+		for( let i = 0; i < this._targetPlayers.length; ++i ){
+			if( !indexes.includes(i) )
+				out.push(this._targetPlayers[i]);
+		}
+		this._targetPlayers = out;
+
+	}
+
+	moveTargetPlayer( oldIdx, newIdx ){
+		
+		oldIdx = Math.trunc(oldIdx);
+		newIdx = Math.trunc(newIdx);
+		
+		if( isNaN(oldIdx) || isNaN(newIdx) ){
+			console.error("Ignoring moveTargetPlayer, oldIdx or newIdx is NaN");
+			return;
+		}
+			
+		oldIdx = oldIdx >= 0 ? oldIdx : this._targetPlayers.length-oldIdx;
+		newIdx = newIdx >= 0 ? newIdx : this._targetPlayers.length-newIdx;
+		
+		let curLabel = this._targetPlayers[oldIdx];
+		let newLabel = this._targetPlayers[newIdx];
+		this._targetPlayers[oldIdx] = newLabel;
+		this._targetPlayers[newIdx] = oldLabel;
+
+
+	}
+
+	// Appends an RP target unless it already exists. Player can be an id or Player object.
+	// Returns true on successfull append
+	appendTargetPlayer( player ){
+
+		if( player instanceof Player )
+			player = player.id;
+		if( !this._targetPlayers.includes(player) ){
+			this._targetPlayers.push(player);
+			return true; 
+		}
+		return false;
+
 	}
 
 	// Accepts an array of player objects or ids
@@ -447,7 +498,7 @@ export default class Roleplay extends Generic{
 
 	}
 
-	// Returns an array of var_persistent RPs
+	// Returns an array of var_persistent RPs with state loaded onto them
 	static getPersistent(){
 
 		let out = [];
@@ -460,7 +511,7 @@ export default class Roleplay extends Generic{
 					// Create a mini clone just for vars
 					rp = new Roleplay({
 						label : rp.label,
-						vars : rp._vars
+						vars : rp.vars
 					});	
 					rp.loadState();
 				}
@@ -549,6 +600,7 @@ export class RoleplayStage extends Generic{
 		this.game_actions = [];			// GameActions to apply when encountering this stage
 		this.target = RoleplayStage.Target.auto;			// Selects who is considered the "target" when reaching this stage
 		this.leave = false;				// Automatically adds an option for [Leave]
+		this.script = '';
 
 		// local
 		this._iniPlayer = '';		// ID of player that triggered this stage. If there are multiple players, the first one is picked.
@@ -591,6 +643,7 @@ export class RoleplayStage extends Generic{
 			out.store_pl = this.store_pl;
 			out.leave = this.leave;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
+			out.script = this.script;
 		}
 		if( full !== "mod" ){
 			
@@ -758,7 +811,7 @@ export class RoleplayStage extends Generic{
 					this.parent._targetPlayers.shift();
 				else if( spl === st.SHUFFLE ){
 
-					shuffle(this.parent._targetPlayers);
+					this.parent.shuffleTargetPlayers();
 
 				}
 
@@ -780,6 +833,9 @@ export class RoleplayStage extends Generic{
 				await act.trigger(p, undefined, false, pl, evt);
 
 		}
+
+		if( this.script )
+			await Calculator.run(this.script, new GameEvent({sender:pl, target:iniPlayers}));
 
 		const tevt = this.getTextEvent();
 		tevt.text.triggerVisuals(tevt);
@@ -974,6 +1030,7 @@ export class RoleplayStageOption extends Generic{
 		this.dice = 0;				// Turns this into a d20 roll option
 		this.dice_mod = '';			// Math formula for dice roll
 		this.reroll = RoleplayStageOption.Rerolls.visit;	// Can reroll every time the RP is opened, but only once per RP. 
+		this.script = '';
 
 		// Last roll stats
 		this._mod = 0;				// player modifier i
@@ -1075,6 +1132,7 @@ export class RoleplayStageOption extends Generic{
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 			out.shuffle = this.shuffle;
 			out.fail_text = this.fail_text;
+			out.script = this.script;
 		}
 		
 		if( full !== "mod" ){
@@ -1184,6 +1242,9 @@ export class RoleplayStageOption extends Generic{
 		for( let act of this.game_actions ){
 			await act.trigger(player, undefined, false, pl);
 		}
+
+		if( this.script )
+			await Calculator.run(this.script, new GameEvent({sender:player, target:player}));
 
 		return true;
 

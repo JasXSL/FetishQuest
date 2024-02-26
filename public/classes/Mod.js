@@ -851,7 +851,11 @@ export default class Mod extends Generic{
 					continue;
 
 				const subConstructor = rel[i];
+				
 				const subTable = Mod.getTableNameByConstructor(subConstructor);
+				if( !subTable )
+					console.error("No mod table found for ", subConstructor);
+
 				const single = !Array.isArray(out[i]);
 				let arr = out[i];
 				if( single )
@@ -2011,9 +2015,10 @@ export default class Mod extends Generic{
 
 	static getTableNameByConstructor( constructor ){
 
-		for( let i in this.LIB_TYPES ){
+		const lt = this.getLibTypes();
+		for( let i in lt ){
 
-			if( constructor === this.LIB_TYPES[i] )
+			if( constructor === lt[i] )
 				return i;
 				
 		}

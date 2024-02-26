@@ -238,9 +238,17 @@ class Text extends Generic{
 		return out;
 	}
 	
+	textReplace(...args){
+		return this.constructor.textReplace(...args);
+	}
+	targetTextConversion(...args){
+		return this.constructor.targetTextConversion(...args);
+	}
+	
+
 	// Inputs is an array of objects {se : (str)search, re : (str/arr)replace}. Prefixes should not have percentage signs. They're automatically handled along with ! for uppercase
 	// If replace is an array or a function, it picks random elements for each one
-	textReplace( inputs = [], originalText = '' ){
+	static textReplace( inputs = [], originalText = '' ){
 
 		const replaceCustom = (text, search, replace, uc = false) => {
 
@@ -276,7 +284,7 @@ class Text extends Generic{
 	}
 
 	// Converts tags for a specific player
-	targetTextConversion( input, prefix, player, event ){
+	static targetTextConversion( input, prefix, player, event, noStyling = false ){
 
 		if( !player || player.constructor !== Player )
 			return input;
@@ -357,7 +365,7 @@ class Text extends Generic{
 
 		// needs to be last
 		// Colored name doesn't use the textReplace because it should always be capitalized, and it adds pipes to the start and end
-		input = input.split('%'+prefix).join(player.getColoredName());
+		input = input.split('%'+prefix).join(noStyling ? player.getName() : player.getColoredName());
 
 		
 		return input;
@@ -440,42 +448,20 @@ class Text extends Generic{
 		text = [tmp.shift()];
 		for( let c of tmp ){
 
-			// Find the end of the player var
-			let separator = ' and ';
-			let token = Calculator.tokenizeAtVar(c);
-			let trail = token[1];
-			token = token[0];
-			const sum = token.endsWith("Sum");
-			const num = token.endsWith("Num");
-			if( sum || num )
-				token = token.substring(0, token.length-3);
-
-			// Gets the separator in [] from trail
-			let sep = Text.getAtTokenSeparator(trail);
-			if( sep[0] )
-				separator = sep[0];
-			trail = sep[1];
-			let objs = Calculator.getValuesByAtVar('@@'+token, event, gMathVars);
-
-			let compiled = [];
-			for( let i in objs )
-				compiled.push(objs[i]);
-			if( num )
-				compiled = [compiled.length];
-			else if( sum )
-				compiled = [numberToText(compiled.reduce((pre, cur) => {
-					if( !isNaN(cur) )
-						return pre+cur;
-				}, 0))];
-			text.push(compiled.join(separator)+trail);
+			let cmp = Calculator.getValueByAtVar('@@'+c, event, gMathVars, false, true);
+			text.push(cmp);
 
 		}
 		text = text.join('');
 
+		/*
+			This has been replaced with @@ tags and is auto handled by Calculator
+			Leaving this commented out until I know we have parity
+		
 		// Next handle vars where we get a PLAYER from a mathvar
 		// ex: @rp_<label>_<var> - Gets a specific var
 		// ex: @rp_<label>_<var>_<index>_Trace[Separator] - Gets race of the first player set on an rp var. Provided they're in the active area. The VALUE tied to the player must not be empty. Separator defaults to " and "
-		// You can use "A" instead of a numeric target index to include all players, joined by a separator
+		// -You can use "A" instead of a numeric target index to include all players, joined by a separator
 		// You can use "V" instead of a numeric target to include all players and their values, joined by TWO separators
 		// ex: @rp_<label>_<var>_V_T[, ][: ] will separate player name and var by ": " and players by ", ". Default to [, ][: ] if not specified.
 		tmp = text.split('@');
@@ -564,6 +550,9 @@ class Text extends Generic{
 
 		}
 		text = text.join("");
+		*/
+
+		
 		
 		if( event.target )
 			text = text.split('%PCSV').join(toArray(event.target).map(el => el.getColoredName()).join(', '));
@@ -912,18 +901,7 @@ class Text extends Generic{
 	}
 
 
-	// Tries to get a bracket enclosed separator from a trail when using @/@@ vars. Returns an array with the separator, and the rest of the trail
-	static getAtTokenSeparator( trail ){
-
-		if( trail.charAt(0) !== '[' )
-			return [undefined, trail];
-		let end = trail.indexOf(']');
-		let out = trail.substring(1, end);
-		trail = trail.substring(end+1);
-		//console.log("out", JSON.stringify(out), "trail", JSON.stringify(trail));
-		return [out, trail];
-
-	}
+	
 
 }
 

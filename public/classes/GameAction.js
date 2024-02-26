@@ -522,14 +522,15 @@ export default class GameAction extends Generic{
 			let val = !dungeon.vars[this.data.id];
 			if( this.type === types.dungeonVar ){
 
+				val = this.data.val;
 				const evt = new GameEvent({sender,target:player,dungeon:dungeon});
-
 				// Vals starting with $$ are treated as string literals
 				if( String(this.data.val).startsWith('$$') )
 					val = String(this.data.val).substring(2);
-				// Otherwise it's treated as a formula
-				else
+				// Otherwise it's treated as a formula unless it's an object (objects can be set via Calculator functions)
+				else if( typeof this.data.val !== "object" )
 					val = Calculator.run(this.data.val, evt, dungeon.vars);
+				
 				
 				let pre = dungeon.getVar(this.data.id);	
 				// Handles setting on targets
@@ -568,8 +569,8 @@ export default class GameAction extends Generic{
 			if( rp.label === '' )	// Not in an RP
 				return;
 			let id = String(this.data.id).trim();
-			let val = String(this.data.val).trim();
-			if( !id || typeof val !== "string" )
+			let val = this.data.val;
+			if( !id )
 				return;
 
 			const evt = new GameEvent({
@@ -578,10 +579,10 @@ export default class GameAction extends Generic{
 			});
 
 			// Use $$ for string literal values
-			if( val.startsWith('$$') )
-				val = val.substring(2);
+			if( String(val).startsWith('$$') )
+				val = String(val).substring(2);
 			// Anything else gets treated as a formula
-			else
+			else if( typeof this.data.val !== "object" )
 				val = Calculator.run(val, evt, {});
 
 			let pre = rp._vars.get(id);
@@ -1159,6 +1160,20 @@ export default class GameAction extends Generic{
 			game.roleplay.setTargetPlayers(players.map(pl => pl.p));
 
 		}
+		else if( this.type === types.addRpTargets ){
+
+			if( this.data.replace )
+				game.roleplay.setTargetPlayers([]);
+			let conds = Condition.loadThese(this.data.conditions);
+			for( let cond of conds ){
+
+				const pl = game.getEnabledPlayersMatchingConditions([cond], false);
+				if( pl.length )
+					game.roleplay.appendTargetPlayer(pl);
+
+			}
+
+		}
 
 		else if( this.type === types.setRain ){
 			
@@ -1167,6 +1182,11 @@ export default class GameAction extends Generic{
 				target : player,
 			})) || 0;
 			game.setRain(rain);
+
+		}
+		else if( this.type === types.mathScript ){
+			const evt = new GameEvent({sender,target:player});
+			Calculator.run(String(this.data.formula), evt, {});
 
 		}
 
@@ -1180,6 +1200,10 @@ export default class GameAction extends Generic{
 	// Shared between dungeonVar and setRpVar to handle the viable math operations
 	// Pre is the existing value, and val is the incoming value
 	getOperationVal( pre, val ){
+
+		// Complex objects may only use "SET"
+		if( typeof val === "object" )
+			return val;
 
 		let raw = val;	// Needed in case of a string val
 		pre = +pre || 0;
@@ -1350,11 +1374,13 @@ GameAction.types = {
 	removePlayer : 'removePlayer',
 	sortRpTargets : 'sortRpTargets',
 	sliceRpTargets : 'sliceRpTargets',
+	addRpTargets : 'addRpTargets',
 	resetRpVar : 'resetRpVar',					// Tries to reset RP vars of the current roleplay
 	setRpVar : 'setRpVar',						// 
 	addFollower : 'addFollower',
 	remFollower : 'remFollower',
 	setRain : 'setRain',
+	mathScript : 'mathScript',					// Runs the calculator. Useful since the math engine comes with built in functions that lets you do more complex modifications on dVars
 };
 
 GameAction.TypeDescs = {
@@ -1396,7 +1422,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.learnAction] : '{conditions:(arr)conditions, action:(str)actionLabel} - This is run on all players on team 0 with sender being the GameAction player and target being each player. Use conditions to filter. Use targetIsSender condition for only the person who triggered it. Marks an action on a player as learned. If they have a free spell slot, it immediately activates it.',
 	[GameAction.types.addCopper] : '{player:(label)=evt_player, amount:(int)copper} - Subtracts money from target.',
 	[GameAction.types.addTime] : '{seconds:(int)seconds, force:(bool)force} - Force is only needed if the game story has freeze_time set',
-	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET, dungeon:(str)label=CURRENT_DUNGEON} - Sets a variable in the currently active dungeon. Formulas starting with @@ will be treated as a string (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
+	[GameAction.types.dungeonVar] : '{id:(str)id, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET, dungeon:(str)label=CURRENT_DUNGEON} - Sets a variable in the currently active dungeon. Formulas starting with $$ will be treated as a string (and $$ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	//[GameAction.types.removeFromDungeonVar] : '{ids:(arr)ids, dungeon:(str)label, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more dvars',
 	[GameAction.types.playerMarker] : '{x:(int)x_offset,y:(int)y_offset,z:(int)z_offset,scale:(float)scale} - Spawns a new player marker for player 0 in the encounter. Only usable when tied to an encounter which was started through a world interaction such as a mimic.',
 	[GameAction.types.refreshPlayerVisibility] : 'void - Forces the game to refresh visibility of players.',
@@ -1409,11 +1435,13 @@ GameAction.TypeDescs = {
 	[GameAction.types.setPlayerTeam] : '{team=Player.TEAM_PLAYER} - Changes game action target team',
 	[GameAction.types.sortRpTargets] : '{mathvars:[{var:(str)label, desc:(bool)desc=false}...]} - Sorts rpTargets based on mathvars. Only mathvars for ta_ are set',
 	[GameAction.types.sliceRpTargets] : '{start:(int)=0, nrPlayers:(int)=-1} - Converts rpTargets to a subset of targets',
+	[GameAction.types.addRpTargets] : '{conds:(arr)conditions, replace:false} - Goes through each condition and adds the first player that matches (and isn\'t already an RP target) to RP targets. Use subconditions if you want to match multiple conditions. If replace is true, it removes any existing rp targs.',
 	[GameAction.types.resetRpVar] : '{var:(str)var=ALL} - Tries to reset a var in the active RP. If vars is empty, it resets all',
-	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets an RP var. Formulas starting with @@ will be treated as strings (and @@ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
+	[GameAction.types.setRpVar] : '{id:(str)varID, val:(str)formula, targets:[], operation:(str)ADD/MUL/SET} - Sets an RP var on the active roleplay. Formulas starting with $$ will be treated as strings (and $$ removed). Targets can be included by using Calculator target notation. Not specifying a target sets the value directly. Operation lets you modify the value rather than overwriting it, ADD adds, MUL multiplies. Use negative value for subtract, use fractions for division.',
 	[GameAction.types.addFollower] : '{player:(str)playerLabel} - Immediately adds a follower to your party by label.',
 	[GameAction.types.remFollower] : '{player:(str)playerLabel} - Immediately removes a follower from your party by label.',
 	[GameAction.types.setRain] : '{amount:(float)rain} - Sets rain between 0 (off) and 1 (pouring).',
+	[GameAction.types.mathScript] : '{formula:(str)formula} - Runs a math formula. This is useful because the math lib comes with builtin functions that makes it easier to manage dVars, such as setDvar(dungeonLabel, varLabel, val) and shuffle. This is the only way to handle array type dVars.',
 	//[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
 	
 };

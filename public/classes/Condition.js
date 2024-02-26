@@ -544,6 +544,24 @@ export default class Condition extends Generic{
 				success = t && (data.indexOf(t.label) !== -1 || data.indexOf('fo_'+t.label) !== -1); // Both follower and non follower is valid
 
 			}
+			else if( this.type === T.enabledPlayerLabel ){
+
+				let data = toArr(this.data.label);
+				let min = parseInt(this.data.all);
+				if( min < 1 )
+					min = data.length;
+
+				
+				let enabled = game.getEnabledPlayers().map(el => el.label);
+				let nrHits = 0;
+				for( let label of data ){
+
+					nrHits += (enabled.includes(label) || enabled.includes("fo_"+label));
+					
+				}
+				success = nrHits >= min;
+
+			}
 			
 			else if( this.type === T.species ){
 
@@ -1172,41 +1190,8 @@ export default class Condition extends Generic{
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 
-				if( !dungeon )
-					dungeon = game.dungeon.label;
-
-				// Get default vars
-				let base = glib.getFull('Dungeon')[dungeon];
-				if( !base )
-					base = {};
-				else
-					base = base.vars;
-
-				// Shallow clone
-				let sd = {};
-				for( let i in base )
-					sd[i] = base[i];
-
-				// This shouldn't be needed. The dungeon only stores vars as a template, actual vars are stashed in save state
-				/*
-				if( game.dungeon.label === dungeon ){
-					
-					for( let i in game.dungeon.vars )
-						sd[i] = game.dungeon.vars[i];
-
-				}
-				*/
-
-				// Next fetch from game save state
-				base = game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars;
-				if( base ){
-
-					for( let i in base )
-						sd[i] = base[i];
-
-				}
-
-				success = sd[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
+				const vars = game.getDungeonVars(dungeon);
+				success = vars[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
 				
 			}
 			else if( this.type === T.dungeonVarMath ){
@@ -1215,21 +1200,17 @@ export default class Condition extends Generic{
 				if( this.data.dungeon )
 					dungeon = this.data.dungeon;
 
-				if( !dungeon )
-					dungeon = game.dungeon.label;
-
 				let vars = this.data.vars,
 					formula = this.data.formula
 				;
 				if( typeof vars === "string" )
 					vars = [vars];
 
-				if( Array.isArray(vars) && window.game ){
+				const dvars = game.getDungeonVars(dungeon);
+				if( Array.isArray(vars) ){
 					const _t = {};
 					for( let v of vars ){
-						_t[v] = 0;
-						if( game.state_dungeons[dungeon] && game.state_dungeons[dungeon].vars.hasOwnProperty(v) )
-						_t[v] = game.state_dungeons[dungeon].vars[v];
+						_t[v] = dvars[v] || 0;
 					}
 					success = Calculator.run(formula, event, _t);
 				}
@@ -1302,25 +1283,8 @@ export default class Condition extends Generic{
 			else if( this.type === T.hasActiveConditionalPlayer ){
 
 				let min = this.data.min || 1;
-				let tot = 0;
-				let players = game.getEnabledPlayers();
-				if( this.data.stashedFollowers )
-					players = players.concat(game.followers);
-				const evt = new GameEvent({});
-				for( let player of players ){
-
-					evt.sender = evt.target = player;
-					
-					if( Condition.all(this.data.conditions, evt) ){
-						
-						++tot;
-						success = tot >= min;
-						if( success )
-							break;
-						
-					}
-
-				}
+				let players = game.getEnabledPlayersMatchingConditions(this.data.conditions, this.data.stashedFollowers);
+				success = players.length >= min;
 
 			}
 			else if( this.type === T.isFollower ){
@@ -1571,6 +1535,7 @@ Condition.Types = {
 	questCanHandIn : 'questCanHandIn',
 	actionRanged : 'actionRanged',
 	playerLabel : 'playerLabel',
+	enabledPlayerLabel : 'enabledPlayerLabel',
 	numGamePlayersGreaterThan : 'numGamePlayersGreaterThan',
 	actionOnCooldown : 'actionOnCooldown',
 	playerClass : 'playerClass',
@@ -1691,6 +1656,7 @@ Condition.descriptions = {
 	[Condition.Types.questCanHandIn] : '{quest:(str/arr)quest} - Checks if a quest is ready to be handed in',
 	[Condition.Types.actionRanged] : 'void : Checks if the action used was melee',
 	[Condition.Types.playerLabel] : '{label:(str/arr)label} : Checks if the player label is this',
+	[Condition.Types.enabledPlayerLabel] : '{label:(str/arr)label, min:(int)min_amount=-1} : Checks if game.getEnabledPlayers() contains all the specified players by label. Min can be used to set min amount of matches, or -1 to require ALL labels to match at least one player.',
 	[Condition.Types.hasActiveConditionalPlayer] : '{conditions:[cond1...], min:nr=1, stashedFollowers:false} - Checks if the game has at least min nr player that matches conditions. If stashedFollowers is true, it also includes stashed followers in the search. NOTE: Stashed followers can only be filtered by labels in netgames.',
 	[Condition.Types.isFollower] : '{void} Checks if target is a follower',
 	[Condition.Types.targetIsRpPlayer] : 'Synonym for isRoleplayPlayer, use that one instead',

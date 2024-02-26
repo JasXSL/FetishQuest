@@ -360,6 +360,22 @@ LibMaterial.library = {
 			metalness : 0.3,
 			roughness : 0.5,
 		}),
+		WetCaveA : new LibMaterial({
+			map : 'tileable/wet_cave_floor.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		WetCaveB : new LibMaterial({
+			map : 'tileable/wet_cave_floor_2_grey.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		MossCaveWall : new LibMaterial({
+			map : 'tileable/moss_wall.jpg',
+			metalness : 0.4,
+			roughness : 0.7,
+		}),
+		
 	},
 	Brick : {
 		DungeonBlack : new LibMaterial({

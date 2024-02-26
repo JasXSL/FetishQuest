@@ -185,13 +185,13 @@ class Dungeon extends Generic{
 		if( typeof window.game !== "object" || !game.is_host )
 			return;
 
-		this._state = game.state_dungeons[this.label] || null;
-
-		if( this._state === null )
+		const state = this.getState();
+		
+		if( state === null )
 			return;
 			
-		for( let v in this._state.vars )
-			this.vars[v] = this._state.vars[v];
+		for( let v in state.vars )
+			this.vars[v] = state.vars[v];
 
 		for( let room of this.rooms )
 			room.loadState();
@@ -225,6 +225,7 @@ class Dungeon extends Generic{
 
 	}
 
+	// note: Unless this is the active dungeon, you'll probably want to call loadState beforehand, unless you want the default vars
 	getVar( key ){
 		return this.vars.get(key);
 	}
@@ -467,7 +468,7 @@ class Dungeon extends Generic{
 		for( let i in this.vars )
 			Calculator.appendMathVar('d_'+this.label+'_'+i, this.vars[i], input, event);
 
-		let d = game.state_dungeons[this.label];
+		let d = this.getState();
 		if( d ){
 			let v = d.vars;
 			for( let i in v )
@@ -475,6 +476,8 @@ class Dungeon extends Generic{
 		}
 
 	}
+
+	
 
 
 	/* EVENTS */

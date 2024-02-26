@@ -725,7 +725,7 @@ class Editor{
 				
 				const intersects = this.intersects(baseMesh);
 				if( intersects ){
-					console.log("Skip intersects", intersects);
+					//console.log("Skip intersects", intersects);
 					continue;
 				}
 				
@@ -1360,32 +1360,35 @@ class Editor{
 	
 				let subRoomMesh;
 				const sub = new Map(); // same as stats, but we need to check if the room is valid first
-	
-				for( let asset of roomAsset.assets ){
-	
-					// Fetch the asset
-					const ra = mod.getAssetById("dungeonRoomAssets", asset);
-					if( !ra )
-						continue;
-	
-					if( ra.room ){
-	
-						// Not same room asset, gotta end this
-						if( ra.model !== cur.model )
-							break;
-						// Set this as the room mesh
-						else{
-							subRoomMesh = ra;
+				if( Array.isArray(roomAsset.assets) ){
+
+					for( let asset of roomAsset.assets ){
+		
+						// Fetch the asset
+						const ra = mod.getAssetById("dungeonRoomAssets", asset);
+						if( !ra )
 							continue;
+		
+						if( ra.room ){
+		
+							// Not same room asset, gotta end this
+							if( ra.model !== cur.model )
+								break;
+							// Set this as the room mesh
+							else{
+								subRoomMesh = ra;
+								continue;
+							}
+		
 						}
-	
+		
+						// Save this to sub
+						if( !sub.has(ra.model) )
+							sub.set(ra.model, []);
+						sub.get(ra.model).push(ra);
+		
 					}
-	
-					// Save this to sub
-					if( !sub.has(ra.model) )
-						sub.set(ra.model, []);
-					sub.get(ra.model).push(ra);
-	
+
 				}
 	
 				// We can save
@@ -1413,12 +1416,16 @@ class Editor{
 			// Convert to array of objects
 			let flat = [];
 			stats.forEach((val, key) => {
-				flat.push({
-					k : key,
-					v : val
-				});
+
+				let mesh = LibMesh.getByString(key);
+				if( !mesh.no_randomish )	
+					flat.push({
+						k : key,
+						v : val
+					});
+
 			});
-	
+
 			this.__fCache = flat;
 			this.__fCacheId = cur.model;
 	

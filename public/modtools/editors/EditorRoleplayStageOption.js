@@ -100,6 +100,8 @@ export function nodeBlockUpdate( asset, block ){
 		out += '</div>';
 	}
 
+	if( asset.script )
+		out += '<div class="label" style="font-size:9px; font-style:italic">Script: '+esc(asset.script.substring(0,500))+'</div>';
 	
 	block.setContent(out);
 
@@ -161,7 +163,7 @@ export function asset(){
 
 	html += '</div>';
 
-
+	html += 'Math Script:<br /><textarea class="saveable" name="script">'+esc(dummy.script || '', true)+'</textarea>';
 
 	html += 'Goto Options: <div class="index"></div>';
 	html += 'Goto Direct (Outliner only): <div class="direct"></div>';

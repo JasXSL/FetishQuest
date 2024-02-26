@@ -555,6 +555,22 @@ export function asset(){
 
 	}
 
+	else if( type == Types.addRpTargets ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				conditions : [],
+				replace : false,
+			};
+		html += 'Conditions, first player that matches each gets added unless already an RP target: <div class="gaConditions"></div>';
+		html += '<div class="labelFlex">';
+			html += '<label>Prune RP target list before adding: <input type="checkbox" class="saveable" name="data::replace" value=1 '+(asset.data.replace ? 'checked' : '')+' /></label>';
+		html += '</div>';
+		fnBind = () => {
+			this.dom.querySelector("div.gaConditions").appendChild(EditorCondition.assetTable(this, asset, "data::conditions", false));
+		};
+
+	}
+
 
 	// No data, just set it to empty
 	else if( type === Types.visitDungeon ){
@@ -1146,6 +1162,19 @@ export function asset(){
 			//this.dom.querySelector("div.pConds").appendChild(EditorCondition.assetTable(this, asset, "data::playerConds", false));
 		};
 
+	}
+	else if( type === Types.mathScript ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				formula : ''
+			};
+
+		html += '<div class="labelFlex">'+
+			'<label>Formula: <br />'+
+				'<textarea name="data::formula" class="saveable">'+esc(asset.data.formula, true)+'</textarea>'+
+			'</label>'+
+		'</div>';
 	}
 
 	else{

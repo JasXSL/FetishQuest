@@ -427,6 +427,7 @@ export default class GameLib{
 		return Object.values(this.getFull(cName));
 	}
 
+	// Returns all assets
 	getFull( cName ){
 
 		const lt = Mod.getLibTypes();
