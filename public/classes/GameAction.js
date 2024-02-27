@@ -884,7 +884,7 @@ export default class GameAction extends Generic{
 			
 			let dungeon = this.data.dungeon,
 				room = this.data.room || 0;
-			if( dungeon )
+			if( dungeon && dungeon.id !== game.dungeon.id )
 				game.setDungeon(dungeon, room);
 			else
 				game.dungeon.goToRoom( player, room );
@@ -1169,7 +1169,7 @@ export default class GameAction extends Generic{
 
 				const pl = game.getEnabledPlayersMatchingConditions([cond], false);
 				if( pl.length )
-					game.roleplay.appendTargetPlayer(pl);
+					game.roleplay.appendTargetPlayer(pl[0]);
 
 			}
 

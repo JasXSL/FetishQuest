@@ -547,8 +547,8 @@ export default class Condition extends Generic{
 			else if( this.type === T.enabledPlayerLabel ){
 
 				let data = toArr(this.data.label);
-				let min = parseInt(this.data.all);
-				if( min < 1 )
+				let min = parseInt(this.data.min);
+				if( isNaN(min) || min < 1 )
 					min = data.length;
 
 				

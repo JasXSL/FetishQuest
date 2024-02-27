@@ -667,7 +667,7 @@ export default class Mod extends Generic{
 	mergeAsset( table, asset ){
 
 		if( !Array.isArray(this[table]) )
-			throw 'Table not found';
+			throw 'Table not found: '+table;
 
 		if( typeof asset !== "object" )
 			throw 'Invalid asset';

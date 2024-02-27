@@ -1232,7 +1232,7 @@ export default{
 	// Takes an asset and tries to clone it, returns the cloned object
 	// Type: table in the mod, such as dungeonTemplate
 	// Asset: Asset to clone such as a DungeonTemplate
-	insertCloneAsset( type, asset, constructor, parentWindow, fromListing = false ){
+	insertCloneAsset( type, asset, constructor, parentWindow, openEditor = true ){
 
 		const out = mod.mod.deepCloneAsset(type, constructor, asset);
 		// Cloning adds the whole object to our mod
@@ -1240,7 +1240,7 @@ export default{
 		delete out._e;
 		delete out._ext;
 
-		this.onInsertAsset(type, out, parentWindow, true);
+		this.onInsertAsset(type, out, parentWindow, openEditor);
 		return out;
 
 	},

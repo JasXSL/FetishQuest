@@ -41,6 +41,7 @@ export function nodeBuild( asset, nodes ){
 	// Add the block
 	const block = nodes.addBlock(BLOCKTYPE, asset.id, {x:asset._x, y:asset._y});
 	nodeBlockUpdate(asset, block);
+	return block;
 
 }
 

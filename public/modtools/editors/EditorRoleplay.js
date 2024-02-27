@@ -8,7 +8,6 @@ import * as EditorRoleplayStageOption from './EditorRoleplayStageOption.js';
 import * as EditorRoleplayStageOptionGoto from './EditorRoleplayStageOptionGoto.js';
 import * as EditorGraph from './EditorGraph.js';
 import * as EditorAudioMusic from './EditorAudioMusic.js';
-
 import Roleplay from '../../classes/Roleplay.js';
 import Generic from '../../classes/helpers/Generic.js';
 
@@ -24,6 +23,12 @@ export function nodeBuild( asset, nodes ){
 		Reply : EditorRoleplayStageOption,
 		Goto : EditorRoleplayStageOptionGoto,
 	};
+	const remOnClone = {
+		Stage : ["options"],
+		Reply : ["index"],
+		Goto : ["index"],
+	};
+	const w = nodes._window;
 
 	// Register the base roleplay type. Must be first.
 	nodes.addBlockType(BLOCKTYPE, {
@@ -50,6 +55,33 @@ export function nodeBuild( asset, nodes ){
 	nodeBlockUpdate(asset, rootBlock);
 
 	nodes.onChange = () => nodeCompile(asset, nodes);
+
+	// Shift drag to copy
+	nodes.onBlockDragStart = event => {
+		
+		if( event.shiftKey === true ){
+			// Copy
+
+			const ds = event.target.parentNode.dataset;
+			const type = ds.type, id = ds.id;
+			const editor = blockTypes[type];
+			const asset = mod.getAssetById(editor.DB, id);
+			if( !asset )
+				return;
+			for( let del of remOnClone[type] ){
+				delete asset[del];
+			}
+
+			const newAsset = HelperAsset.insertCloneAsset( editor.DB, asset, editor.CONSTRUCTOR, w, false );
+			newAsset._x = asset._x;
+			newAsset._y = asset._y;
+			editor.nodeBuild(newAsset, nodes, asset);
+			nodes.selBlock = nodes.getBlock(type, newAsset.id);
+			
+			return false;
+		}
+
+	};
 
 	// Create the blocks
 	const stages = asset.stages || [];

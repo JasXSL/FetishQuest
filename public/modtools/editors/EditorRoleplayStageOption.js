@@ -94,9 +94,15 @@ export function nodeBlockUpdate( asset, block ){
 		out += '</div>';
 	}
 
-	if( Array.isArray(asset.game_actions) ){
+	if( Array.isArray(asset.game_actions) && asset.game_actions.length ){
 		out += '<div class="label unimportant">';
-			out += esc(asset.game_actions.join(", "));
+			out += 'GA: '+esc(asset.game_actions.join(", "));
+		out += '</div>';
+	}
+
+	if( Array.isArray(asset.fixed_sender_conds) && asset.fixed_sender_conds.length ){
+		out += '<div class="label unimportant">';
+			out += 'Fixed Sender: '+esc(asset.fixed_sender_conds.join(", "));
 		out += '</div>';
 	}
 
@@ -163,6 +169,8 @@ export function asset(){
 
 	html += '</div>';
 
+	html += 'Sender override: <div class="fixed_sender_conds"></div>';
+
 	html += 'Math Script:<br /><textarea class="saveable" name="script">'+esc(dummy.script || '', true)+'</textarea>';
 
 	html += 'Goto Options: <div class="index"></div>';
@@ -181,6 +189,7 @@ export function asset(){
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions", false, false));
+	this.dom.querySelector("div.fixed_sender_conds").appendChild(EditorCondition.assetTable(this, asset, "fixed_sender_conds", false, false));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions", false, false));
 	this.dom.querySelector("div.index").appendChild(EditorRoleplayStageOptionGoto.assetTable(this, asset, "index", false, 2));
 	this.dom.querySelector("div.direct").appendChild(EditorRoleplayStage.assetTable(this, asset, "direct", -1));
@@ -289,6 +298,10 @@ export function help(){
 		'<tr>'+
 			'<td>GameActions</td>'+
 			'<td>Lets you trigger GameActions when the user selects this option.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Sender override</td>'+
+			'<td>If at least one condition is set, the first player to match the conditions will be considered the sender (including for dice rolls). This is primarily useful for followers, to allow followers to roll dice without needing to control them directly.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Conditions</td>'+

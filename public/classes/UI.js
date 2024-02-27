@@ -2802,7 +2802,7 @@ export default class UI{
 								html += ' <span class="modifier '+(mod > 0 ? 'pos' : 'neg')+'">'+(mod > 0 ? '+' : '')+mod+'</span>';
 						html += '</div>';
 					}
-						html += stylizeText(response.getText());
+						html += stylizeText(response.getText(undefined, undefined, true));
 					html += '</div>';
 
 				}

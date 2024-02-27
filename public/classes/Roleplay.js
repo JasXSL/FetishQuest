@@ -1031,6 +1031,7 @@ export class RoleplayStageOption extends Generic{
 		this.dice_mod = '';			// Math formula for dice roll
 		this.reroll = RoleplayStageOption.Rerolls.visit;	// Can reroll every time the RP is opened, but only once per RP. 
 		this.script = '';
+		this.fixed_sender_conds = [];	// When at least one is set, the first player who matches the conditions will ALWAYS be the sender. Primarily used when you want the player to have a follower perform an action.
 
 		// Last roll stats
 		this._mod = 0;				// player modifier i
@@ -1051,10 +1052,13 @@ export class RoleplayStageOption extends Generic{
 	rebase(){
 		this.g_rebase();	// Super
 
+		this.fixed_sender_conds = Condition.loadThese(this.fixed_sender_conds, this);		
+
 		if( !this.id )
 			this.id = Generic.generateUUID();
 
 	}
+
 
 	lastRollSuccess(){
 
@@ -1079,6 +1083,8 @@ export class RoleplayStageOption extends Generic{
 
 	rollDice( player ){
 		
+		player = this.getFixedSender(player);
+
 		const roll = Math.ceil(Math.random()*20);
 		if( roll === 1 )
 			this._crit = -1;
@@ -1091,6 +1097,8 @@ export class RoleplayStageOption extends Generic{
 	}
 
 	getDiceModifier( player ){
+
+		player = this.getFixedSender(player);
 
 		if( !(player instanceof Player) )
 			return 0;
@@ -1122,7 +1130,8 @@ export class RoleplayStageOption extends Generic{
 			dice : this.dice,
 			dice_mod : this.dice_mod,
 			target_override : this.target_override,
-			reroll : this.reroll
+			reroll : this.reroll,
+			fixed_sender_conds : Condition.saveThese(this.fixed_sender_conds, full),
 		};
 
 		if( full ){
@@ -1155,6 +1164,8 @@ export class RoleplayStageOption extends Generic{
 	
 	validate( player ){
 
+		player = this.getFixedSender(player);
+
 		if( this.reroll !== RoleplayStageOption.Rerolls.always && this._roll )
 			return false;
 
@@ -1165,6 +1176,26 @@ export class RoleplayStageOption extends Generic{
 			room : game.dungeon.getActiveRoom()
 		});
 		return Condition.all(this.conditions, evt);
+
+	}
+
+	// Returns a Player on success or fallback on fail
+	getFixedSender( fallback ){
+
+		if( !this.fixed_sender_conds.length )
+			return fallback;
+
+		const enabled = game.getEnabledPlayers();
+		const evt = new GameEvent({});
+		for( let pl of enabled ){
+			
+			evt.target = evt.sender = pl;
+			if( Condition.all(this.fixed_sender_conds, evt) )
+				return pl;
+
+		}
+
+		return fallback;
 
 	}
 
@@ -1188,17 +1219,20 @@ export class RoleplayStageOption extends Generic{
 
 	}
 
-	getText( player, allowFailText = false ){
+	getText( player, allowFailText = false, prependFixedSender = false ){
 
 		if( !player )
 			player = game.getMyActivePlayer();
-		
+
+		const pre = player;
+		player = this.getFixedSender(player);
+
 		let tx = this.text;
 		if( this.fail_text && this.isRolled() && !this.lastRollSuccess() && allowFailText )
 			tx = this.fail_text;
 
 		let text = new Text({
-			text : tx || '[Continue]'
+			text : (pre != player && prependFixedSender ? '['+player.getColoredName()+'] ' : '') + (tx || '[Continue]')
 		});
 		// this.parent.getInitiatingPlayer()
 		// Responses use your active player as sender, main text uses whoever got you to that stage
@@ -1207,6 +1241,8 @@ export class RoleplayStageOption extends Generic{
 	}
 
 	async use( player ){
+
+		player = this.getFixedSender(player);
 
 		if( !this.validate(player) )
 			return false;

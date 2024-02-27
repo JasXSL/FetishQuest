@@ -52,6 +52,8 @@ export default class RawNodes{
 			// Move a block
 			if( event.target.classList.contains('header') ){
 
+				if( this.onBlockDragStart(event) === false )
+					return;
 				const ds = event.target.parentNode.dataset;
 				this.selBlock = this.getBlock(ds.type, ds.id);
 
@@ -666,6 +668,8 @@ export default class RawNodes{
 
 	// overwrite this
 	onPan(){}
+
+	onBlockDragStart(event){}
 
 	resetPositions(){
 
