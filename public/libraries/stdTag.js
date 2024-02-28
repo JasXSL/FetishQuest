@@ -333,6 +333,7 @@ export default {
 	mCards : 'm_cards',
 	mKnife : 'm_knife',
 	mFork : 'm_fork',
+	mMushroom : 'm_mushroom',
 
 	mGrassLong : 'm_grass_long',
 	mTree : 'm_tree',

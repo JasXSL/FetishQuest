@@ -5399,7 +5399,38 @@ function build(){
 					}
 				}),
 			},
-			
+			Mushrooms : {
+				Thicc : new LibMesh({
+					tags : [stdTag.mMushroom],
+					url : 'nature/mushrooms_a.glb',
+					materials : [libMat.Nature.Mushrooms],
+				}),
+				ThiccBig : new LibMesh({
+					tags : [stdTag.mMushroom],
+					url : 'nature/mushrooms_a_big.glb',
+					materials : [libMat.Nature.Mushrooms],
+				}),
+				FlyAgaric : new LibMesh({
+					tags : [stdTag.mMushroom],
+					url : 'nature/mushrooms_b.glb',
+					materials : [libMat.Nature.Mushrooms],
+				}),
+				FlyAgaricBig : new LibMesh({
+					tags : [stdTag.mMushroom],
+					url : 'nature/mushrooms_b_big.glb',
+					materials : [libMat.Nature.Mushrooms],
+				}),
+				Wide : new LibMesh({
+					tags : [stdTag.mMushroom],
+					url : 'nature/mushrooms_c.glb',
+					materials : [libMat.Nature.Mushrooms],
+				}),
+				WideBig : new LibMesh({
+					tags : [stdTag.mMushroom],
+					url : 'nature/mushrooms_c_big.glb',
+					materials : [libMat.Nature.Mushrooms],
+				}),
+			}
 		},
 		
 		Mech : {

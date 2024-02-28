@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<style type="text/css">
+			body{
+				margin: 0;
+				overflow: hidden;
+				padding:0;
+				background-color: #FFFFEE;
+			}
+		</style>
+	</head>
+	<div id="viewport">
+
+	</div>
+	<body>
+		
+		<script type="module">
+			
+			import MusicGame from './classes/MusicGame.js';
+
+
+
+			async function run(){
+
+				const mg = new MusicGame();
+				window.mg = mg;
+				console.log("use window.mg");
+				await mg.init();
+				document.getElementById("viewport").appendChild(mg.renderer.domElement);
+
+			}
+			run();
+		</script>
+	</body>
+</html>

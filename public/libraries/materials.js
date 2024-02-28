@@ -1204,6 +1204,12 @@ LibMaterial.library = {
 			side : THREE.DoubleSide,
 		}),
 
+		Mushrooms : new LibMaterial({
+			map : 'bakes/mushrooms.jpg',
+			metalness : 0.0,
+			roughness : 0.7
+		}),
+
 		
 
 	},
