@@ -49,7 +49,7 @@ export default class MusicGame{
 	score = 0;
 	misses = 0;
 	strikes = 0;
-	nut = 0; // A full nut block grants 400 nut
+	nut = 1000; // A full nut block grants 400 nut
 	nut_active = false;
 	nut_last = 0;	// Last nut before adding nut
 
@@ -173,7 +173,7 @@ export default class MusicGame{
 		this.models.nut.material = this.materials.nut;
 		this.models.nut_bar_bg.material = this.materials.nut_bar;
 		this.models.streak_mul_bg.material = this.materials.nut_bar;
-		this.models.track.material = new THREE.MeshBasicMaterial({
+		this.models.track.material = new THREE.MeshStandardMaterial({
 			map : bg,
 			transparent : true,
 			alphaTest : 0.1,
@@ -194,8 +194,10 @@ export default class MusicGame{
 		texture.center.set(0.5,0.5);
 		texture.repeat.set( -1, 1 );
 		texture.rotation = Math.PI;
-		this.models.streak_mul.material = new THREE.MeshBasicMaterial({
+		this.models.streak_mul.material = new THREE.MeshStandardMaterial({
 			map : texture,
+			emissiveMap : texture,
+			emissive : 0xFFFFFF,
 			transparent : true,
 			alphaTest : 0.1,
 		});
@@ -326,6 +328,19 @@ export default class MusicGame{
 
 	updateNut( force = false ){
 
+		let emissive = 0.7;
+		if( this.nut_active || this.nut >= this.constructor.MAX_NUT ){
+			const dur = 1e3;
+			emissive = Math.sin((Date.now()%dur)*Math.PI*2/dur)*0.5 + 0.5;
+			emissive = emissive*0.5 + 0.5;
+		}
+		this.models.nut_bar.material.emissive.set(emissive,emissive,emissive);
+
+
+		if( this.nut_active ){
+			
+		}
+
 		let perc = this.nut/this.constructor.MAX_NUT;
 		if( this.last_nut_hit ){
 			let time = (Date.now()-this.last_nut_hit)/250;
@@ -351,8 +366,11 @@ export default class MusicGame{
 		c.width = width;
 		c.height = height;
 		this['canvas_'+label] = c;
-		this.models[label].material = new THREE.MeshBasicMaterial({
-			map : new THREE.CanvasTexture(c),
+		const tex = new THREE.CanvasTexture(c);
+		this.models[label].material = new THREE.MeshStandardMaterial({
+			map : tex,
+			emissiveMap : tex,
+			emissive : new THREE.Color(.7,.7,.7),
 			transparent : true,
 			alphaTest : 0.1
 		});

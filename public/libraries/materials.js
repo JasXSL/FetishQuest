@@ -319,6 +319,27 @@ LibMaterial.library = {
 			metalness : 0.4,
 			roughness : 0.6
 		}),
+		RuinsTrim : new LibMaterial({
+			map : 'tileable/ruins_trim.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		TempleTrim : new LibMaterial({
+			map : 'tileable/temple_trim.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		PavingStones : new LibMaterial({
+			map : 'tileable/paving_stones.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		TempleFloor : new LibMaterial({
+			map : 'tileable/temple_floor.jpg',
+			metalness : 0.4,
+			roughness : 0.6
+		}),
+		
 	},
 	Marble : {
 		Tiles : new LibMaterial({

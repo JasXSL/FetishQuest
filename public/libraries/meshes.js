@@ -4275,6 +4275,126 @@ function build(){
 			}
 		},
 
+		Temple : {
+			Door : {
+				Default : new LibMesh({
+					url : 'gates/temple_door.glb',
+					want_actions : [gameActionDoors],
+					materials : [
+						libMat.StoneTile.RuinsTrim
+					],
+					animations : {
+						"open" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+							timeScale : 2
+						}
+					},
+					onInteract : function( mesh, room, asset ){
+						LibMesh.playSound( mesh, asset, 'media/audio/dungeon_door.ogg', 0.5);
+					},
+					tags : [stdTag.mDoor],
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
+					scale : 100,
+				}),
+				
+			},
+			Room : {
+				straight : new LibMesh({
+					isRoom : true,
+					url : 'rooms/room_temple_straight.glb',
+					materials : [
+						libMat.StoneTile.TempleFloor,
+						libMat.StoneTile.RuinsTrim,
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [stdTag.mWall],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
+				}),
+				corner : new LibMesh({
+					isRoom : true,
+					url : 'rooms/room_temple_corner.glb',
+					materials : [
+						libMat.StoneTile.TempleFloor,
+						libMat.StoneTile.RuinsTrim,
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'church', reverbWet : 0.3, lowpass : 0,
+				}),
+				big : new LibMesh({
+					isRoom : true,
+					url : 'rooms/room_temple_big.glb',
+					materials : [
+						libMat.StoneTile.TempleFloor,
+						libMat.StoneTile.RuinsTrim,
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'church', reverbWet : 0.5, lowpass : 0,
+				}),
+				x : new LibMesh({
+
+					isRoom : true,
+					url : 'rooms/room_temple_x.glb',
+					materials : [
+						libMat.StoneTile.TempleFloor,
+						libMat.StoneTile.RuinsTrim,
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
+				}),
+				small : new LibMesh({
+
+					isRoom : true,
+					url : 'rooms/room_temple_small.glb',
+					materials : [
+						libMat.StoneTile.TempleFloor,
+						libMat.StoneTile.RuinsTrim,
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [stdTag.mWall, stdTag.mFloorStoneTile, stdTag.mWallStoneTile],
+					reverb : 'sewer', reverbWet : 0.6, lowpass : 0,
+				}),
+				pillar : new LibMesh({
+					url : 'structure/pillar.glb',
+					materials : [
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [],
+				}),
+				pillarBrokenA : new LibMesh({
+					url : 'structure/pillar_broken_a.glb',
+					materials : [
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [],
+				}),
+				pillarBrokenB : new LibMesh({
+					url : 'structure/pillar_broken_b.glb',
+					materials : [
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [],
+				}),
+				pillarMini : new LibMesh({
+					url : 'structure/minipillar.glb',
+					materials : [
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [],
+				}),
+				stoneStair : new LibMesh({
+					url : 'structure/stonestair.glb',
+					materials : [
+						libMat.StoneTile.RuinsTrim,
+					],
+					tags : [],
+				}),
+			}
+		},
+
 		Consumable : {
 			PotLargeHP : new LibMesh({
 				url : 'doodads/pot_large.JD',
@@ -4774,7 +4894,6 @@ function build(){
 				reverb : 'large_chamber', reverbWet : 0.35, lowpass : 0,
 			}),
 
-
 		},
 
 		Door : {
@@ -4962,6 +5081,7 @@ function build(){
 						libMat.Nature.SpruceSnow,
 					],
 				}),
+				
 			},
 			Clutter : {
 				Stones : new LibMesh({
@@ -5143,6 +5263,17 @@ function build(){
 							timeScale : 0.1
 						}
 					},
+				}),
+				CornerVines : new LibMesh({
+					url : 'nature/corner_vines.glb',
+					tags : [stdTag.mVines],
+					materials : [libMat.Nature.Vines],
+					animations : {
+						"idle" : {
+							timeScale : 0.5
+						}
+					},
+					scale : 100
 				}),
 
 				BushThiccGroup : new LibMesh({
