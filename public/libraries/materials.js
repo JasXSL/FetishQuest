@@ -237,6 +237,28 @@ LibMaterial.library = {
 			roughness : 0.8,
 			side : THREE.DoubleSide,
 		}),
+		Tile : new LibMaterial({
+			map : 'tileable/metaltile.jpg',
+			metalness : 0.8,
+			roughness : 0.8,
+		}),
+		CopperTrim : new LibMaterial({
+			map : 'tileable/copper_trim.jpg',
+			metalness : 0.8,
+			roughness : 0.8,
+		}),
+		MachineTrim : new LibMaterial({
+			map : 'tileable/steampunk_machine_trim.jpg',
+			metalness : 0.8,
+			roughness : 0.8,
+		}),
+		SteampunkTrim : new LibMaterial({
+			map : 'tileable/steampunk_trim.jpg',
+			metalness : 0.7,
+			roughness : 0.5,
+		}),
+		
+		
 	},
 	Solids : {
 		Black : new LibMaterial({color:0, metalness:0,roughness:1}),
@@ -252,6 +274,7 @@ LibMaterial.library = {
 	Glass : {
 		Green : new LibMaterial({color:new THREE.Color(0x226622), metalness:0.3,roughness:0.4}),
 		BlueTransparent : new LibMaterial({color:new THREE.Color(0x226699), metalness:0.3,roughness:0.3, opacity:0.5, transparent:true}),
+		Default : new LibMaterial({color:new THREE.Color(0x999999), metalness:0.8,roughness:0.05, opacity:0.4, transparent:true, side:THREE.DoubleSide, envMap:LibMaterial.cubeMaps.bridge}),
 		Brown : new LibMaterial({color:new THREE.Color(0x332200), metalness:0.3,roughness:0.4}),
 		Purple : new LibMaterial({color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4}),
 		RedGlow : new LibMaterial({color:new THREE.Color(0xF0A0A0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x400000)}),

@@ -1952,6 +1952,37 @@ function build(){
 
 					},
 				}),
+				Lockbox : new LibMesh({
+					url : 'containers/lockbox.glb',
+					materials : [
+						libMat.Metal.MachineTrim
+					],
+					scale : 100,
+
+					
+					tags : [],
+					want_actions : [[GameAction.types.loot,GameAction.types.autoLoot]],
+					// Animation settings
+					animations : {
+						"open" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+						}
+					},
+					onInteract : function( mesh, room, asset ){
+						// Opening and closing a chest is local
+						let stage = mesh.userData._stage;
+						// Todo
+						//stage.playSound(mesh, 'media/audio/chest_open.ogg', 0.5);
+					},
+					afterStagePlaced : function( dungeonAsset, mesh ){
+						
+						if( !dungeonAsset.isInteractive() ){
+							mesh.userData.playAnimation("idle_open");
+						}
+
+					},
+				}),
 			},
 			Emitters : {
 				WallSconce : new LibMesh({
@@ -5081,7 +5112,16 @@ function build(){
 						libMat.Nature.SpruceSnow,
 					],
 				}),
-				
+				Jungle : new LibMesh({
+					tags : [stdTag.mTree],
+					url : 'nature/jungle_tree.glb',
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.BushPalm,
+						libMat.Nature.BushTropical,
+					],
+					scale : 100
+				}),
 			},
 			Clutter : {
 				Stones : new LibMesh({
@@ -5091,6 +5131,14 @@ function build(){
 						libMat.Rock.Wall
 					],
 				}),
+				Roots : new LibMesh({
+					url : 'nature/roots.glb',
+					tags : [],
+					materials : [
+						libMat.Wood.BarkMoss
+					],
+				}),
+				
 			},
 			Rocks : {
 				A : new LibMesh({
@@ -5249,6 +5297,7 @@ function build(){
 					tags : [stdTag.mBush],
 					materials : [libMat.Nature.TreeB],
 				}),
+				
 				VinePatch : new LibMesh({
 					url : 'nature/vinepatch.JD',
 					tags : [stdTag.mVines],
@@ -5261,6 +5310,21 @@ function build(){
 					animations : {
 						"idle" : {
 							timeScale : 0.1
+						}
+					},
+				}),
+				HangingVines : new LibMesh({
+					url : 'nature/hanging_vines.glb',
+					tags : [stdTag.mVines],
+					materials : [
+						libMat.Wood.Bark,
+						libMat.Nature.BushTropical,
+						libMat.Nature.RazzyBerryBush,
+					],
+					scale : 100,
+					animations : {
+						"idle" : {
+							timeScale : 1
 						}
 					},
 				}),
@@ -5535,6 +5599,7 @@ function build(){
 					tags : [stdTag.mMushroom],
 					url : 'nature/mushrooms_a.glb',
 					materials : [libMat.Nature.Mushrooms],
+					scale:100,
 				}),
 				ThiccBig : new LibMesh({
 					tags : [stdTag.mMushroom],
@@ -5560,11 +5625,230 @@ function build(){
 					tags : [stdTag.mMushroom],
 					url : 'nature/mushrooms_c_big.glb',
 					materials : [libMat.Nature.Mushrooms],
+					scale:100,
 				}),
 			}
 		},
 		
 		Mech : {
+			Room : {
+				big : new LibMesh({
+					isRoom : true,
+					url : 'rooms/workshop_big.glb',
+					materials : [
+						libMat.Metal.Tile,
+						libMat.Metal.SteampunkTrim
+					],
+					tags : [stdTag.mWall],
+					reverb : 'chatter', reverbWet : 0.25, lowpass : 0,
+					scale : 100
+				}),
+				corner : new LibMesh({
+					isRoom : true,
+					url : 'rooms/workshop_corner.glb',
+					materials : [
+						libMat.Metal.Tile,
+						libMat.Metal.SteampunkTrim
+					],
+					tags : [stdTag.mWall],
+					reverb : 'chatter', reverbWet : 0.2, lowpass : 0,
+					scale : 100
+				}),
+				long : new LibMesh({
+					isRoom : true,
+					url : 'rooms/workshop_long.glb',
+					materials : [
+						libMat.Metal.Tile,
+						libMat.Metal.SteampunkTrim
+					],
+					tags : [stdTag.mWall],
+					reverb : 'chatter', reverbWet : 0.2, lowpass : 0,
+					scale : 100
+				}),
+				x : new LibMesh({
+					isRoom : true,
+					url : 'rooms/workshop_x.glb',
+					materials : [
+						libMat.Metal.Tile,
+						libMat.Metal.SteampunkTrim
+					],
+					tags : [stdTag.mWall],
+					reverb : 'chatter', reverbWet : 0.2, lowpass : 0,
+					scale : 100
+				}),
+				small : new LibMesh({
+					isRoom : true,
+					url : 'rooms/workshop_small.glb',
+					materials : [
+						libMat.Metal.Tile,
+						libMat.Metal.SteampunkTrim
+					],
+					tags : [stdTag.mWall],
+					reverb : 'bathroom', reverbWet : 0.35, lowpass : 0,
+					scale : 100
+				}),
+				Pillar : new LibMesh({
+					url : 'structure/mech_pillar.glb',
+					materials : [
+						libMat.Metal.SteampunkTrim,
+					],
+					tags : [],
+					scale : 100
+				}),
+			},
+			Furniture : {
+				Table : new LibMesh({
+					url : 'furniture/workshop_table.glb',
+					materials : [
+						libMat.Metal.SteampunkTrim
+					],
+					tags : [stdTag.mTable],
+					scale : 100
+				}),
+				MachineGiant : new LibMesh({
+					url : 'furniture/machine_giant.glb',
+					materials : [
+						libMat.Metal.CopperTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				MachineB : new LibMesh({
+					url : 'furniture/machine_b.glb',
+					materials : [
+						libMat.Metal.MachineTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				MachineA : new LibMesh({
+					url : 'furniture/machine_a.glb',
+					materials : [
+						libMat.Metal.MachineTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				ControlPanel : new LibMesh({
+					url : 'furniture/control_panel.glb',
+					materials : [
+						libMat.Metal.CopperTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				GeneratorBroken : new LibMesh({
+					url : 'furniture/generator_broken.glb',
+					materials : [
+						libMat.Metal.CopperTrim,
+						libMat.Wood.Crate
+					],
+					tags : [],
+					scale : 100
+				}),
+				Generator : new LibMesh({
+					url : 'furniture/generator.glb',
+					materials : [
+						libMat.Metal.CopperTrim,
+						libMat.Wood.Crate
+					],
+					animations : {
+						"active" : {
+							timeScale : 2
+						}
+					},
+					tags : [],
+					scale : 100
+				}),
+				
+			},
+			Doodads : {
+				Toaster : new LibMesh({
+					url : 'doodads/toaster.glb',
+					materials : [
+						libMat.Metal.CopperTrim
+					],
+					tags : [stdTag.mTable],
+					scale : 100
+				}),
+				Still : new LibMesh({
+					url : 'doodads/still.glb',
+					materials : [
+						libMat.Metal.CopperTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				PropaneTank : new LibMesh({
+					url : 'doodads/propane_tank.glb',
+					materials : [
+						libMat.Metal.CopperTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				MortarAndPestle : new LibMesh({
+					url : 'doodads/mortar_and_pestle.glb',
+					materials : [
+						libMat.Marble.Tiles,
+						libMat.Metal.CopperTrim
+					],
+					tags : [],
+					scale : 100
+				}),
+				GlassVase : new LibMesh({
+					url : 'doodads/glass_vase.glb',
+					materials : [
+						libMat.Glass.Default
+					],
+					tags : [],
+					scale : 100
+				}),
+				GlassFlask : new LibMesh({
+					url : 'doodads/glass_flask.glb',
+					materials : [
+						libMat.Glass.Default
+					],
+					tags : [],
+					scale : 100
+				}),
+				GlassBeaker : new LibMesh({
+					url : 'doodads/glass_beaker.glb',
+					materials : [
+						libMat.Glass.Default
+					],
+					tags : [],
+					scale : 100
+				}),
+				TestTubes : new LibMesh({
+					url : 'doodads/test_tubes.glb',
+					materials : [
+						libMat.Wood.Crate,
+						libMat.Glass.Default
+					],
+					tags : [],
+					scale : 100
+				}),
+				CopperSpool : new LibMesh({
+					url : 'doodads/copper_spool.glb',
+					materials : [
+						libMat.Metal.CopperTrim,
+						libMat.Wood.Crate
+					],
+					tags : [],
+					scale : 100
+				}),
+				GasGrenade : new LibMesh({
+					url : 'doodads/gas_grenade.glb',
+					materials : [
+						libMat.Metal.CopperTrim,
+					],
+					tags : [],
+					scale : 100
+				}),
+				
+				
+			},
 			Traps : {
 				DildoArm : new LibMesh({
 					url : 'doodads/vibtrap.glb',
