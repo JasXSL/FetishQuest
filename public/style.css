@@ -2,9 +2,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap'); /* Good for books */
 @import url('https://fonts.googleapis.com/css2?family=Redressed&display=swap'); /* Fancy books */
 :root{
-	--iconOff : url(media/ui/fq_mom_atk.png);
-	--iconDef : url(media/ui/fq_mom_def.png);
-	--iconUti : url(media/ui/fq_mom_uti.png);
+	--iconOff : url(media/ui/triangle.svg);
+	--iconDef : url(media/ui/square.svg);
+	--iconUti : url(media/ui/circle.svg);
+	--iconOffEmpty : url(media/ui/triangle_empty.svg);
+	--iconDefEmpty : url(media/ui/square_empty.svg);
+	--iconUtiEmpty : url(media/ui/circle_empty.svg);
 }
 
 body, html{
@@ -2896,8 +2899,9 @@ div.scroll{
 		top:0; left:0; right:0; bottom: 0;
 	}
 	#ui > div.momentumGain > div.momentumIcon{
-		width: 10vmax;
-		height: 10vmax;
+		width: 7vmax;
+		height: 7vmax;
+		margin:1vmax;
 		position: absolute;
 		left: 50%;
 		top: 50%;
@@ -3459,8 +3463,12 @@ div.scroll{
 		margin:0 0.5vh;
 	}
 	*/
-	#ui > div.actionbar > div.resources > div.point{
-		background:rgba(200,200,200,0.25);
+	#ui > div.actionbar > div.resources > div.point,
+	#ui > div.actionbar > div.resources.re > div.point.on:hover > div
+	{
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size:contain;
 	}
 	@keyframes momChange{
 		from{
@@ -3506,13 +3514,13 @@ div.scroll{
 		transform:scaleY(1.1);
 	}
 	#ui > div.actionbar > div.resources div.point.off{
-		background: linear-gradient(to bottom, rgba(246,244,184,1) 0%,rgba(240,233,102,1) 50%,rgba(232,225,86,1) 51%,rgba(246,239,112,1) 100%);
+		background-image: var(--iconOff), linear-gradient(to bottom, rgba(246,244,184,1) 0%,rgba(240,233,102,1) 50%,rgba(232,225,86,1) 51%,rgba(246,239,112,1) 100%);
 	}
 	#ui > div.actionbar > div.resources div.point.def{
-		background: linear-gradient(to bottom, rgba(184,245,246,1) 0%,rgba(102,240,240,1) 50%,rgba(86,232,232,1) 51%,rgba(112,246,246,1) 100%);
+		background-image: var(--iconDef), linear-gradient(to bottom, rgba(184,245,246,1) 0%,rgba(102,240,240,1) 50%,rgba(86,232,232,1) 51%,rgba(112,246,246,1) 100%);
 	}
 	#ui > div.actionbar > div.resources div.point.uti{
-		background: linear-gradient(to bottom, rgba(192,246,184,1) 0%,rgba(123,240,102,1) 50%,rgba(108,232,86,1) 51%,rgba(132,246,112,1) 100%);
+		background-image: var(--iconUti), linear-gradient(to bottom, rgba(192,246,184,1) 0%,rgba(123,240,102,1) 50%,rgba(108,232,86,1) 51%,rgba(132,246,112,1) 100%);
 	}
 
 	#ui > div.actionbar > div.resources div.point.highlighted{
@@ -3648,28 +3656,19 @@ div.scroll{
 		display: flex;
 		justify-content: center;
 	}
-	div.action > div.missingMom > div{
-		background: rgba(0,0,0,0.75);
-		border-radius:1vmax;
-	}
-	div.action > div.missingMom > div > div.bg{
-		width:.6vmax;
-		height: .6vmax;
-		border-radius: 1vmax;
-		margin: 1px;
-	}
-	div.action > div.missingMom div.Off{ border:2px solid #FFA; }
-	div.action > div.missingMom div.Def{ border:2px solid #AFF; }
-	div.action > div.missingMom div.Uti{ border:2px solid #AFA; }
+	div.action > div.missingMom > div{ width:1vmax; height:1vmax; background-size:100% 100%; background-position: center;  }
+	div.action > div.missingMom div.Off{ background-image:var(--iconOffEmpty); }
+	div.action > div.missingMom div.Def{ background-image:var(--iconDefEmpty); }
+	div.action > div.missingMom div.Uti{ background-image:var(--iconUtiEmpty); }
 
-	div.action > div.missingMom > div.fill.Off > div.bg{
-		background:#FFA;
+	div.action > div.missingMom > div.fill.Off{
+		background-image:var(--iconOff);
 	}
-	div.action > div.missingMom > div.fill.Def > div.bg{
-		background:#AFF;
+	div.action > div.missingMom > div.fill.Def{
+		background-image:var(--iconDef);
 	}
-	div.action > div.missingMom > div.fill.Uti > div.bg{
-		background:#AFA;
+	div.action > div.missingMom > div.fill.Uti{
+		background-image:var(--iconUti);
 	}
 
 	.OffColor{ color:#FFD; }
@@ -3967,6 +3966,18 @@ div.scroll{
 		display:block;
 		flex:50%;
 	}
+	#tooltip div.stats > span.tooltipMomentum > span > div{
+		display:inline-block;
+		width:1vmax; height:1vmax;
+		margin:0.1vmax;
+		background-size: 100% 100%;
+	}
+	#tooltip div.stats > span.tooltipMomentum > span.Off > div{ background-image: var(--iconOff); }
+	#tooltip div.stats > span.tooltipMomentum > span.Def > div{ background-image: var(--iconDef); }
+	#tooltip div.stats > span.tooltipMomentum > span.Uti > div{ background-image: var(--iconUti); }
+	
+
+
 
 /**/
 

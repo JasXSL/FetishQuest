@@ -1106,13 +1106,19 @@ class Action extends Generic{
 				for( let i = 0; i < Player.MOMENTUM_TYPES.length; ++i ){
 
 					const t = Player.MOMENTUM_TYPES[i];
+					const shortName = Player.MOMENTUM_NAMES_SHORT[i];
 					const cost = this.getMomentumCost(t);
-					if( cost )
-						momTypes.push('<span class="'+Player.MOMENTUM_CLASSES[i]+'">'+cost+' '+Player.MOMENTUM_NAMES_SHORT[i]+'</span>');
+					if( !cost )
+						continue;
+					let momIcons = '<span class="'+shortName+'">'; 
+					for( let n = 0; n < cost; ++n )
+						momIcons += '<div></div>';
+					momIcons += '</span>';
+					momTypes.push(momIcons);
 
 				}
 				if( momTypes.length )
-					html += '<span>'+momTypes.join(' ')+'</span>';
+					html += '<span class="tooltipMomentum">'+momTypes.join(' ')+'</span>';
 
 			}
 			

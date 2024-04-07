@@ -15,6 +15,7 @@ import AudioTrigger from './AudioTrigger.js';
 import stdTag from '../libraries/stdTag.js';
 import Generic from './helpers/Generic.js';
 import PlayerClass from './PlayerClass.js';
+import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
 
 export default class StaticModal{
 
@@ -3232,7 +3233,7 @@ export default class StaticModal{
 				}
 				this.storiesWrapper.replaceChildren(...storyDivs);
 				this.storiesWrapper.childNodes.forEach(el => el.onclick = () =>{
-					StaticModal.set('newGame', el.dataset.story);
+					StaticModal.set('newGame', el.dataset.label);
 					game.uiSelect();
 				});
 
@@ -4003,6 +4004,7 @@ export default class StaticModal{
 				if( !story )
 					story = glib.get('_MAIN_','Story');
 
+				
 
 				const galleryPlayers = glib.getAllValues('PlayerGalleryTemplate');
 				const maxOpts = Math.min(4, story.max_nr_player_options) || 4;
@@ -4037,23 +4039,28 @@ export default class StaticModal{
 
 				this.cData.nrPlayers.innerText = np;
 
+				const applyTTags = el => {
+					const out = el.player;
+					out._tTags = el.tags;
+					return out;
+				}
+
 				const refreshViablePlayers = async () => {
 
 					// New game screen
 					let viablePlayers = [];
-					await Game.db.chars.each(ch => {
-						ch._tTags = ['as_upperBody', 'as_lowerBody']; // Temporary tags
-						viablePlayers.push(new Player(ch));
-					});
-					viablePlayers = viablePlayers.concat(Player.loadThese(story.player_options));
+
 					if( story.allow_gallery ){
-						viablePlayers = viablePlayers.concat(galleryPlayers.map(el => {
-							const out = el.player;
-							out._tTags = el.tags;
-							return out;
-						}));
+						await Game.db.chars.each(ch => {
+							ch._tTags = ['as_upperBody', 'as_lowerBody']; // Temporary tags
+							viablePlayers.push(new Player(ch));
+						});
 					}
+					viablePlayers = viablePlayers.concat(PlayerGalleryTemplate.loadThese(story.player_options).map(applyTTags));
 					
+					if( story.allow_gallery ){
+						viablePlayers = viablePlayers.concat(galleryPlayers.map(applyTTags));
+					}
 
 					let vpDivs = [];
 					for( let pl of viablePlayers ){

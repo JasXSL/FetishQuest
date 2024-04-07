@@ -442,6 +442,16 @@ export function asset(){
 			html += '<label title="Only used when freeze time is set in the story">Force: <input type="checkbox" name="data::force" class="saveable" '+(asset.data.force ? 'checked' : '')+'" /></label>';
 		html += '</div>';	
 	}
+	else if( type == Types.setLevel ){
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				level : 1,
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label title="Level to set">Level: <input type="number" step=1 min=0 name="data::level" class="saveable" value="'+esc(asset.data.level || 0)+'" /></label>';
+		html += '</div>';	
+	}
 	else if( type == Types.setRain ){
 
 		if( !asset.data || typeof asset.data !== "object" )

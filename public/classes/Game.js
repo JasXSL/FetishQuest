@@ -113,6 +113,7 @@ export default class Game extends Generic{
 		this._combat_changed = 0;						// Host only. Game time when combat was last toggled
 
 		this.hotkeys = [1,2,3,4,5,6,7,8,9,0];
+		
 
 		this._bot_timer = false;						// Timeout handling bot play
 		this._db_save_timer = null;						// Timer to store on HDD		
@@ -200,7 +201,7 @@ export default class Game extends Generic{
 		// Run story game actions
 		for( let ga of this.story.game_actions )
 			ga.trigger( game.players[0], undefined, false, game.players[0], true );
-		this.story.game_actions = []; // Wipe the game actions after running them
+		this.story.onGameStart();
 		/*
 		Todo: Uncomment when chrome unfucks their console
 		window.onerror = error => {
@@ -656,8 +657,20 @@ export default class Game extends Generic{
 
 	}
 
+	isExpDisabled(){
+		return this.story.no_exp;
+	}
+
 	isGearLeveled(){
 		return this.story.leveled_gear;
+	}
+
+	isAwarenessEnabled(){
+		return !this.story.disable_awareness;
+	}
+
+	isKinkGenEnabled(){
+		return !this.story.no_kinks;
 	}
 
 
@@ -728,14 +741,23 @@ export default class Game extends Generic{
 		}
 		await delay(2000);
 
-		this.restoreNonDeadPlayers();
-		this.restorePlayerTeam( Player.TEAM_PLAYER );
+
+		for( let action of this.story.death_actions )
+			action.trigger(game.players[0]);
 		
-		// Return to the dungeon entrance
+
+		if( !this.story.death_action_override ){
+
+			this.restoreNonDeadPlayers();
+			this.restorePlayerTeam( Player.TEAM_PLAYER );
+			
+			// Return to the dungeon entrance
+			game.ui.addText( "The players wake up at the dungeon's entrance!", undefined, undefined, undefined, 'center' );
+			this.dungeon.goToRoom(losers[0], 0);
+
+		}
+
 		this.ui.draw();
-		
-		game.ui.addText( "The players wake up at the dungeon's entrance!", undefined, undefined, undefined, 'center' );
-		this.dungeon.goToRoom(losers[0], 0);
 	}
 
 	restoreNonDeadPlayers(){
@@ -987,6 +1009,9 @@ export default class Game extends Generic{
 	/* TIME */
 	addSeconds( seconds, force ){
 
+		if( !this.is_host )
+			return; // only host may add seconds
+
 		if( this.story.freeze_time && !force )
 			return;
 
@@ -1180,13 +1205,19 @@ export default class Game extends Generic{
 		if( !dungeon )
 			dungeon = this.dungeon.label;
 
-		// Get default vars
-		let base = glib.get(dungeon, 'Dungeon');
-		if( !base )
-			base = {};
-		else{
-			base.loadState(); // Needed to get dvars modified by the game
-			base = base.vars;
+		let base = this.dungeon.vars;
+		// Only fetch from db if it's not the current dungeon, since that breaks on procedural dungeons
+		if( dungeon !== this.dungeon.label ){
+
+			// Get default vars
+			base = glib.get(dungeon, 'Dungeon');
+			if( !base )
+				base = {};
+			else{
+				base.loadState(); // Needed to get dvars modified by the game
+				base = base.vars;
+			}
+
 		}
 
 		// Shallow clone

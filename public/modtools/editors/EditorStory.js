@@ -2,6 +2,7 @@ import HelperAsset from './HelperAsset.js';
 
 import * as EditorCondition from './EditorCondition.js';
 import * as EditorPlayer from './EditorPlayer.js';
+import * as EditorGallery from './EditorGallery.js';
 import * as EditorDungeon from './EditorDungeon.js';
 import * as EditorAssetTemplate from './EditorAssetTemplate.js';
 import * as EditorMaterialTemplate from './EditorMaterialTemplate.js';
@@ -38,8 +39,11 @@ export function asset(){
 		html += '<label>Min Nr Player Options: <input type="number" name="min_nr_player_options" min=1 step=1 class="saveable" value="'+esc(dummy.min_nr_player_options)+'" /></label>';
 		html += '<label>Max Level: <input type="number" name="max_level" min=1 step=1 class="saveable" value="'+esc(dummy.max_level)+'" /></label>';
 		html += '<label>Allow Gallery: <input type="checkbox" name="allow_gallery" class="saveable" value=1 '+(dummy.allow_gallery ? 'checked' : '')+' /></label>';
-		html += '<label>Freeze Time: <input type="checkbox" name="freze_time" class="saveable" value=1 '+(dummy.freeze_time ? 'checked' : '')+' /></label>';
+		html += '<label>Freeze Time: <input type="checkbox" name="freeze_time" class="saveable" value=1 '+(dummy.freeze_time ? 'checked' : '')+' /></label>';
 		html += '<label>Unleveled equipment: <input type="checkbox" name="leveled_gear" class="saveable" value=1 '+(dummy.leveled_gear ? 'checked' : '')+' /></label>';
+		html += '<label>Prevent default death action: <input type="checkbox" name="death_action_override" class="saveable" value=1 '+(dummy.death_action_override ? 'checked' : '')+' /></label>';
+		html += '<label>Disable experience: <input type="checkbox" name="no_exp" class="saveable" value=1 '+(dummy.no_exp ? 'checked' : '')+' /></label>';
+		html += '<label>Disable kinks: <input type="checkbox" name="no_kinks" class="saveable" value=1 '+(dummy.no_kins ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="desc" class="saveable">'+esc(dummy.desc)+'</textarea>';
@@ -50,6 +54,7 @@ export function asset(){
 	html += '<br />Allowed asset templates: <div class="allowed_templates_armor"></div>';
 	html += '<br />Allowed material templates: <div class="allowed_templates_material"></div>';
 	html += '<br />Start game actions: <div class="game_actions"></div>';
+	html += '<br />Player loss game actions: <div class="death_actions"></div>';
 
 	html += '<br />Starting area: <div class="start_dungeon"></div>';
 	
@@ -68,13 +73,14 @@ export function asset(){
 	}
 	this.setDom(html);
 
-	this.dom.querySelector("div.player_options").appendChild(EditorPlayer.assetTable(this, asset, "player_options"));
+	this.dom.querySelector("div.player_options").appendChild(EditorGallery.assetTable(this, asset, "player_options"));
 	this.dom.querySelector("div.npcs").appendChild(EditorPlayer.assetTable(this, asset, "npcs"));
 	this.dom.querySelector("div.start_dungeon").appendChild(EditorDungeon.assetTable(this, asset, "start_dungeon", true));
 
 	this.dom.querySelector("div.allowed_templates_armor").appendChild(EditorAssetTemplate.assetTable(this, asset, "allowed_templates_armor"));
 	this.dom.querySelector("div.allowed_templates_material").appendChild(EditorMaterialTemplate.assetTable(this, asset, "allowed_templates_material"));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
+	this.dom.querySelector("div.death_actions").appendChild(EditorGameAction.assetTable(this, asset, "death_actions"));
 
 
 	HelperAsset.autoBind( this, asset, DB);

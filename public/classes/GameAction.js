@@ -1189,6 +1189,9 @@ export default class GameAction extends Generic{
 			Calculator.run(String(this.data.formula), evt, {});
 
 		}
+		else if( this.type === types.setLevel ){
+			player.level = Calculator.run(this.data.level, new GameEvent({sender:player, target:player})) || 1;
+		}
 
 		else{
 			console.error("Game action triggered with unhandle type", this.type, this);
@@ -1381,6 +1384,7 @@ GameAction.types = {
 	remFollower : 'remFollower',
 	setRain : 'setRain',
 	mathScript : 'mathScript',					// Runs the calculator. Useful since the math engine comes with built in functions that lets you do more complex modifications on dVars
+	setLevel : 'setLevel',				
 };
 
 GameAction.TypeDescs = {
@@ -1443,7 +1447,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.setRain] : '{amount:(float)rain} - Sets rain between 0 (off) and 1 (pouring).',
 	[GameAction.types.mathScript] : '{formula:(str)formula} - Runs a math formula. This is useful because the math lib comes with builtin functions that makes it easier to manage dVars, such as setDvar(dungeonLabel, varLabel, val) and shuffle. This is the only way to handle array type dVars.',
 	//[GameAction.types.removeFromRpVar] : '{ids:(arr)ids, players:(arr)calculatorTargetConsts} - Uses the Calculator.Targets targets to remove players from one or more rpvars',
-	
+	[GameAction.types.setLevel] : '{level:(int)level} - Sets player level',
 };
 
 // returns type : {[fieldName]:constructor}

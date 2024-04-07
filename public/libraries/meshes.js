@@ -139,6 +139,7 @@ class LibMesh{
 				
 				this.dbg("Data scene", data.scene);
 				const scene = SkeletonUtils.clone(data.scene);
+				scene.updateMatrixWorld();
 				scene.animations = animations = data.animations.slice();
 				data = scene;
 				// Since this importer deals entirely with groups, we gotta set the sub-names to HITBOX in order for mouse events to work
@@ -246,9 +247,16 @@ class LibMesh{
 
 
 		if( this.auto_bounding_box ){
-			let box = new THREE.Box3().setFromObject( mesh );
-			let max = box.max, min = box.min;
-			let boundingBox = new THREE.Mesh(
+
+			mesh.updateMatrix();
+			//mesh.geometry.applyMatrix4(mesh.matrix);
+			mesh.traverse(el => {
+				if( el.geometry )
+					el.geometry.applyMatrix4(mesh.matrix);
+			});
+			const box = new THREE.Box3().setFromObject( mesh );
+			const max = box.max, min = box.min;
+			const boundingBox = new THREE.Mesh(
 				new THREE.BoxGeometry(
 					Math.abs(max.x-min.x),
 					Math.abs(max.y-min.y),
@@ -262,6 +270,7 @@ class LibMesh{
 			boundingBox.position.y = min.y+(max.y-min.y)/2;
 			boundingBox.position.z = min.z+(max.z-min.z)/2;
 			mesh.add(boundingBox);
+
 		}
 
 
@@ -2475,6 +2484,50 @@ function build(){
 						});
 					}
 				}),
+				Lightbulb : new LibMesh({
+					scale : 100,
+					url : 'doodads/workshop_lamp.glb',
+					tags : [stdTag.mEmitter,],
+					materials : [
+						libMat.Metal.SteampunkTrim,
+						libMat.Glass.YellowGlow,
+					],
+					onFlatten : function(mesh){
+						let light = new THREE.PointLight(0xFFDDAA, 0.5*INTENSITY_MULTIPLIER_HALF_DECAY, 1600, 1);
+						light.position.y = 1.4;
+						light.distance = 400;
+						mesh.add(light);
+						
+
+						//let helper = new THREE.SpotLightHelper(light);
+						//mesh.add(helper);
+						let val = {
+							i : 0.5
+						};
+						mesh.userData.tweens = {
+							// Setting a tween to a function lets you retrigger it infinitely or until stopped manually
+							light : () => {
+								return new TWEEN.Tween(val)
+								.to(
+									{
+										i:0.54
+									}, 
+									Math.ceil(Math.random()*100)+200
+								)
+								.easing(TWEEN.Easing.Sinusoidal.InOut)
+								.repeat(Infinity)
+								.yoyo(true)
+								.onUpdate(() => {
+									light.intensity = val.i*INTENSITY_MULTIPLIER_HALF_DECAY;
+								})
+								.start();
+							}
+						};
+
+						
+					},
+
+				}),
 			},
 			Doodads : {
 				Tankard : new LibMesh({
@@ -4309,6 +4362,7 @@ function build(){
 		Temple : {
 			Door : {
 				Default : new LibMesh({
+					auto_bounding_box : true,
 					url : 'gates/temple_door.glb',
 					want_actions : [gameActionDoors],
 					materials : [
@@ -5599,12 +5653,13 @@ function build(){
 					tags : [stdTag.mMushroom],
 					url : 'nature/mushrooms_a.glb',
 					materials : [libMat.Nature.Mushrooms],
-					scale:100,
+					scale:1,
 				}),
 				ThiccBig : new LibMesh({
 					tags : [stdTag.mMushroom],
 					url : 'nature/mushrooms_a_big.glb',
 					materials : [libMat.Nature.Mushrooms],
+					scale : 100,
 				}),
 				FlyAgaric : new LibMesh({
 					tags : [stdTag.mMushroom],
@@ -5631,6 +5686,30 @@ function build(){
 		},
 		
 		Mech : {
+			Door : {
+				Default : new LibMesh({
+					auto_bounding_box : true,
+					url : 'gates/workshop_door.glb',
+					want_actions : [gameActionDoors],
+					materials : [
+						libMat.Metal.SteampunkTrim
+					],
+					animations : {
+						"open" : {
+							clampWhenFinished : true,
+							loop : THREE.LoopOnce,
+							timeScale : 2
+						}
+					},
+					onInteract : function( mesh, room, asset ){
+						LibMesh.playSound( mesh, asset, 'media/audio/mech_door.ogg', 0.5);
+					},
+					tags : [stdTag.mDoor],
+					door : LibMesh.DoorTypes.DOOR_AUTO_XY,
+					scale : 100,
+				}),
+				
+			},
 			Room : {
 				big : new LibMesh({
 					isRoom : true,

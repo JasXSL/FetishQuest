@@ -920,6 +920,9 @@ export default class Player extends Generic{
 
 	// Checks if we are aware of player
 	isAware( player ){
+
+		if( !window.game?.isAwarenessEnabled() )
+			return true;
 		
 		if( !player || !window.game?.battle_active )
 			return true;
@@ -1504,7 +1507,7 @@ export default class Player extends Generic{
 		for( let passive of this.passives )
 			passive.g_resetID();
 		
-		if( !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast, stdTag.plNoFetish]) )
+		if( game.isKinkGenEnabled() && !this.getKinks().length && !this.hasTag([stdTag.plBeast, stdTag.plTargetBeast, stdTag.plNoFetish]) )
 			this.shuffleKinks();
 		
 	}
@@ -2802,6 +2805,9 @@ export default class Player extends Generic{
 
 	// adds experience and returns levels gained
 	addExperience( points ){
+
+		if( game.isExpDisabled() )
+			return;
 
 		if( !points )
 			console.error("Invalid points to addexperience: ", points);

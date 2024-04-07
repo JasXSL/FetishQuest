@@ -278,6 +278,7 @@ LibMaterial.library = {
 		Brown : new LibMaterial({color:new THREE.Color(0x332200), metalness:0.3,roughness:0.4}),
 		Purple : new LibMaterial({color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4}),
 		RedGlow : new LibMaterial({color:new THREE.Color(0xF0A0A0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x400000)}),
+		YellowGlow : new LibMaterial({color:new THREE.Color(0xFFFF99), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0xFFFF99)}),
 		BlueGlow : new LibMaterial({color:new THREE.Color(0xA0C0F0), metalness:0.2,roughness:0.3, emissive:new THREE.Color(0x004060)}),
 		PurpleGlow : new LibMaterial({
 			color:new THREE.Color(0x331155), metalness:0.3,roughness:0.4,
