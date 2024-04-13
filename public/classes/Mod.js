@@ -1563,6 +1563,15 @@ export default class Mod extends Generic{
 		if( fixedParents.length )
 			console.log("Fixed ", fixedParents.length, "incorrectly parented roleplayStageOption conditions");
 
+		fixedParents = mod.mod.shopAssets.filter(el => {
+			if( !el.id ){
+				el.id = Generic.generateUUID();
+				return true;
+			}
+			return false;
+		});
+		if( fixedParents )
+			console.log("Fixed ", fixedParents.length, "shopAssets with no id");
 
 	}
 

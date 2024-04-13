@@ -47,12 +47,6 @@ const playerTemplate = $(
 					'<span class="armor resource thin" title="Damage reduction from armor." >'+
 						'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
 					'</span>'+
-					'<span class="chest resource thin">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/shirt.svg)"></div><span></span>'+
-					'</span>'+
-					'<span class="legs resource thin">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/trousers.svg)"></div><span></span>'+
-					'</span>'+
 					'<span class="arousal resource" title="Arousal">'+
 						'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
 					'</span>'+
@@ -1628,10 +1622,6 @@ export default class UI{
 		p.getActiveIcon().then(canvas => bgEl[0].replaceChildren(canvas));
 
 
-		// Update resource buttons
-		let ubDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.upperBody),
-			lbDur = p.getAssetDurabilityPercentageBySlot(Asset.Slots.lowerBody);
-		
 		const 
 			arousalDisabled = p.isArousalDisabled(),
 			apDisabled = p.isMomentumDisabled(),
@@ -1662,21 +1652,6 @@ export default class UI{
 
 		// Armor
 		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());
-		if( !p.isTargetBeast() ){
-
-			const uText = Math.ceil(ubDur*100)+'%';
-			const lText = Math.ceil(lbDur*100)+'%';
-
-			chestEl.toggleClass('hidden', !ubDur)
-				.attr('title', 'Upper body armor durability');
-			legsEl.toggleClass('hidden', !lbDur)
-				.attr('title', 'Lower body armor durability');
-
-			if( chestElSpan.text() !== uText )
-				chestElSpan.text(uText);
-			if( legsElSpan.text() !== lText )
-				legsElSpan.text(lText);
-		}
 
 		const armorValueRaw = Math.round(p.getArmorPoints(false));
 		const armorValueModified = Math.round((1-p.getArmorDamageMultiplier(myActive))*100);
@@ -2387,58 +2362,6 @@ export default class UI{
 
 	}
 
-
-
-	/* REPAIR HELPER */
-	// Repairs through an effect wrapper. Wrapper is the wrapper that triggered this.
-	drawRepair( sender, target, action ){
-		
-		let asset;
-		if( action && action.isAssetAction() )
-			asset = action.parent;
-
-		const inventory = target.getRepairableAssets();
-		inventory.sort((a,b) => {
-			if( a.equipped && !b.equipped )
-				return -1;
-			if( b.equipped && !a.equipped )
-				return 1;
-			if( a.level > b.level )
-				return -1;
-			if( b.level > a.level )
-				return 1;
-			if( a.name === b.name )
-				return 0;
-			return a.name < b.name ? -1 : 1;
-		});
-
-		this.modal.prepareSelectionBox();
-		for( let item of inventory ){
-
-			this.modal.addSelectionBoxItem( 
-				(item.equipped ? '<strong>' : '')+esc(item.name)+(item.equipped ? '</strong>' : ''), 
-				item.getTooltipText(), 
-				esc(item.id),
-				[Asset.RarityNames[item.rarity]],
-				false
-			);
-		}
-
-		this.modal.onSelectionBox(event => {
-			
-			let element = event.currentTarget,
-				id = $(element).attr('data-id');
-				
-			if( asset )
-				game.useRepairAsset(sender, target, asset.id, id);
-			else
-				this.modal.addError("Todo: add non-asset armor repairs");
-
-			this.modal.closeSelectionBox();
-			
-		});
-
-	}
 
 
 	/* CONSOLE (ctrl+up) LOG */

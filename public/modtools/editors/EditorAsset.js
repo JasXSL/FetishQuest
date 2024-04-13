@@ -49,9 +49,7 @@ export function asset(){
 		}
 		html += '</select></label>';
 		html += '<label title="Use -1 to set it to average player level. -2 levels up automatically">Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=-1 step=1 class="saveable" /></label>';
-		html += '<label>Durability Bonus: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" step=1 type="number" class="saveable" /></label>';
 		html += '<label>Stacking: <input name="stacking" class="saveable" type="checkbox" '+(dummy.stacking ? 'checked' : '')+' /></label>';
-		html += '<label title="Durability doubled">Mastercrafted: <input name="mastercrafted" class="saveable" type="checkbox" '+(dummy.mastercrafted ? 'checked' : '')+' /></label>';
 		html += '<label title="Weight is cut in half">Fitted: <input name="fitted" class="saveable" type="checkbox" '+(dummy.fitted ? 'checked' : '')+' /></label>';
 		html += '<label title="Stacks of this to add when adding this particular asset. Useful in templates.">'+
 			'Stacks to add: <input name="_stacks" class="saveable" type="number" min=1 step=1 value="'+(parseInt(dummy._stacks) || 1)+'" />'+
@@ -60,7 +58,6 @@ export function asset(){
 		html += '<label>No auto consume: <input name="no_auto_consume" class="saveable" type="checkbox" '+(dummy.no_auto_consume ? 'checked' : '')+' /></label>';
 		html += '<label>Soulbound: <input name="soulbound" class="saveable" type="checkbox" '+(dummy.soulbound ? 'checked' : '')+' /></label>';
 		html += '<label>Colorable: <input name="colorable" class="saveable" type="checkbox" '+(dummy.colorable ? 'checked' : '')+' /></label>';
-		html += '<label>Indestructible: <input name="indestructible" class="saveable" type="checkbox" '+(dummy.indestructible ? 'checked' : '')+' /></label>';
 		html += '<label title="Destroys the item when unequipped">Rem on unequip: <input name="rem_unequip" class="saveable" type="checkbox" '+(dummy.rem_unequip ? 'checked' : '')+' /></label>';
 		html += '<label title="Cannot be unequipped manually">No Unequip: <input name="no_unequip" class="saveable" type="checkbox" '+(dummy.no_unequip ? 'checked' : '')+' /></label>';
 		html += '<label title="In random momentum. Use -1 for game default">Unequip cost: <input name="unequip_cost" class="saveable" type="number" step=1 value="'+esc(dummy.unequip_cost)+'" /></label>';
@@ -161,7 +158,6 @@ export function list(){
 		equip_conditions: true,
 		tags : true,
 		wrappers : a => a.wrappers ? a.wrappers.length : 0,
-		durability_bonus : true,
 		stacking : true,
 		charges : true,
 		use_action : true,
@@ -237,10 +233,6 @@ export function help(){
 			'<td>Level of item. Setting it to -1 will have it set to the player average level when the item is found in game. Using -2 sets it to ALWAYS be the holder\'s level.</td>'+
 		'</tr>'+
 		'<tr>'+
-			'<td>Durability Bonus</td>'+
-			'<td>Only used for items that can be damaged (clothes). Adds extra durability points to the item.</td>'+
-		'</tr>'+
-		'<tr>'+
 			'<td>Stacking</td>'+
 			'<td>Item can stack. This should not be used for items that can be used or worn. Only in items that can safely stack, such as reagents or vendor trash.</td>'+
 		'</tr>'+
@@ -259,10 +251,6 @@ export function help(){
 		'<tr>'+
 			'<td>Colorable</td>'+
 			'<td>Allows players to dye the asset at a smith.</td>'+
-		'</tr>'+
-		'<tr>'+
-			'<td>Indestructible</td>'+
-			'<td>Prevents the item from taking damage from physical damage and other sources of armor damage.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Rem on unqeuip</td>'+

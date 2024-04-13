@@ -59,8 +59,6 @@ export default class Asset extends Generic{
 		this.wrappers = [];				// Passive effects
 		this.actives = [];				// Active wrappers with timers etc
 		this.level = 1;
-		this.durability_bonus = 0;
-		this.durability = this.getMaxDurability();
 		this.stacking = false;			// Setting this to true makes it non unique, but frees up space in your inventory
 		this.colorable = false;			// Can be recolored (Todo)
 		this.color_tag = '';
@@ -69,7 +67,6 @@ export default class Asset extends Generic{
 		this.color_base = "#FFFFFF";		// Base color of the item
 		this.hit_sound = '';			// Hit sound from punch etc attacks. You can use commas to pick one at random
 		this.fitted = false;			// Use half the weight
-		this.mastercrafted = false;		// Use twice the durability
 
 		this.charges = 0;				// Turns this item into a consumable. Use -1 for infinite
 		this.use_action = null;			// Set to an Action along with charges above to enable use
@@ -81,7 +78,6 @@ export default class Asset extends Generic{
 		this.basevalue = 0;				// Store value in copper. 0 = no sell
 		this.expires = 0;				// Lets an item expire, deleting it after time has passed in game.
 		this.rem_unequip = false;		// Remove this on unequip
-		this.indestructible = false;	// This item is indestructible
 		this.inBank = false;			// This item is in the bank
 		this.genLoot = false;			// Can be found as generated loot in chests and such
 		this.weight = 100;				// Weight in grams
@@ -117,8 +113,6 @@ export default class Asset extends Generic{
 			label : this.label,
 			description : this.description,
 			level : this.level,
-			durability_bonus : this.durability_bonus,
-			durability : this.durability,
 			weight : this.weight,
 			iuad : this.iuad,
 			charges : this.charges,
@@ -145,9 +139,7 @@ export default class Asset extends Generic{
 			snpre : this.snpre, 
 			game_actions: GameAction.saveThese(this.game_actions, full),
 			fitted : this.fitted,
-			mastercrafted : this.mastercrafted,
 			actives : Wrapper.saveThese(this.actives, full),
-			indestructible : this.indestructible,
 			inBank : this.inBank,
 			unequip_cost : this.unequip_cost,
 			equip_cost : this.equip_cost,
@@ -276,14 +268,6 @@ export default class Asset extends Generic{
 
 	}
 
-	getMaxDurability(){
-		return Math.ceil(10+this.durability_bonus) * (this.mastercrafted ? 2 : 1);
-	}
-
-	isDamaged(){
-		return this.durability < this.getMaxDurability();
-	}
-
 	equippable(){
 
 		let verifyConds = Condition.all(this.equip_conditions, new GameEvent({
@@ -306,50 +290,19 @@ export default class Asset extends Generic{
 		return this.use_action && this.use_action.castable() && this.use_action.getViableTargets().length;
 	}
 
-	isDamageable(){
-
-		if( this.indestructible )
-			return false;
-
-		const dmgSlots = [
-			Asset.Slots.upperBody,
-			Asset.Slots.upperBodyCosmetic,
-			Asset.Slots.lowerBody,
-			Asset.Slots.lowerBodyCosmetic,
-			Asset.Slots.jewelleryCosmetic,
-		];
-		for( let slot of dmgSlots ){
-
-			if( this.slots.includes(slot) )
-				return true;
-
-		}
-		return false;
-
-	}
-
 	isSellable(){
 		return this.getSellCost() > 0;
 	}
 	// Note: shop might not always be present
 	getSellCost( shop ){
+
 		if( this.basevalue < 1 )
 			return 0;
-		let out= this.basevalue/2;
-		if( this.durability <= 0 )
-			out = 1;
-		else
-			out *= (this.durability/this.getMaxDurability());
-		out = Math.floor(out);
+		let out= Math.floor(this.basevalue/2);
 		if( out < 1 )
 			out = 1;
-		return Math.floor(out);
-	}
+		return out;
 
-	getRepairCost( smithPlayer ){
-		const missingPoints = this.getMaxDurability()-this.durability;
-		let cost = missingPoints*2*Math.pow(2, this.rarity);
-		return Math.ceil(cost);
 	}
 
 	getUnequipCost(){
@@ -402,69 +355,10 @@ export default class Asset extends Generic{
 
 	}
 
-	// Returns true if the asset was destroyed. false if no damage was given, undefined if damaged but not destroyed
-	damageDurability( sender, effect, amount, fText = false ){
-
-		if( !this.isDamageable() )
-			return false;
-
-		amount = parseInt(amount);
-		if( isNaN(amount) )
-			return false;
-
-		let pre = this.durability;
-		this.durability -= Math.floor(amount);
-		if( this.durability <= 0 )
-			this.durability = 0;
-		if( this.durability > this.getMaxDurability() )
-			this.durability = this.getMaxDurability();
-
-		let change = this.durability-pre;
-		if( !change )
-			return false;
-
-		if( fText && change && this.parent instanceof Player )
-			game.ui.floatingCombatText(change, this.parent, "armor");
-
-		let txt = 'gained', cls = 'Mend';
-		if( change < 0 ){
-			txt = "lost";
-			cls = "Damage";
-		}
-		game.ui.addText( this.parent.getColoredName()+"'s "+this.name+" "+txt+" "+Math.abs(change)+" durability.", undefined, this.parent.id, this.parent.id, 'statMessage cloth'+cls );
-
-		if(pre > 0 && this.durability === 0 ){
-
-			new GameEvent({
-				type : GameEvent.Types.armorBroken,
-				sender : sender,
-				target : this.parent,
-				action : effect.parent.parent,
-				wrapper : effect.parent,
-				effect : effect,
-				asset : this
-			}).raise();
-			this.parent.onItemChange();
-			game.playFxAudioKitById('armorBreak', sender, this.parent, undefined, true );
-			game.ui.addText( this.parent.getColoredName()+"'s "+this.name+" broke!", undefined, this.parent.id, this.parent.id, 'statMessage important' );
-			return true;
-
-		}
-		
-	}
-
 	// Returns points of armor based on Asset.defaultArmorPoints
 	getArmorPoints(){
-
-		// Non-damageable shouldn't draw
-		if( !this.isDamageable() )
-			return 0;
-
-		// Item is broken, provide no protection
-		if( this.durability <= 0 )
-			return 0;
-
-		// Item is not in someone's inventory, this shouldn't happen triggered, but be a catch here regardless and return 0
+		
+		// Item is not in someone's inventory, this shouldn't happen, but be a catch here regardless and return 0
 		if( !(this.parent instanceof Player) )
 			return 0;
 
@@ -502,29 +396,6 @@ export default class Asset extends Generic{
 		this.repair();
 	}
 
-	// Repairs the object. If points is a NaN value, it restores ALL durability points
-	// Returns the amount of points gained
-	repair( points ){
-
-		let pre = this.durability;
-		if( isNaN(points) )
-			points = this.getMaxDurability();
-
-		if( points < 0 )
-			return 0;
-
-		this.durability += points;
-		if( this.durability > this.getMaxDurability() )
-			this.durability = this.getMaxDurability();
-
-		if( (pre === 0) != (this.durability !== 0) && this.parent && this.parent.onItemChange )
-			this.parent.onItemChange();
-
-		return this.durability-pre;
-
-	}
-
-
 	getRepairPointsFromUseAction( targetAsset, sender, target ){
 
 		let wrappers = this.use_action.wrappers;
@@ -539,12 +410,6 @@ export default class Asset extends Generic{
 				out += effect.getRepairValue(targetAsset, sender,target);
 		}
 		return out;
-	}
-
-	randomizeDurability(){
-		if( !this.isDamageable() )
-			return;
-		this.durability = 1+Math.floor(Math.random()*(this.getMaxDurability()-1));
 	}
 
 	getWeight(){
@@ -664,10 +529,7 @@ export default class Asset extends Generic{
 			(this.slots.includes(Asset.Slots.upperBody) || this.slots.includes(Asset.Slots.lowerBody)) 
 		){
 
-			if( this.durability )
-				html += '<em style="color:#FAA">Low level, armor reduced</em><br />';
-			else
-				html += '<em style="color:#FAA">Broken!</em><br />';
+			html += '<em style="color:#FAA">Low level, armor reduced</em><br />';
 
 		}
 		
@@ -688,9 +550,6 @@ export default class Asset extends Generic{
 				lv = game.getAveragePlayerLevel()+Math.abs(lv)-1;
 			
 			html += 'Lv '+lv+' | ';
-			
-			if( this.isDamageable() )
-				html += (+this.durability)+'/'+this.getMaxDurability()+' Durability | ';
 
 		}
 		html += this.getWeightReadable()+' ';
@@ -980,7 +839,6 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 	];
 	const numPrimarySlots = template.slots.filter(slot => statSlots.includes(slot)).length;
 	const fitted = Math.random() < 0.2;
-	const mastercrafted = Math.random() < 0.2;
 	
 	let out = new Asset({
 		category : this.Categories.armor,
@@ -992,17 +850,12 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 		tags : template.tags,
 		slots : template.slots,
 		weight : template.weight,
-		durability_bonus : template.durability_bonus*numPrimarySlots,
 		description : template.description,
 		fitted : fitted,
-		mastercrafted : mastercrafted,
 		rarity : rarity,
-		indestructible : template.indestructible,
 		basevalue : Math.round(
-			Math.pow(1.25, level)+
-			template.slots.length*10+
-			(20*Math.pow(3,rarity))+
-			Math.round(template.weight/100)
+			(5+Math.pow(10,rarity))+ 	// 6 copper for common, 15 for uncommon, then 105, 1005  
+			(rarity ? Math.round(template.weight/100) : 0)
 		),
 		colorable : template.colorable,
 		color_tag_base : template.color_tag_base, 
@@ -1128,7 +981,7 @@ Asset.Slots = {
 	lowerBody : "lowerBody",
 	hands : "hands",
 	action : "action",			// Potions etc, your toolbelt. You have 3 of these.
-	// These two are primarily cosmetic, but can have durability. Should not cover genitals. Can be things like a belt or gloves.
+	// These two are primarily cosmetic. Should not cover genitals. Can be things like a belt or gloves.
 	upperBodyCosmetic : "upperBodyCosmetic",	
 	lowerBodyCosmetic : "lowerBodyCosmetic",
 	jewelleryCosmetic : "jewelleryCosmetic",

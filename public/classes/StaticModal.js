@@ -2338,7 +2338,7 @@ export default class StaticModal{
 					</div>
 					<div class="assets repair shop inventory container"></div>
 					<div class="assets repair shop inventory empty">
-						<h3>No broken items.</h3>
+						<h3>No items to runeforge.</h3>
 					</div>
 					<div class="dyeOverlay cmContentBlock center hidden">
 						<div class="left">
@@ -2393,9 +2393,10 @@ export default class StaticModal{
 
 				await StaticModal.updateWallet(this.money);
 	
-				this.setTitle('Repair', smith.portrait);
+				this.setTitle('Runeforging', smith.portrait);
 
 				// Output repairable
+				/*
 				const handleRepairableClick = event => {
 					
 					const assetId = event.currentTarget.dataset.id;
@@ -2499,11 +2500,6 @@ export default class StaticModal{
 						
 					});
 
-					/*
-					
-					*/
-
-
 				};
 
 				const repairable = myPlayer.getAssets().filter(el => (el.isDamaged() && el.isDamageable()) || el.colorable);
@@ -2529,6 +2525,7 @@ export default class StaticModal{
 					
 				}
 				this.assets.replaceChildren(...divs);
+				*/
 
 			});
 
@@ -4876,8 +4873,6 @@ export default class StaticModal{
 						div.classList.add('equipmentSlot', 'item', 'tooltipParent');
 						if( asset )
 							div.classList.add(Asset.RarityNames[asset.rarity]);
-						if(asset && asset.durability <= 0 )
-							div.classList.add('broken');
 
 						div.dataset.slot = slot;
 						
@@ -5039,10 +5034,8 @@ export default class StaticModal{
 							<div>Name:<br /><input type="text" name="name" /></div>
 							<div>Shortname:<br /><input type="text" name="shortname" /></div>
 							<div>Level:<br /><input type="number" min=-1 step=1 name="level" /></div>
-							<div>Durability Bonus:<br /><input type="number" min=0 step=1 name="durability_bonus" /></div>
 							<div>Weight in grams:<br /><input type="number" min=0 step=1 name="weight" /></div>
 							<div>Rarity:<br /><input type="number" min=0 step=1 max=4 name="rarity" /></div>
-							<div>Durability:<br /><input type="number" min=0 step=1 name="durability" /></div>
 							<div>Loot Sound:<br /><input type="text" name="loot_sound" /></div>
 							<div>Icon:<br /><input type="text" name="icon" /></div>
 							<div>Hit sound:<br /><input type="text" name="hit_sound" /></div>
@@ -5156,7 +5149,6 @@ export default class StaticModal{
 					a.name = getEl("input[name=name]").value.trim();
 					a.shortname = getEl("input[name=shortname]").value.trim();
 					a.level = parseInt(getEl("input[name=level]").value) || 0;
-					a.durability_bonus = parseInt(getEl("input[name=durability_bonus]").value) || 0;
 					a.weight = parseInt(getEl("input[name=weight]").value) || 0;
 					a.rarity = parseInt(getEl("input[name=rarity]").value) || 0;
 					a.loot_sound = getEl("input[name=loot_sound]").value;
@@ -5168,9 +5160,6 @@ export default class StaticModal{
 					a.color_tag = getEl("input[name=color_tag]").value;
 					a.color_tag_base = getEl("input[name=color_tag_base]").value;
 					a.hit_sound = getEl("input[name=hit_sound]").value;
-					
-					if( a.parent )
-						a.durability = parseInt(getEl("input[name=durability]").value) || 0;
 					
 					
 					a.slots = [];
@@ -5199,7 +5188,6 @@ export default class StaticModal{
 		
 					if( a.parent ){
 		
-						a.repair(0);	// Makes sure durability doesn't go above max
 						let owner = getEl("select[name=owner]").value;
 						let newOwner = game.getPlayerById(owner);
 						if( owner !== a.parent.id && newOwner ){
@@ -5413,12 +5401,8 @@ export default class StaticModal{
 					getField('input[name=name]').value = a.name;
 					getField('input[name=shortname]').value = a.shortname;
 					getField('input[name=level]').value = parseInt(a.level) || 1;
-					getField('input[name=durability_bonus]').value = parseInt(a.durability_bonus) || 0;
 					getField('input[name=weight]').value = parseInt(a.weight) || 0;
 					getField('input[name=rarity]').value = parseInt(a.rarity) || 0;
-
-					getField('input[name=durability]').parentNode.classList.toggle('hidden', !a.parent);
-					getField('input[name=durability]').value = parseInt(a.durability) || 0;
 
 					getField('input[name=loot_sound]').value = a.loot_sound;
 					getField('input[name=icon]').value = a.icon;
@@ -5605,10 +5589,6 @@ export default class StaticModal{
 							<td>The pink number on your character portrait. At max arousal you orgasm, losing all momentum and gaining reduced momentum regen for 2 turns.</td>
 						</tr>
 						<tr>
-							<td>Armor Durability</td>
-							<td>You have two armor slots that affect damage taken, upp and lower body. Their durability is shown as the pants/shirt icons on your character. Broken armor does not give any benefits to the wearer.</td>
-						</tr>
-						<tr>
 							<td>Armor</td>
 							<td>Shown as a small shield icon on the character. Reduces all damage taken by that percent. Humanoids gain armor from their equipment, beasts have innate armor.</td>
 						</tr>						
@@ -5689,8 +5669,6 @@ export default class StaticModal{
 			div.classList.add('equippable');
 		if( item.equipped )
 			div.classList.add('equipped');
-		if( item.durability <= 0 )
-			div.classList.add('broken');
 
 		div.dataset.id = item.id;
 

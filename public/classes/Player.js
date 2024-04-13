@@ -1662,7 +1662,7 @@ export default class Player extends Generic{
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
 
-		this.start_equip = this.getAssetsEquipped(true).map(el => el.id);
+		this.start_equip = this.getAssetsEquipped().map(el => el.id);
 		
 
 		this.resetTempActions();
@@ -1937,11 +1937,6 @@ export default class Player extends Generic{
 	}
 
 	onDeath( attacker, effect ){
-		
-		// Damage durability
-		const assets = this.getAssetsEquipped(false);
-		for( let asset of assets )
-			asset.damageDurability( attacker, effect, Math.ceil(asset.getMaxDurability()*0.2) );
 
 		if( this.remOnDeath ){
 			game.removePlayer(this);
@@ -2147,10 +2142,10 @@ export default class Player extends Generic{
 			return false;
 		return asset.equipped;
 	}
-	getEquippedAssetsBySlots( slots, includeBroken ){
+	getEquippedAssetsBySlots( slots ){
 		if( !Array.isArray(slots) )
 			slots = [slots];
-		let assets = this.getAssetsEquipped(includeBroken);
+		let assets = this.getAssetsEquipped();
 		let out = [];
 		for(let asset of assets){
 			for( let slot of slots ){
@@ -2230,7 +2225,7 @@ export default class Player extends Generic{
 	// byPlayer is the player who initiated it. If it's not a player object, no event is raised
 	unequipAsset( id, byPlayer, noText, force ){
 
-		let assets = this.getAssetsEquipped(true);
+		let assets = this.getAssetsEquipped();
 		for(let asset of assets){
 
 			if( asset.id === id ){
@@ -2329,12 +2324,12 @@ export default class Player extends Generic{
 	}
 
 	// Returns equipped assets
-	getAssetsEquipped( includeBroken ){
+	getAssetsEquipped(){
 		const out = [], assets = this.getAssets();
 		for(let asset of assets){
 			if( asset === undefined )
 				console.error("Undefined asset in", this);
-			if( asset.equipped && (includeBroken || asset.durability > 0) )
+			if( asset.equipped )
 				out.push(asset);
 		}
 		return out;
@@ -2410,16 +2405,6 @@ export default class Player extends Generic{
 
 	}
 
-	// Returns a list of assets that have their durability damaged
-	getRepairableAssets( includeFullDurability = false ){
-
-		const assets = this.getAssets();
-		return assets.filter(asset => {
-			return (includeFullDurability || asset.isDamaged()) && asset.isDamageable();
-		});
-
-	}
-
 	getAssets( banked ){
 
 		return this.assets.filter(el => Boolean(el.inBank) === Boolean(banked));
@@ -2484,82 +2469,6 @@ export default class Player extends Generic{
 		game.ui.addText( player.getColoredName()+" looted "+asset.name+" from "+this.getColoredName()+".", undefined, player.id,  player.id, 'statMessage important' );
 		game.save();
 		game.ui.draw();
-
-	}
-
-	// By default it damages all worn items
-	// Returns an array of {armor_damage:{slot:damage}, armor_strips:{slot:true}}
-	damageDurability( sender, effect, amount, slots, fText = false ){
-
-		const out = {
-			armor_damage : {},
-			armor_strips : {}
-		};
-		let assets = [];
-		// Pick a slot at random
-		if( slots === 'RANDOM' ){
-
-			let viableAssets = this.getEquippedAssetsBySlots([Asset.Slots.lowerBody, Asset.Slots.upperBody]);
-			if( !viableAssets.length )
-				return;
-			assets = [viableAssets[Math.floor(Math.random()*viableAssets.length)]];
-
-		}
-		else{
-
-			if( !slots )
-				slots = [Asset.Slots.lowerBody, Asset.Slots.upperBody];
-			slots = toArray(slots);
-			assets = this.getEquippedAssetsBySlots(slots);
-
-		}
-
-		let asc = assets.slice();	// Prevents adding to the one we're looping over
-		for( let asset of asc ){
-			
-			let slots = asset.slots;
-			if( Math.random() < 0.5 && slots.includes(Asset.Slots.lowerBody) )
-				assets.push(...this.getEquippedAssetsBySlots([Asset.Slots.lowerBodyCosmetic]));
-			if( Math.random() < 0.5 && slots.includes(Asset.Slots.upperBody) )
-				assets.push(...this.getEquippedAssetsBySlots([Asset.Slots.upperBodyCosmetic]));
-			
-		}
-
-		// 10% chance for jewellery
-		if( Math.random() < 0.1 )
-			assets.push(...this.getEquippedAssetsBySlots([Asset.Slots.jewelleryCosmetic]));
-		
-		
-		amount = Math.round(amount);
-		for( let asset of assets ){
-
-			let destroyed = asset.damageDurability( sender, effect, amount, fText );
-			if( destroyed !== false ){
-				for( let slot of asset.slots ){
-
-					out.armor_damage[slot] = amount;
-					if( destroyed )
-						out.armor_strips[slot] = asset;
-
-				}
-			}
-
-		}
-		this.rebindWrappers();
-
-		return out;
-
-	}
-
-
-	// returns between 0 and 1
-	getAssetDurabilityPercentageBySlot( slot ){
-
-		let asset = this.getEquippedAssetsBySlots(slot);
-		if( !asset.length )
-			return 0;
-		asset = asset.shift();
-		return asset.durability / asset.getMaxDurability();
 
 	}
 
@@ -4384,7 +4293,7 @@ export default class Player extends Generic{
 				this._sp
 			);
 
-		const assets = this.getAssetsEquipped(false);
+		const assets = this.getAssetsEquipped();
 		for( let asset of assets )
 			out = out.concat(asset.wrappers);
 

@@ -24,7 +24,6 @@ class AssetTemplate extends Generic{
 		this.size = 1.0;					// Size multiplier, used in weight calculations
 		this.icon = 'perspective-dice-six-faces-random';
 		this.hit_sound = '';
-		this.indestructible = false;
 		
 		this.color_tag_base = '';			// If set, overrides the material. Should be the name of the color.
 		this.color_base = '#FFFFFF';		// Requires tag base to be set
@@ -54,7 +53,6 @@ class AssetTemplate extends Generic{
 			hit_sound : this.hit_sound,
 			color_tag_base : this.color_tag_base,
 			color_base : this.color_base,
-			indestructible : this.indestructible
 		};
 	}
 
@@ -150,7 +148,6 @@ class AssetTemplate extends Generic{
 			bonStats : mergeStats('bon',this.bonStats, mat.bonBons),
 			description : this.description,
 			tags : this.tags.concat(mat.tags.map(el => el)),
-			durability_bonus : mat.durability_bonus,
 			weight : Math.round(mat.weight*this.slots.length*this.size),
 			stat_bonus : mat.stat_bonus,
 			icon : this.icon,
@@ -159,7 +156,6 @@ class AssetTemplate extends Generic{
 			color_tag_base : this.color_tag_base || mat.color_tag_base,
 			color_base : this.color_tag_base ? this.color_base : mat.color_base,
 			hit_sound : hitSound,
-			indestructible : this.indestructible
 		});
 
 	}
@@ -178,7 +174,6 @@ class AssetOutput extends Generic{
 		this.bonStats = {};
 		this.description = "";
 		this.tags = [];
-		this.durability_bonus = 0;
 		this.weight = 0;
 		this.stat_bonus = 0;
 		this.icon = '';
@@ -187,7 +182,6 @@ class AssetOutput extends Generic{
 		this.color_tag_base = 'white';
 		this.color_base = '#FFFFFF';
 		this.hit_sound = '';
-		this.indestructible = false;
 		this.load(data);
 	}
 
@@ -264,7 +258,6 @@ class MaterialTemplate extends Generic{
 		this.tags = [];
 		this.weight = 400;			// Weight of an average chestpiece
 		this.level = 1;
-		this.durability_bonus = 1;		// Multiplier. Actual durability is based on level.
 		this.svBons = {};	// type : bon 
 		this.bonBons = {}; // == || ==
 		this.stat_bonus = 0;		// Adds additional stat points to generator
@@ -287,7 +280,6 @@ class MaterialTemplate extends Generic{
 			tags : this.tags,
 			weight : this.weight,
 			level : this.level,
-			durability_bonus : this.durability_bonus,
 			svBons : this.svBons,
 			bonBons : this.bonBons,
 			stat_bonus : this.stat_bonus,

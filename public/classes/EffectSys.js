@@ -1201,16 +1201,16 @@ class Effect extends Generic{
 
 					//console.debug("amt", amt);
 
-					// Calculate durability damage				
+					// Todo: Chance to grant attacker block			
 					if( type === Action.Types.physical ){
 
+						/*
 						let procChance = 10*s.getStatProcMultiplier(Action.Types.physical, false)*t.getStatProcMultiplier(Action.Types.physical, true);
 						let ch = amt*procChance;
 						ch = Math.abs(ch);
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot )
-							wrapperReturn.mergeFromPlayerDamageDurability(t, t.damageDurability(s, this, tot, "RANDOM", true));
-						
+						*/	
 						
 					}
 
@@ -1745,7 +1745,7 @@ class Effect extends Generic{
 					remove = equipped.slice(0, max);
 				}
 
-				const stripData = {};	// data for wrapperReturn.addArmorStrips. Needs to correlate with player.damageDurability(...).armor_strips
+				const stripData = {};	// data for wrapperReturn.addArmorStrips
 				for( let asset of remove ){
 					if(t.unequipAsset(asset.id, s, undefined, true)){
 						if( asset.loot_sound )
@@ -1936,52 +1936,6 @@ class Effect extends Generic{
 				}
 			}
 
-			else if( this.type === Effect.Types.damageArmor ){
-
-				// {amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL}
-				let amt = Calculator.run(
-					this.data.amount, 
-					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
-					}).mergeUnset(event)
-				);
-				if( ! this.no_stack_multi )
-					amt *= wrapper.getStacks();
-				if( !amt )
-					continue;
-
-				// Check if slots exists in data, otherwise pick all slots
-				let slots = this.data.slots;
-				if( !slots )
-					slots = [Asset.Slots.upperBody, Asset.Slots.lowerBody];
-				if( !Array.isArray(slots) )
-					slots = [slots];
-
-				// Make sure these slots exist
-				let viable = [];
-				for( let slot of slots ){
-					if( t.getEquippedAssetsBySlots(slot).length )
-						viable.push(slot);
-				}
-				slots = viable;
-				if( !slots )
-					return false;
-
-				// Pick a prioritized slot if possible
-				slots = wrapperReturn.getSlotPriorityByStripped(t, slots);
-				
-				// If random, pick n from prioritized
-				if( !isNaN(this.data.max_types) ){
-					// Pick some at random
-					shuffle(slots);
-					slots = slots.slice(0,this.data.max_types);
-				}
-
-				
-
-				let hit = t.damageDurability( s, this, amt, slots, true );
-				wrapperReturn.mergeFromPlayerDamageDurability(t, hit);
-			}
 
 			else if( this.type === Effect.Types.addDownedProtection ){
 				
@@ -2282,23 +2236,6 @@ class Effect extends Generic{
 		return Generic.flattenObject(this.data);
 	}
 
-	// Helper function for getting a repair value. Used in Asset.js
-	getRepairValue(asset, s,t){
-
-		let amt = Calculator.run(
-			this.data.amount, 
-			new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
-		}));
-		if( this.data.multiplier )
-			amt *= asset.getMaxDurability();
-		if( amt < this.data.min )
-			amt = this.data.min;
-		if( !this.no_stack_multi )
-			amt *= this.parent.getStacks();
-		return Math.ceil(amt);
-
-	}
-
 	// Checks if target is affecting a specific player
 	affectingPlayer( player, debug ){
 
@@ -2413,12 +2350,11 @@ class WrapperReturn extends Generic{
 
 	}
 
-	// Merges the response from player.damageDurability response
-	mergeFromPlayerDamageDurability(player, data){
+	// Merges multiple wrapper returns... I think? This was changed when armor durability was removed.
+	merge(player, data){
 		if( !data )
 			return;
 		this.addArmorStrips(player, data.armor_strips);
-		this.addArmorDamage(player, data.armor_damage);
 	}
 
 	addArmorStrips(player, slots){
@@ -2428,19 +2364,6 @@ class WrapperReturn extends Generic{
 			this.armor_strips[player] = {};
 		for( let slot in slots )
 			this.armor_strips[player][slot] = slots[slot];
-	}
-
-	addArmorDamage(player, data){
-		if( typeof player === "object" )
-			player = player.id;
-		// Adds armor damage in the form of {slot:amount}
-		for( let i in data ){
-			if( !this.armor_slots[player] )
-				this.armor_slots[player] = {};
-			if( !this.armor_slots[player][i] )
-				this.armor_slots[player][i] = 0;
-			this.armor_slots[player][i] += data[i];
-		}
 	}
 
 	// Accepts an array of items, or a single item
@@ -2509,7 +2432,6 @@ Effect.Types = {
 	endTurn : "endTurn",
 	css : "css",
 	hitfx : "hitfx",
-	damageArmor : "damageArmor",
 	addMomentum : "addMomentum",
 	addHP : "addHP",
 	addBlock : "addBlock",
@@ -2710,7 +2632,6 @@ Effect.TypeDescs = {
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
 	[Effect.Types.css] : "Applies CSS classes onto the target. {class:css_class}",
 	[Effect.Types.hitfx] : "Trigger a hit effect on target. {id:effect_id[, origin:(str)targ_origin, destination:(str)targ_destination]}",
-	[Effect.Types.damageArmor] : "{amount:(str)(nr)amount,slots:(arr)(str)types,max_types:(nr)max=ALL} - Damages armor. Slots are the target slots. if max_types is a number, it picks n types at random", 
 	[Effect.Types.addMomentum] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier, type:(int)type=random/all}, Adds or subtracts AP. Leech only works on subtract. If type isn't a valid identifier (0-2) then on subtract it returns your oldest momentum, and on add it adds random momentum.",						
 	[Effect.Types.addArousal] : "{amount:(str)(nr)amount, leech:(float)leech_multiplier} - Adds arousal points",	
 	[Effect.Types.addHP] : "{amount:(str)(nr)amount, leech.(float)leech_multiplier}, Adds HP. You probably want to use damage instead. This will affect HP without any comparison checks.",									

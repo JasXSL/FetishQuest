@@ -50,7 +50,6 @@ export function asset(){
 		html += '<label>Tintable: <input name="colorable" '+(dummy.colorable ? 'checked' : '')+' type="checkbox" class="saveable" /></label>';
 		html += '<label title="Average weight of a shirt of this material, in grams">Weight: <input name="weight" value="'+esc(dummy.weight)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label title="Min level">Level: <input name="level" value="'+esc(dummy.level)+'" type="number" min=0 step=1 class="saveable" /></label>';
-		html += '<label>Durability Bonus Multiplier: <input name="durability_bonus" value="'+esc(dummy.durability_bonus)+'" type="number" min=0 step=0.01 class="saveable" /></label>';
 		html += '<label title="Add bonus points to the stat generator">Stat bonus: <input name="stat_bonus" value="'+esc(dummy.stat_bonus)+'" type="number" min=0 step=1 class="saveable" /></label>';
 		html += '<label title="Plate/mail tags are handled automatically, this can be used to override">Hit sound: <input name="hit_sound" value="'+esc(dummy.hit_sound)+'" type="text" class="saveable" /></label>';
 	html += '</div>';
@@ -93,7 +92,6 @@ export function list(){
 		weight : true,
 		level : true,
 		stat_bonus : true,
-		durability_bonus : true,
 		tags : true,
 		svBons : true,
 		bonBons: true,
@@ -145,10 +143,6 @@ export function help(){
 		'<tr>'+
 			'<td>Level</td>'+
 			'<td>Minimum player level for this material to show up in world.</td>'+
-		'</tr>'+
-		'<tr>'+
-			'<td>Durability Bonus Multiplier</td>'+
-			'<td>Multiplies against durability. Heavy armor in general can have a value of 2. But it\'s up to you.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Stat bonus</td>'+

@@ -849,9 +849,6 @@ export default class Condition extends Generic{
 			else if( this.type === T.notInCombat )
 				success = !game.battle_active;
 			
-			else if( this.type === T.hasRepairable )
-				success = t.getRepairableAssets().length;
-
 			else if( this.type === T.hasInventory )
 				success = t && t.numAssets(this.data.label) >= this.data.amount;
 
@@ -1513,7 +1510,6 @@ Condition.Types = {
 	sizeValue : 'sizeValue',		// 
 	genitalSizeValue : 'genitalSizeValue',		// 
 	notInCombat : 'notInCombat',				// 
-	hasRepairable : 'hasRepairable',			// 
 	hasInventory : 'hasInventory',			// 
 	questIs : 'questIs',						// 
 	dungeonIs : 'dungeonIs',					// 
@@ -1635,7 +1631,6 @@ Condition.descriptions = {
 	[Condition.Types.sizeValue] : '{amount:(int)amount, operation:(str)<>=, dif:(bool)=false} - Default >. Checks target size value. Amount can be a math var.',
 	[Condition.Types.genitalSizeValue] : '{amount:(int)amount, operation:(str)<>=, genital:stdTag.breasts/stdTag.penis/stdTag.butt} - Default >  Amount can be a math var.',
 	[Condition.Types.notInCombat] : 'void - Combat isn\'t active',
-	[Condition.Types.hasRepairable] : 'void - Has repairable items in their inventory',
 	[Condition.Types.hasInventory] : '{label:(str)label, amount:(int)amount=1} - Has at least n amount of label in inventory. For a conditional search, use hasAsset.',
 	[Condition.Types.questIs] : 'obj - Compares properties of the event quest property to obj properties. Simple check of ===',
 	[Condition.Types.dungeonIs] : 'obj - Compares properties of the event dungeon property to obj properties. Simple check of ===',

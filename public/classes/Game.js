@@ -3461,27 +3461,6 @@ export default class Game extends Generic{
 
 	}
 
-	// Executes a repair with assets
-	execRepairWithAsset( senderPlayer, targetPlayer, kitAsset, targetAsset ){
-
-		let repairAmount = kitAsset.getRepairPointsFromUseAction( targetAsset, senderPlayer, targetPlayer );
-		
-		if( !repairAmount )
-			throw "No repair points in use action of asset";
-
-		if( targetAsset.durability >= targetAsset.getMaxDurability() )
-			throw "Item already repaired";
-
-		let points = targetAsset.repair(repairAmount);
-		kitAsset.consumeCharges(1);
-		this.save();
-
-		game.ui.addText( senderPlayer.getColoredName()+" restores "+points+" durability to "+targetPlayer.getColoredName()+"'s "+targetAsset.name+".", undefined, senderPlayer.id, targetPlayer.id, 'statMessage cloth Mend' );
-		this.playFxAudioKitById('repair', senderPlayer, targetPlayer, undefined, true);
-		this.ui.draw();
-
-	}
-
 	// Returns Shop objects attached to an NPC
 	// Doesn't do any filtering, so remember to check shopAvailableTo
 	// Encounter can be used to check a different encounter than the active one
@@ -3894,44 +3873,6 @@ export default class Game extends Generic{
 		this.setRoleplay(rp);	
 		
 		
-	}
-
-	repairBySmith( smithPlayer, player, assetID, allowError = true ){
-		const out = text => {
-			if( allowError )
-				throw text;
-		};
-		if( !(smithPlayer instanceof Player ) )
-			return out("smithPlayer is not a player");
-		if( !(player instanceof Player) )
-			return out("player is not a player");
-		if( !this.smithAvailableTo(smithPlayer, player) )
-			return out("Smith not available to you");
-		
-		const asset = player.getAssetById(assetID);
-		if( !asset )
-			return out("Asset not found");
-		if( !asset.isDamageable() )
-			return out("Invalid asset");
-		if( asset.durability >= asset.getMaxDurability() )
-			return out("Item not damaged");
-		
-		const cost = asset.getRepairCost(smithPlayer);
-		if( player.getMoney() < cost )
-			return out("Insufficient funds");
-
-		if( !this.is_host ){
-			return Game.net.playerRepairItemAtBlacksmith(smithPlayer, player, asset);
-		}
-		// Ok finally we can do it
-		player.consumeMoney(cost);
-		asset.repair();
-		game.save();
-
-		this.playFxAudioKitById("buy_item", player, player, undefined, true);
-		this.playFxAudioKitById("shopRepair", player, player, undefined, true);
-		this.ui.addText(player.getColoredName()+" gets an item repaired.", "repair", player.id, player.id, 'repair');
-
 	}
 
 	// hexColor is a color including #, or use an empty string if you want to remove the dye
