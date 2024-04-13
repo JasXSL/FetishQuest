@@ -2995,6 +2995,7 @@ export default class Player extends Generic{
 
 	}
 
+	// Sets all momentum to 0
 	resetMomentum(){
 		this.momOff = this.momDef = this.momUti = 0;
 	}
@@ -3060,6 +3061,13 @@ export default class Player extends Generic{
 			
 		}
 		//this.reroll = 0;
+
+	}
+	randomizeMomentum(){
+
+		let toAdd = this.getMomentum();
+		this.resetMomentum();
+		this.addMomentum(-1, toAdd, false);
 
 	}
 

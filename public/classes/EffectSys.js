@@ -1446,6 +1446,27 @@ class Effect extends Generic{
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
 				t.addHP(amt, s, this, attackType, false, true);
 			}
+			else if( this.type === Effect.Types.addCopper ){
+				let amt = Calculator.run(
+					this.data.amount, 
+					new GameEvent({
+						sender:s, target:t, wrapper:wrapper, effect:this
+					}).mergeUnset(event)
+				);
+				if( !this.no_stack_multi )
+					amt *= wrapper.getStacks();
+				amt = Math.floor(amt)
+				if( amt < 0 )
+					t.consumeMoney(-amt);
+				else
+					t.addCopperAsMoney(amt);
+
+			}
+			else if( this.type === Effect.Types.randomizeMomentum ){
+
+				t.randomizeMomentum();
+
+			}
 			else if( this.type === Effect.Types.addBlock ){
 
 				const merged = new GameEvent({
@@ -2476,6 +2497,7 @@ Effect.Major = {
 	Conduit : 0x80000,		// 524288 | -5 Arcane avoidance.
 	Clumsy : 0x100000,		// 1048576 | -30% hit chance
 	Penetration : 0x200000,	// +100% armor penetration
+	// Increases block generated 
 
 };
 
@@ -2600,6 +2622,8 @@ Effect.Types = {
 	addDownedProtection : 'addDownedProtection',
 	luck : 'luck',
 	colorizeItems : 'colorizeItems',
+	addCopper : 'addCopper',
+	randomizeMomentum : 'randomizeMomentum',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2802,7 +2826,8 @@ Effect.TypeDescs = {
 	[Effect.Types.luck] : '{amount:(int/str)amount} - Adds or subtracts from chances at rolling the dice during RP.',
 
 	[Effect.Types.colorizeItems] : '{color:(str)webhex, slots:(str/arr)item_slots} - Overrides colors of worn inventory items.',
-
+	[Effect.Types.addCopper] : '{amount:(int/str)amount} - Adds or subtracts money.',
+	[Effect.Types.randomizeMomentum] : 'void - Randomizes held momentum',
 
 };
 
