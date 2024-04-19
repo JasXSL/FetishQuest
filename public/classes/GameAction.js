@@ -515,7 +515,7 @@ export default class GameAction extends Generic{
 		else if( this.type === types.dungeonVar || this.type === types.lever ){
 
 			let dungeon = game.dungeon;
-			if( this.data.dungeon ){
+			if( this.data.dungeon && this.data.dungeon !== dungeon.label ){
 				dungeon = glib.get(this.data.dungeon, 'Dungeon').clone();
 				dungeon.loadState();
 			}
@@ -1413,7 +1413,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.openShop] : '{shop:(str)shop} - Tries to open a shop on the player that triggered the event',
 	[GameAction.types.gym] : '{player:(str)player_offering, tags:(arr)tags} - Passive. Player is the player that should have the gym icon attached to them. Tags can be used to determine what skills should be trained there.',
 	[GameAction.types.playerAction] : '{player:(str)label, action:(str)label} - Forces a player to use an action on event target. If player is unset, it\'s the supplied triggering player that becomes the caster',
-	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering repairs & dyes',
+	[GameAction.types.repairShop] : '{player:(str)label} - Marks a player as offering runesmithing & dyes',
 	[GameAction.types.altar] : '{player:(str)label} - Marks a player as offering kink resets',
 	[GameAction.types.bank] : '{player:(str)label} - Marks a player as offering bank services',
 	[GameAction.types.text] : '{text:(str/obj)text} - Triggers a Text',

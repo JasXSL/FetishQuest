@@ -2516,6 +2516,11 @@ div.scroll{
 		background-size:cover;
 		box-shadow:none;
 	}
+	#roleplay div.portrait div.bg > canvas{
+		position: absolute;
+		width:100%; height:100%;
+		top:0; left:0;
+	}
 	#roleplay div.text{
 		font-weight: normal;
 	}
@@ -3417,13 +3422,13 @@ div.scroll{
 		border:none;
 		background:none;
 		background: url(./media/ui/marble.jpg) repeat;
-		border-top:1.5vh groove rgba(255,255,255,.25);
-		height:7.5vh;
+		border-top:2vh groove rgba(255,255,255,.25);
+		height:8vh;
 	}
 
 	#ui > div.actionbar > div.reroll{
 		position: absolute;
-		top: 0;
+		top: -1vh;
 		left:1vw;
 		transform: translateY(-75%);
 		font-weight: bold;
@@ -3446,7 +3451,7 @@ div.scroll{
 	#ui > div.actionbar > div.resources{
 		display:flex;
 		position: absolute;
-		top:-1.5vh; /* SHould correspond to height of div.point below */
+		top:-2.1vh; /* SHould correspond to height of div.point below */
 		width:100%;
 		background:rgba(0,0,0,.25);
 		left:0;
@@ -3463,12 +3468,15 @@ div.scroll{
 		margin:0 0.5vh;
 	}
 	*/
+	/* Todo: re is now set on point */
 	#ui > div.actionbar > div.resources > div.point,
-	#ui > div.actionbar > div.resources.re > div.point.on:hover > div
+	#ui > div.actionbar > div.resources > div.point.re.on:hover > div
 	{
+		background-color:rgba(200,200,200,0.25);
 		background-position: center;
 		background-repeat: no-repeat;
 		background-size:contain;
+		border-radius:0.5vmax;
 	}
 	@keyframes momChange{
 		from{
@@ -3489,7 +3497,7 @@ div.scroll{
 		cursor:pointer;
 		box-shadow:0 -0.25vh 1vh rgba(207,233,255,.75);
 	}
-	#ui > div.actionbar > div.resources.re > div.point.on:hover > div{
+	#ui > div.actionbar > div.resources > div.point.re.on:hover > div{
 		width:100%;
 		position: absolute;
 		top:0; left:0;
@@ -3530,10 +3538,9 @@ div.scroll{
 	
 	#ui > div.actionbar > div.resources > div,
 	#ui > div.actionbar > div.resources > div > div{
-		height:1.5vh;
+		height:2vh;
 		flex-grow:1;
 		border:1px solid rgba(0,0,0,0);
-		border-radius:0.25vmax;
 		transition:none;
 		margin:0.1vh;
 	}

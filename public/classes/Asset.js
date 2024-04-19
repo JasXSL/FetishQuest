@@ -393,24 +393,8 @@ export default class Asset extends Generic{
 	// Use whenever you're fetching an item from the library
 	restore(){
 		this.resetCharges();
-		this.repair();
 	}
 
-	getRepairPointsFromUseAction( targetAsset, sender, target ){
-
-		let wrappers = this.use_action.wrappers;
-		let out = 0;
-		for( let wrapper of wrappers ){
-			let effects = wrapper.getEffects({
-				type : Effect.Types.repair,
-				targets : Wrapper.TARGET_AUTO,
-				events : GameEvent.Types.internalWrapperTick
-			});
-			for( let effect of effects )
-				out += effect.getRepairValue(targetAsset, sender,target);
-		}
-		return out;
-	}
 
 	getWeight(){
 		return Math.floor(this.weight * (this.fitted ? 0.5 : 1));
@@ -928,8 +912,6 @@ Asset.generate = function( slot, level, viable_asset_templates, viable_asset_mat
 	}
 
 	out.updateStatsAutoGen();
-
-	out.repair();
 	return out;
 
 };

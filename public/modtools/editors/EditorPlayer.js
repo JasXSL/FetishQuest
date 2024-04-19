@@ -47,7 +47,14 @@ export function asset(){
 		html += '<label title="If all images (including advanced) share the same path, you can set it here to save time. Ex if all your art URLs start with https://i.ibb.co/ then you put that here and you can skip that part in the art fields.">'+
 			'Image base path: <input type="text" name="icon_base" class="saveable" value="'+esc(dummy.icon_base)+'" />'+
 		'</label>'; 
-		html += '<label>RP Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
+		html += '<label title="Legacy feature. Using x,y,w,h instead is recommended.">RP Portrait: <input type="text" name="portrait" class="saveable" value="'+esc(dummy.portrait)+'" /></label>';
+		html += '<label title="Set all to zero to disable">Portrait XYWH <input type="button" class="generatexywh" value="Select" />'+
+			'<div class="flexFourColumns" style="flex-wrap:nowrap">'+
+				'<input type="number" style="width:4vmax" min=0 name="px" class="saveable" value="'+(+dummy.px || 0)+'" />'+
+				'<input type="number" style="width:4vmax" min=0 name="py" class="saveable" value="'+(+dummy.py || 0)+'" />'+
+				'<input type="number" style="width:4vmax" min=0 name="pd" class="saveable" value="'+(+dummy.pd || 0)+'" />'+
+			'</div>'+
+		'</label>';
 		html += '<label title="Check this if you used an AI to generate the art">Art is AI generated: <input type="checkbox" name="icon_ai" '+(dummy.icon_ai ? 'checked' : '')+' class="saveable"  /></label>';
 		html += '<label title="0 = player team">Team: <input type="number" step=1 min=0 name="team" class="saveable" value="'+esc(dummy.team)+'" /></label>';
 		html += '<label title="0-10 where 5 is average human and 10 giant">Size: <input type="number" step=1 min=0 max=10 name="size" class="saveable" value="'+esc(dummy.size)+'" /></label>';
@@ -102,11 +109,110 @@ export function asset(){
 	html += 'Passives: <div class="passives"></div>';
 	html += 'Follower RP: <div title="If this is a follower, set their roleplay here" class="follower"></div>';
 	
-	
+	html += '<div class="xywhgen hidden">'+
+		'<p style="position:absolute; top:0; text-align:center; width:100%; font-weight:bold">Drag a box. Right click when done.</p>'+
+		'<canvas></canvas>'+
+	'</div>';
 
 	this.setDom(html);
 
+	const xywhButton = this.dom.querySelector('input.generatexywh');
+	const xywhWrap = this.dom.querySelector('div.xywhgen');
+	const canvas = xywhWrap.querySelector('canvas');
 
+	let isDragging = false;
+	let startX, startY, endX, endY;
+	let imgTop, imgLeft;
+
+	const updateXywh = async () => {
+		// Update the size if need be
+		if( !xywhWrap.classList.contains("hidden") ){
+			const dim = xywhWrap.getBoundingClientRect();
+			canvas.width = dim.width;
+			canvas.height = dim.height;
+		}
+
+		let copyFrom = await dummy.getActiveIcon(false, true); // canvas
+		const ctx = canvas.getContext("2d");
+		const scaleFactor = Math.min(
+			canvas.width / copyFrom.width,
+			canvas.height / copyFrom.height
+		);
+		imgLeft = (canvas.width - copyFrom.width*scaleFactor)/2;
+		imgTop = (canvas.height - copyFrom.height*scaleFactor)/2;
+		ctx.drawImage(
+			copyFrom,
+			imgLeft,
+			imgTop,
+			copyFrom.width*scaleFactor,
+			copyFrom.height*scaleFactor
+		);
+
+		if( !isDragging ){
+			ctx.strokeStyle = "green";
+			ctx.lineWidth = 3;
+			ctx.strokeRect(
+				(canvas.width-imgLeft*2)*dummy.px+imgLeft,
+				(canvas.height-imgTop*2)*dummy.py+imgTop, 
+				(canvas.width-imgLeft*2)*dummy.pd, 
+				(canvas.width-imgLeft*2)*dummy.pd
+			);
+		}
+
+	};
+
+	xywhButton.onclick = event => {
+		xywhWrap.classList.toggle("hidden", false);
+		updateXywh();
+	};
+	// Hide on right click
+	canvas.oncontextmenu = event => {
+		event.preventDefault();
+		xywhWrap.classList.toggle("hidden", true);
+	};
+	
+	
+	canvas.onmousedown = event => {
+
+		if( event.which !== 1 )
+			return;
+		isDragging = true;
+		startX = event.offsetX;
+		startY = event.offsetY;
+
+	};
+	canvas.onmousemove = async event => {
+		if(isDragging){
+			endX = event.offsetX;
+			endY = event.offsetY;
+			const ctx = canvas.getContext("2d");
+			await updateXywh();
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 3;
+			// Draw a square
+			let squareDiameter = Math.sqrt(Math.abs(endX-startX)**2+Math.abs(endY-startY)**2)*2;
+			let x = startX-squareDiameter/2, 
+				y = startY-squareDiameter/2, 
+				w = squareDiameter
+			;
+			ctx.strokeRect(x,y,w,w);
+
+			// Store size and pos of square here
+			dummy.px = asset.px = this.dom.querySelector('input[name=px]').value = Math.round(((x-imgLeft)/(canvas.width-imgLeft*2))*1000)/1000;
+			dummy.py = asset.py = this.dom.querySelector('input[name=py]').value = Math.round(((y-imgTop)/(canvas.height-imgTop*2))*1000)/1000;
+			dummy.pd = asset.pd = this.dom.querySelector('input[name=pd]').value = Math.round((squareDiameter/(canvas.width-imgLeft*2))*1000)/1000;
+			
+		}
+	};
+	canvas.onmouseup = event => {
+		isDragging = false;
+		window.mod.setDirty(true);
+		updateXywh();
+	};
+
+	this.onResize = () => {
+		updateXywh();
+	};
 
 	this.dom.querySelector("div.istates").appendChild(EditorPlayerIconState.assetTable(this, asset, "istates"));
 	this.dom.querySelector("div.class").appendChild(EditorPlayerClass.assetTable(this, asset, "class", true));

@@ -57,7 +57,10 @@ export default class Player extends Generic{
 		this.icon_nude = "";				// == || ==
 		this.icon_base = "";				// Prepended to all icons
 		this.istates = [];					// PlayerIconState objects
-		this.portrait = "";					// portrait for RP
+		this.portrait = "";					// Portrait for RP. Using px0,px1... is recommended tho
+		this.px = 0;						// Auto portrait left (0-1)
+		this.py = 0;						// Auto portrait top (0-1)
+		this.pd = 0;						// Auto portrait diameter (it's a square) (0-1). Relative to X width
 		this.icon_ai = false;				// Sets if this icon was AI generated or not. Note: Host only.
 		this.auto_learn = true;				// if true, this player always knows all their spells
 		this.leader = false;				// Party leader
@@ -309,6 +312,9 @@ export default class Player extends Generic{
 			momUti : this.momUti,
 			tReroll : this.tReroll,
 			istates : PlayerIconState.saveThese(this.istates, full),
+			px : this.px,
+			py : this.py,
+			pd : this.pd,
 		};
 
 		if( full !== "mod" ){
@@ -1089,7 +1095,7 @@ export default class Player extends Generic{
 
 	// ICONS
 	// useCache will use _cache_tags instead of tags. Useful if you're testing against a dummy player.
-	async getActiveIcon( useCache = false ){
+	async getActiveIcon( useCache = false, ignoreAdvanced = false ){
 		
 		if( this.ior )
 			return this.ior;
@@ -1104,7 +1110,9 @@ export default class Player extends Generic{
 			useCache = true;	// This should always skip cache unless enforced
 
 		// Get icon state objects
-		const sl = this.getActiveIconStateLayers();
+		let sl = [];
+		if( !ignoreAdvanced )
+			sl = this.getActiveIconStateLayers();
 
 
 		let baseLayer = this.icon;
@@ -1199,6 +1207,40 @@ export default class Player extends Generic{
 		
 	}
 
+	getActivePortrait( useCache = false ){
+
+		const canvas = document.createElement("canvas");
+		canvas.width = 256;
+		canvas.height = 256;
+		const ctx = canvas.getContext("2d");
+		if( this.portrait )
+			ctx.drawImage(this.portrait, 0,0,256,256);
+
+		else if( this.pd ){
+			
+			this.getActiveIcon(useCache).then(full => {
+
+				let left = this.px*full.width,
+					top = this.py*full.height,
+					diameter = this.pd*full.width
+				;
+				ctx.drawImage(
+					full, 
+					left, top, 
+					diameter, diameter,
+					0, 0,
+					256,256
+				);
+
+			});
+			
+		}
+		else 
+			return '';
+
+		return canvas;
+
+	}
 
 	// Downed protection
 	canDownedProtect(){
@@ -2098,7 +2140,6 @@ export default class Player extends Generic{
 		}
 		const newAsset = this.addAsset(asset, amount)[0];	// Resets ID
 		if( newAsset ){
-			newAsset.repair();
 			newAsset.resetCharges();
 		}
 		return newAsset;
@@ -2849,6 +2890,14 @@ export default class Player extends Generic{
 
 	}
 
+	getReroll(){
+
+		if( this.isRerollDisabled() )
+			return 0;
+		return this.reroll;
+
+	}
+
 	consumeReroll( amount = 1 ){
 
 		amount = Math.trunc(amount);
@@ -3023,6 +3072,8 @@ export default class Player extends Generic{
 		// ADD
 		else{
 
+			if( this.getMajorEffects() & Effect.Major.Dexterity )
+				amount *= 2;
 			if( game.isTurnPlayer(this) )
 				this.block += amount;
 			else
@@ -3056,6 +3107,17 @@ export default class Player extends Generic{
 
 	getBlock(){
 		return this.block + this.iBlock;
+	}
+
+	isRerollDisabled( type = Player.MOMENTUM.All ){
+
+		const fx = this.getActiveEffectsByType(Effect.Types.preventReroll);
+		for( let f of fx ){
+			if( f.data.type === undefined || f.data.type === type )
+				return true;
+		}
+		return false;
+
 	}
 
 	isBlockDisabled(){
@@ -3197,7 +3259,9 @@ export default class Player extends Generic{
 	fullRegen(){
 		this.hp = this.getMaxHP();
 	}
-
+	getHP(){
+		return this.hp;
+	}
 	getMaxHP(){
 
 		if( this.hpMulti < 0 )

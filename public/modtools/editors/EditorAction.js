@@ -320,7 +320,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Hide from action selector</td>'+
-			'<td>Special case. Currently only used by Repair since repair item actions are used from inventory instead of the action bar.</td>'+
+			'<td>Special case. Currently only used by Repair since repair item actions are used from inventory instead of the action bar.</td>'+ // This has no uses after removing repair. Should it be removed?
 		'</tr>'+
 		'<tr>'+
 			'<td>Do not generate text</td>'+

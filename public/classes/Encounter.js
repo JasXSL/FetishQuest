@@ -441,7 +441,7 @@ export default class Encounter extends Generic{
 		});
 	}
 
-	// Gets repairshop actions
+	// Gets smith actions
 	getSmiths( targetPlayer ){
 		const actions = this.getViableActions( targetPlayer );
 		return actions.filter(action => action.type === GameAction.types.repairShop);

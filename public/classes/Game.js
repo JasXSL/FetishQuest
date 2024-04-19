@@ -63,7 +63,9 @@ export default class Game extends Generic{
 		this.net_load = false;							// Currently loading from network
 		this.time = 3600*10;							// Time in seconds. Game starts at 10 in the morning of the first day
 		
-		this.story = story || new Story();				// Should be a story object
+		this.story = new Story();				// Should be a story object
+		if( story )
+			this.story = story.clone();
 
 		// This is used to save states about dungeons you're not actively visiting, it gets loaded onto a dungeon after the dungeon loads
 		// This lets you save way less data
@@ -3135,6 +3137,9 @@ export default class Game extends Generic{
 		if( player.reroll < 1 )
 			throw 'Out of rerolls';
 
+		if( player.isRerollDisabled(type) )
+			throw 'Rerolling this momentum type is blocked';
+
 		// Not host
 		if( !this.is_host )
 			return Game.net.playerRerollMomentum(player, type, to);
@@ -3411,24 +3416,6 @@ export default class Game extends Generic{
 
 
 	/* ASSETS */
-	useRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID){
-
-		if( !this.playerIsMe(senderPlayer) )
-			throw("Not your player");
-
-		if( !this.is_host )
-			return Game.net.playerUseRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID);
-
-		let kitAsset = senderPlayer.getAssetById(repairKitID);
-		let targetAsset = targetPlayer.getAssetById(assetID);
-		if( !kitAsset )
-			throw "Repair kit not found";
-		if( !targetAsset )
-			throw "Target asset not found";
-
-		this.execRepairWithAsset(senderPlayer, targetPlayer, kitAsset, targetAsset);
-
-	}
 
 	useAssetGameAction( assetGameAction ){
 		

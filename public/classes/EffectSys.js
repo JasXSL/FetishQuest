@@ -1171,6 +1171,8 @@ class Effect extends Generic{
 
 					// Amt is negative
 					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s, action );
+					if( t.getMajorEffects() & Effect.Major.Damage )
+						amt -= 1;
 					
 					// amt is negative when attacking, that's why we use - here
 					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t, action );
@@ -1195,26 +1197,33 @@ class Effect extends Generic{
 					if( tMajor & Effect.Major.Vulnerability )
 						amt *= 1.3;
 					
+					
+
+					//console.debug("amt", amt);
+
+					// Each point of damage has a based on your target's missing HP to do 1 extra damage.
+					// This is done AFTER multipliers since arcane works the same way
+					if( type === Action.Types.physical ){
+
+						let ratio = 1.0-t.getHP()/t.getMaxHP();
+						ratio *= 50; // Up to 50% chance to do 1 extra damage, it's slightly less with 25% efficiency vs arcane, but arcane only does well against block.
+						let procChance = ratio*s.getStatProcMultiplier(Action.Types.physical, false)*t.getStatProcMultiplier(Action.Types.physical, true);
+						let ch = amt*procChance;
+						ch = Math.abs(ch);
+						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
+						// Returns negative, which is why it's min
+						if( tot ){
+							amt -= tot;
+							game.ui.addText( t.getColoredName()+" scored "+tot+" extra damage from physical damage.", undefined, s.id, t.id, 'statMessage physical' );
+						}
+						
+					}
+
 					amt = randRound(amt);
 					if( amt > 0 )
 						amt = 0;
 
-					//console.debug("amt", amt);
-
-					// Todo: Chance to grant attacker block			
-					if( type === Action.Types.physical ){
-
-						/*
-						let procChance = 10*s.getStatProcMultiplier(Action.Types.physical, false)*t.getStatProcMultiplier(Action.Types.physical, true);
-						let ch = amt*procChance;
-						ch = Math.abs(ch);
-						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
-						if( tot )
-						*/	
-						
-					}
-
-					// 30% chance per point of damage to remove 1 block of all types 
+					// 30% chance per point of damage to remove 1 block 
 					if( type === Action.Types.arcane ){
 
 						let chance = 30*s.getStatProcMultiplier(Action.Types.arcane, false)*t.getStatProcMultiplier(Action.Types.arcane, true)
@@ -1223,10 +1232,7 @@ class Effect extends Generic{
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						if( tot ){
 
-							// Returns negative, which is why it's min
-							let max = Math.min(
-								t.addBlock( -tot )
-							);
+							let max = t.addBlock( -tot );
 							if( max )
 								game.ui.addText( t.getColoredName()+" lost "+Math.abs(max)+" block from arcane damage.", undefined, s.id, t.id, 'statMessage elemental' );
 
@@ -1957,17 +1963,6 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.flee ){
 				game.attemptFleeFromCombat( s, this.data.force );
 			}
-
-			// Unlike the above one, this will present the caster with an asset picker of damaged gear on the target
-			else if( this.type === Effect.Types.repair ){
-
-				let np = wrapper.netPlayer;
-				if( np )
-					Game.net.dmDrawRepair(np, s, t, template.parent );
-				else
-					game.ui.drawRepair(s, t, template.parent );		// Supply the original effect since it has the proper parent. When cloned, parent always becomes the victim player
-					
-			}
 			
 			else if( this.type === Effect.Types.interrupt ){
 				t.interrupt(s, this.data && this.data.force);
@@ -2402,7 +2397,7 @@ Effect.Major = {
 	Defense : 0x2,			// -30% Damage taken
 	Vulnerability : 0x4,	// +30% Damage taken
 	Weakness : 0x8,			// -30% Damage done
-	//Orgasm : 0x10,			// Todo: Orgasm lasts an extra turn
+	Damage : 0x10,			// +1 damage done
 	Focus : 0x20,			// 32 | -50% arousal taken
 	Defile : 0x40,			// 64 | -50% healing received
 	Blessing : 0x80,		// 128 | +50% healing received
@@ -2420,8 +2415,7 @@ Effect.Major = {
 	Conduit : 0x80000,		// 524288 | -5 Arcane avoidance.
 	Clumsy : 0x100000,		// 1048576 | -30% hit chance
 	Penetration : 0x200000,	// +100% armor penetration
-	// Increases block generated 
-
+	Dexterity : 0x400000,	// +100% block generated
 };
 
 // These are the actual effect types that the game runs off of
@@ -2508,8 +2502,7 @@ Effect.Types = {
 	grapple : 'grapple',						
 	daze : 'daze',
 	disable : 'disable',
-
-	repair : 'repair',								
+						
 	flee : 'flee',									
 	addThreat : 'addThreat',						
 	punishmentUsed : 'punishmentUsed',			
@@ -2530,6 +2523,7 @@ Effect.Types = {
 	actionRiposte : 'actionRiposte',
 	actionCastTime : 'actionCastTime',
 	preventBlock : 'preventBlock',
+	preventReroll : 'preventReroll',
 	summonAsset : 'summonAsset',
 	globalArmorMod : 'globalArmorMod',
 	globalArmorPen : 'globalArmorPen',
@@ -2564,6 +2558,7 @@ Effect.Passive = {
 	[Effect.Types.critDmgDoneMod] : true,
 	[Effect.Types.critDmgTakenMod] : true,
 	[Effect.Types.preventBlock] : true,
+	[Effect.Types.preventReroll] : true,
 	[Effect.Types.preventBlockAutoFade] : true,
 	[Effect.Types.momentumRegen] : true,
 	
@@ -2644,6 +2639,7 @@ Effect.TypeDescs = {
 	[Effect.Types.addBlock] : "{amount:(str)formula} - Adds or subtracts block", 
 	[Effect.Types.clairvoyance] : "void - Gives players more information about the victim when inspecting them",
 	[Effect.Types.preventBlock] : "{} - Ignores block",
+	[Effect.Types.preventReroll] : "{type:(int)Player.MOMENTUM.*=Player.MOMENTUM.All} - Prevents player from rerolling",
 	[Effect.Types.preventBlockAutoFade] : "{} - Prevents block from fading at the start of your turn",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",						
@@ -2721,7 +2717,6 @@ Effect.TypeDescs = {
 	[Effect.Types.actionCastTime] : '{conditions:(arr)conditions, amount:(int)amount=1, set:(bool)=false, multiplier:(bool)is_multiplier=false} - Alters or sets the cast time of one or more actions. Actions affected are checked by conditions.',
 	[Effect.Types.actionRiposte] : '{conditions:(arr)conditions, set:(bool)val=false, priority=0} - Overrides the default riposte-able flag on the action. Sorted by priority, then by time added. The effect target is both sender and target when validating the conditions.',
 	
-	[Effect.Types.repair] : '{amount:(int)(str)(float)amount, multiplier:(bool)is_multiplier, min:(int)minValue}',
 	[Effect.Types.flee] : '{force:(bool)ignore_checks=false} - Custom action sent to server to flee combat',
 	[Effect.Types.addThreat] : '{amount:(str/nr)amount} - Generates threat on the target',
 	[Effect.Types.punishmentUsed] : 'void - Sets the punishment used flag on the target to prevent them from using further punishments',

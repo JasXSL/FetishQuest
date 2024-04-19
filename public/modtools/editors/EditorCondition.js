@@ -728,7 +728,6 @@ export function asset(){
 		};
 
 	}
-	else if( type === types.hasRepairable ){}
 	else if( type === types.hasWrapper ){
 
 		setDefaultData({

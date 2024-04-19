@@ -683,20 +683,27 @@ export default class UI{
 		this.yourTurn.toggleClass('hidden', !myTurn || !game.battle_active);
 		this.yourTurnBorder.toggleClass('hidden', !myTurn || !game.battle_active);
 
-		
+		const rerolls = player.getReroll(Player.MOMENTUM.All);
+		let reSubs = [0,0,0];
+		if( rerolls ){
+			reSubs[0] = !player.isRerollDisabled(Player.MOMENTUM.Off);
+			reSubs[1] = !player.isRerollDisabled(Player.MOMENTUM.Def);
+			reSubs[2] = !player.isRerollDisabled(Player.MOMENTUM.Uti);
+		}
+		console.log(reSubs);
 
 		// Update resource bar
-		this.rerolls[0].classList.toggle("hidden", player.reroll < 1);
-		this.rerollsSpan[0].innerText = player.reroll;
+		this.rerolls[0].classList.toggle("hidden", rerolls < 1);
+		this.rerollsSpan[0].innerText = rerolls;
 		
 
 		// Update momentum bar
-		this.resourceBar[0].classList.toggle("re", player.reroll > 0);
 		let dots = $("> div.point", this.resourceBar);
 		let ln = dots.length;
 		const maxPoints = player.getMaxMomentum();
 		const currentPoints = player.getMomentum();
-		
+
+
 
 		// Add more dots if need be
 		for( let i = 0; i < maxPoints-ln; ++i ){
@@ -746,6 +753,7 @@ export default class UI{
 			const cList = dots[i].classList;
 			dots[i].dataset.i = type;
 
+			cList.toggle('re', Boolean(type !== -1 && reSubs[type]));
 
 			// Animate a sweep
 			if( pre !== type ){
@@ -2638,7 +2646,6 @@ export default class UI{
 
 	}
 
-
 	/* Roleplay */
 	drawRoleplay(){
 
@@ -2666,11 +2673,15 @@ export default class UI{
 			if( stageChanged ){
 				
 				const portrait = stage.getPortrait();
+				const bg = $("div.portrait > div.bg", div);
 
-				$("div.portrait > div.bg", div)
-					.css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none');
-				$('> div.left', div)
-					.toggleClass('hidden', !portrait);
+				if( portrait instanceof HTMLCanvasElement ){
+					bg.html(portrait);
+				}
+				else
+					bg.css("background-image", portrait ? 'url('+esc(portrait)+')' : 'none').html('');
+
+				$('> div.left', div).toggleClass('hidden', !portrait);
 
 				const name = stage.getName();
 

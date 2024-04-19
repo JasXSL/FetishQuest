@@ -1245,7 +1245,7 @@ Action.TypeFlags = {
 }
 
 Action.TypeDescriptions = {
-	[Action.Types.physical] : 'Physical damage has a chance of granting the attacker block.',
+	[Action.Types.physical] : 'Physical damage has a chance of dealing bonus damage based on the target\'s missing HP.',
 	[Action.Types.arcane] : 'Arcane damage has a chance to remove extra blocking before dealing damage.',
 	[Action.Types.corruption] : 'Corruption damage has a chance to arouse the target.',
 };

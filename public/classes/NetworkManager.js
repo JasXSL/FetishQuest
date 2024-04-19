@@ -870,20 +870,6 @@ class NetworkManager{
 
 			}
 
-			// Repair an item
-			else if( task === PT.useRepairAsset ){
-
-				let player = validatePlayer();
-				if( !player )
-					return;
-				let targ = game.getPlayerById(args.target);
-				if( !targ )
-					return respondWithError('Target not found');
-
-				game.useRepairAsset( player, targ, args.repairKit, args.asset)
-				
-			}
-
 			else if( task === PT.deleteAsset ){
 
 				// {player:(str)owner_id, item:(str)assetID}
@@ -982,21 +968,6 @@ class NetworkManager{
 
 			}
 
-			else if( task === PT.repairItemAtBlacksmith ){
-
-				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
-				if( !args.player || !args.blacksmithPlayer || !args.asset ){
-					console.error("Net: Missing args in call", task, "got", args);
-					return;
-				}
-				let player = validatePlayer();
-				if( !player )
-					return;
-
-				const blacksmith = game.getPlayerById(args.blacksmithPlayer);
-				game.repairBySmith(blacksmith, player, args.asset);
-
-			}
 			else if( task === PT.useAltar ){
 
 				// {player:(str)sender_id, blacksmithPlayer:(str)shop_id, asset:(str)asset_id}
@@ -1226,20 +1197,6 @@ class NetworkManager{
 
 		}
 
-		// Draw repair selector
-		else if( task === NetworkManager.dmTasks.drawRepair ){
-
-			let player = game.getPlayerById(args.player),
-				target = game.getPlayerById(args.target)
-			;
-			if( !player || !target )
-				return;
-			let action = player.getActionById(args.action);
-			if( !action )
-				return;
-			game.ui.drawRepair( player, target, action );
-
-		}
 
 		else if( task === NetworkManager.dmTasks.inventoryAdd ){
 
@@ -1524,16 +1481,6 @@ class NetworkManager{
 		}); 
 	}
 
-	// Use an asset to repair an item
-	playerUseRepairAsset( senderPlayer, targetPlayer, repairKitID, assetID ){
-		this.sendPlayerAction(NetworkManager.playerTasks.useRepairAsset, {
-			player : senderPlayer.id,
-			target : targetPlayer.id,
-			repairKit : repairKitID,
-			asset : assetID
-		}); 
-	}	
-
 	playerRequestFullGame(){
 		this.sendPlayerAction(NetworkManager.playerTasks.getFullGame, {}); 
 	}
@@ -1595,20 +1542,6 @@ class NetworkManager{
 			player : player,
 		});
 	}
-	playerRepairItemAtBlacksmith(blacksmithPlayer, player, asset){
-		if( typeof blacksmithPlayer === "object" )
-			blacksmithPlayer = blacksmithPlayer.id;
-		if( typeof asset === "object" )
-			asset = asset.id;
-		if( typeof player === "object" )
-			player = player.id;
-		this.sendPlayerAction(NetworkManager.playerTasks.repairItemAtBlacksmith, {
-			asset : asset,
-			blacksmithPlayer : blacksmithPlayer,
-			player : player,
-		});
-	}
-
 	playerDyeItemAtBlacksmith(blacksmithPlayer, player, asset, color){
 		if( typeof blacksmithPlayer === "object" )
 			blacksmithPlayer = blacksmithPlayer.id;
@@ -1813,15 +1746,6 @@ class NetworkManager{
 
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
 		
-	}
-
-	// All except netplayer are objects
-	dmDrawRepair( netPlayer, player, target, action ){
-		this.sendHostTaskTo( netPlayer, NetworkManager.dmTasks.drawRepair, {
-			player : player.id,
-			target : target.id,
-			action : action.id
-		});
 	}
 
 	// All the args are strings
@@ -2160,7 +2084,6 @@ NetworkManager.dmTasks = {
 	sendVisual : 'visual',			// {player:playeruuid, fx:fxName}
 	error : 'error',				// {text:(string)errorText, notice:(bool)isNotice}
 	animation : 'animation',		// {dungeonAsset:dungeonAssetUUID, anim:animation}
-	drawRepair : 'drawRepair',		// {player:(str)casterID, target:(str)targetID, action:(str)actionID}
 	playSoundOnPlayer : 'playSoundOnPlayer',		// {kit:(str)soundkitID, sender:senderUUID, target:targetUUID, armor_slot:(str)armorSlotHit, volume_multiplier:(float)=1, type:(str)channel="fx"} - 
 	playSoundOnMesh : 'playSoundOnMesh',			// {dungeonAsset:(str)dungeonAssetuuid, url:(str)sound_url, volume:(float)volume, loop:(bool)loop[, id:(str)optional_id]}
 	stopSoundOnMesh : 'stopSoundOnMesh',			// {dungeonAsset:(str)dungeonAsset_uuid, id:(str)url/id, fade:(int)fade_ms}
@@ -2191,7 +2114,6 @@ NetworkManager.playerTasks = {
 	interact : 'interact',				// {player:playerUUID, dungeonAsset:dungeonAssetUUID}
 	loot : 'loot',						// {player:playerUUID, dungeonAsset:dungeonAssetUUID, item:itemUUID}
 	lootPlayer : 'lootPlayer',			// {player:looterUUID, target:(str)targetUUID, item:(str)itemUUID}
-	useRepairAsset : 'useRepairAsset',	// {player:casterUUID, target:(str)targetUUID, repairKit:(str)playerRepairAssetUUID, asset:(str)assetToRepairID}
 	getFullGame : 'getFullGame',		// void - Request the full game from host. Useful if there's packet loss or desync
 	deleteAsset : 'deleteAsset',		// {player:(str)owner_id, item:(str)assetID, amount:(int)stacks}
 	tradeAsset : 'tradeAsset',			// {player:(str)sender_id, to:(str)sender_id, item:(str)assetID, amount=all}
@@ -2201,7 +2123,6 @@ NetworkManager.playerTasks = {
 	sellItem : 'sellItem',				// {player:(str)sender_id, shop:(str)shop_id, asset:(str)asset_id, amount:(int)amount}
 	bankItem : 'bankItem',				// {player:(str)sender_id, bankPlayer:(str)bankPlayerId, asset:(str)asset_id, amount:(int)amount, deposit:(bool)deposit/withdraw}
 	exchangeGold : 'exchangeGold',		// {player:(str)sender_id, bank:(bool)exchangeInBank}
-	repairItemAtBlacksmith : 'repairItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id}
 	dyeItemAtBlacksmith : 'dyeItemAtBlacksmith',		// {player:(str)sender_id, blacksmithPlayer:(str)blacksmith, asset:(str)asset_id, color:(str)hex_with_hash}
 	useAltar : 'useAltar',				// {player:(str)sender_id, altarPlayer:(str)altar}
 	sleep : 'sleep',									// {player:(str)sender_id, asset:(str)dungeon_asset_id, hours:(int)hours}

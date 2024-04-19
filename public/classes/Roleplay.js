@@ -728,13 +728,13 @@ export class RoleplayStage extends Generic{
 		const pl = this.getPlayer();
 		const rpTarg = this.parent.getTargetPlayers()[0];
 
-
 		let portrait = this.parent.portrait;
-		if( pl instanceof Player && pl.portrait )
-			portrait = pl.portrait;
+		if( pl instanceof Player )
+			portrait = pl.getActivePortrait();
 
 		if( this.portrait )
 			portrait = this.portrait;
+
 		if( this.portrait.toLowerCase() === 'none' )
 			portrait = '';
 		
@@ -752,6 +752,9 @@ export class RoleplayStage extends Generic{
 				portrait = rpTarg?.icon || '';
 
 		}
+
+		if( portrait instanceof HTMLCanvasElement )
+			return portrait;
 		
 		if( !portrait.includes('/') && portrait )
 			portrait = '/media/wrapper_icons/'+portrait+'.svg';
