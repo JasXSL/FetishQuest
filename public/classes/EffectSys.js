@@ -2540,6 +2540,10 @@ Effect.Types = {
 	colorizeItems : 'colorizeItems',
 	addCopper : 'addCopper',
 	randomizeMomentum : 'randomizeMomentum',
+	ignoreKnockdown : 'ignoreKnockdown',
+	ignoreSilence : 'ignoreSilence',
+	battleWonHpRegen : 'battleWonHpRegen',
+	rerollRandom : 'rerollRandom',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2612,6 +2616,10 @@ Effect.Passive = {
 	[Effect.Types.downedProtection] : true,
 	[Effect.Types.luck] : true,
 	[Effect.Types.colorizeItems] : true,
+	[Effect.Types.ignoreKnockdown] : true,
+	[Effect.Types.ignoreSilence] : true,
+	[Effect.Types.battleWonHpRegen] : true,
+	[Effect.Types.rerollRandom] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2745,6 +2753,10 @@ Effect.TypeDescs = {
 	[Effect.Types.addCopper] : '{amount:(int/str)amount} - Adds or subtracts money.',
 	[Effect.Types.randomizeMomentum] : 'void - Randomizes held momentum',
 
+	[Effect.Types.ignoreKnockdown] : '{} - Can still use melee actions while knocked down',
+	[Effect.Types.ignoreSilence] : '{} - Can still use ranged actions while knocked down',
+	[Effect.Types.battleWonHpRegen] : '{amount:(float)amount, multiplier:(bool)is_multiplier} - Add a fixed amount or multiply against the multiplier set in Story',
+	[Effect.Types.rerollRandom] : '{} - Makes rerolls random',
 };
 
 

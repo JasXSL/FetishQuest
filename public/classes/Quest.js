@@ -2,7 +2,7 @@ import Generic from './helpers/Generic.js';
 //import Dungeon, { DungeonRoom } from './Dungeon.js';
 import Condition from './Condition.js';
 //import C from '../libraries/mainMod/conditions.js';
-
+import Text from './Text.js';
 import Calculator from './Calculator.js';
 import Asset from './Asset.js';
 import GameEvent from './GameEvent.js';
@@ -395,6 +395,7 @@ class QuestObjective extends Generic{
 		return {
 			events : QuestObjectiveEvent,
 			visibility_conditions : Condition,
+			cond_desc : Text
 		};
 	}
 
@@ -408,6 +409,7 @@ class QuestObjective extends Generic{
 		this.visibility_conditions = [];		// Conditions to show this in the log
 		this.events = [];						// QuestObjectiveEvent
 		this.completion_desc = '';				// Text to concat to description after completing the objective
+		this.cond_desc = [];					// Conditional completion descriptions. These take priority over completion_desc
 		this.load(data);
 	}
 
@@ -436,6 +438,7 @@ class QuestObjective extends Generic{
 			label : this.label,			// Needed for conditions
 			visibility_conditions : Condition.saveThese(this.visibility_conditions, full),
 			completion_desc : this.completion_desc,
+			cond_desc : Text.saveThese(this.cond_desc, full),
 		};
 
 		if( full )
@@ -485,6 +488,24 @@ class QuestObjective extends Generic{
 
 	isVisible(){
 		return Condition.all(this.visibility_conditions, new GameEvent({target:game.players[0]}));
+	}
+
+	getCompletionDesc(){
+
+		const myPlayer = game.getMyActivePlayer() || game.players[0];
+		const evt = new GameEvent({sender:myPlayer, target:myPlayer});
+
+		for( let text of this.cond_desc ){
+
+			if( text.validate(evt, false, myPlayer) )
+				return text;
+
+		}
+		return new Text({
+			text : this.completion_desc
+		});
+		
+
 	}
 
 }

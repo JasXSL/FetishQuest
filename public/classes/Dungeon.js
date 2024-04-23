@@ -58,6 +58,7 @@ class Dungeon extends Generic{
 		this.shape = Dungeon.Shapes.Random;			// If linear, the generator will force each room to go in a linear fashion
 		this.difficulty = -1;		// Generally describes how many players this dungeon is for. -1 automatically sets it to nr friendly players
 		this.vars = new Collection({}, this);				// Dungeon vars. This one is loaded onto by _state
+		this.comments = '';			// Developer comments
 		this.free_roam = false;		// When true, doesn't show the "back" icon leading you to exit
 		this.procedural = 0;		// If the dungeon is procedural, this is the time in world when it was created
 
@@ -143,6 +144,7 @@ class Dungeon extends Generic{
 			out.shape = this.shape;
 			out.consumables = Asset.saveThese(this.consumables, full);
 			out._completedExpEvts = this._completedExpEvts;
+			out.comments = this.comments;
 		}
 
 		// Everything except mod

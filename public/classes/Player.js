@@ -1763,7 +1763,9 @@ export default class Player extends Generic{
 		if( this.generated )
 			return;
 
-		this.addHP(Math.ceil(this.getMaxHP()*0.1));		// Regen 30% of your HP
+		const retHpPoints = this.getGenericAmountStatPoints(Effect.Types.battleWonHpRegen);
+		const retHpMul = this.getGenericAmountStatMultiplier(Effect.Types.battleWonHpRegen);
+		this.addHP(Math.ceil(this.getMaxHP()*game.story.battle_won_hp_regen*retHpMul+retHpPoints));		// Regen 10% of your HP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
 	}
@@ -2918,6 +2920,19 @@ export default class Player extends Generic{
 		
 		type = Player.getValidMomentum(type);
 		to = Player.getValidMomentum(to);
+		if( this.isRerollRandom() ){
+
+			let types = [];
+			for( let t in Player.MOMENTUM ){
+				const ty = Player.MOMENTUM[t];
+				if( ty === type )
+					continue;
+				types.push(ty);
+			}
+			to = randElem(types);
+
+		}
+
 		if( to === Player.MOMENTUM.All )
 			return false;
 
@@ -4606,6 +4621,9 @@ export default class Player extends Generic{
 
 	isInterruptProtected(){
 		return this.getActiveEffectsByType(Effect.Types.blockInterrupt).length;
+	}
+	isRerollRandom(){
+		return this.getActiveEffectsByType(Effect.Types.rerollRandom).length;
 	}
 
 

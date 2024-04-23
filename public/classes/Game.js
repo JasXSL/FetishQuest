@@ -1080,23 +1080,27 @@ export default class Game extends Generic{
 	getHoursOfDay(){
 		return this.getDayPercentage()*24;
 	}
-	// Sleep players
-	sleep( player, dungeonAsset, duration ){
+	// Sleep players, duration is in hours
+	sleep( player, dungeonAsset, duration, force = false ){
 
 		if( !player.isLeader() )
 			return false;
 		
-		if( !dungeonAsset || !dungeonAsset.interactions.length )
-			return false;
+		if( !force ){
 
-		const sleepInteractions = dungeonAsset.interactions.filter(e => e.type === GameAction.types.sleep);
-		if( !sleepInteractions.length ){
+			if( !dungeonAsset || !dungeonAsset.interactions.length )
+				return false;
 
-			console.error("Sleep interaction not found");
-			return false;
+			const sleepInteractions = dungeonAsset.interactions.filter(e => e.type === GameAction.types.sleep);
+			if( !sleepInteractions.length ){
+
+				console.error("Sleep interaction not found");
+				return false;
+
+			}
 
 		}
-
+		
 		duration = parseInt(duration);
 		if( isNaN(duration) || duration < 1 )
 			return false;
@@ -1112,7 +1116,7 @@ export default class Game extends Generic{
 		// Has a callback for when the screen is fully black
 		this.ui.toggleBlackScreen(() => {
 
-			this.addHours(duration);
+			this.addHours(duration, true); // Sleep always forces the time forward
 			const pl = game.getTeamPlayers();
 			for( let p of pl ){
 
@@ -3172,7 +3176,7 @@ export default class Game extends Generic{
 
 
 
-	// Roleplay
+	/* Roleplay */
 	useRoleplayOption( senderPlayer, option_id ){
 
 		if( this.roleplay._waiting )
@@ -3251,6 +3255,10 @@ export default class Game extends Generic{
 
 	isInRoleplay(){
 		return !this.roleplay.completed;
+	}
+
+	isRoleplayCompleted( label ){
+		return this.state_roleplays[label] && this.state_roleplays[label].completed;
 	}
 
 	// Gets all available noncompleted roleplays for a player

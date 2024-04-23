@@ -603,6 +603,9 @@ export default class Condition extends Generic{
 				success = event.action && event.action.detrimental;
 			else if( this.type === T.encounterCompleted )
 				success = event.encounter && event.encounter.completed;
+			else if( this.type === T.roleplayCompleted ){
+				success = game.isRoleplayCompleted(data.rp);
+			}
 			else if( this.type === T.rng ){
 
 				let rng = Math.floor(Math.random()*100),
@@ -1188,7 +1191,11 @@ export default class Condition extends Generic{
 					dungeon = this.data.dungeon;
 
 				const vars = game.getDungeonVars(dungeon);
-				success = vars[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
+				const v = vars[this.data.id];
+				if( Array.isArray(v) )
+					success = v.includes(this.data.data);
+				else
+					success = v == this.data.data; // Soft == because it's a text input in the editor
 				
 			}
 			else if( this.type === T.dungeonVarMath ){
@@ -1211,6 +1218,13 @@ export default class Condition extends Generic{
 					}
 					success = Calculator.run(formula, event, _t);
 				}
+
+			}
+
+			else if( this.type === T.rpVar ){
+
+				const vars = game.roleplay.vars;
+				success = vars && vars[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
 
 			}
 
@@ -1519,6 +1533,7 @@ Condition.Types = {
 	wrapperHasEffect : 'wrapperHasEffect',		// 
 	dungeonVar : 'dungeonVar',
 	dungeonVarMath : 'dungeonVarMath',
+	rpVar : 'rpVar',
 	targetIsSender : 'targetIsSender',
 	targetIsChatPlayer : 'targetIsChatPlayer',
 	targetIsChatPlayerTeam : 'targetIsChatPlayerTeam',
@@ -1559,7 +1574,7 @@ Condition.Types = {
 	isFollower : 'isFollower',
 
 	encounterCompleted : 'encounterCompleted',
-
+	roleplayCompleted : 'roleplayCompleted',
 
 	// Dungeon room conditions
 	roomIsOutdoors : 'roomIsOutdoors',
@@ -1605,6 +1620,7 @@ Condition.descriptions = {
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',
 	[Condition.Types.encounterCompleted] : 'void - The event encounter is completed',
+	[Condition.Types.roleplayCompleted] : '{rp:(str)roleplayLabel} - The specified roleplay is completed',
 	[Condition.Types.actionResisted] : 'Data is optional, but can also be {type:(str)/(arr)Action.Type}',
 	[Condition.Types.rng] : '{chance:(nr)(str)chance} number/str that outputs an int between 0 and 100 where 100 = always and 0 = never',
 	[Condition.Types.isWrapperParent] : '{originalWrapper:(bool)false} - Target was the wrapper\'s parent. Used to check if a wrapper, effect, or action hit a player with an effect',
@@ -1638,8 +1654,9 @@ Condition.descriptions = {
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter, originalWrapper:(bool)=false} - Searches through filters and returns true if at least one matches. See EffectSys.js getEffects for more info',	
-	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT',	
+	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT. If a dungeonVar is an array (set by math scripts), it checks if the array includes data instead, note that array search is type-sensitive.',	
 	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
+	[Condition.Types.rpVar] : '{id:(str)var_id, data:(var)data} - Compares an rpVar to data with EXACT matching. Always targets the current RP.',
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	
 	[Condition.Types.targetIsTurnPlayer] : 'void - Checks if it\'s the event target\'s turn in combat',
 	[Condition.Types.targetIsWrapperSender] : '{ originalWrapper:(bool)=false} - Sender might not always be the caster of a wrapper (ex checking effect targets). This specifies that you want the sender of the included wrapper in specific.',	

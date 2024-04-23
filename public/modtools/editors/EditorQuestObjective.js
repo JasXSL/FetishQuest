@@ -1,6 +1,7 @@
 import HelperAsset from './HelperAsset.js';
 import * as EditorQuestObjectiveEvent from './EditorQuestObjectiveEvent.js';
 import * as EditorCondition from './EditorCondition.js';
+import * as EditorText from './EditorText.js';
 import Generic from '../../classes/helpers/Generic.js';
 
 import Quest, { QuestReward, QuestObjective } from '../../classes/Quest.js';
@@ -33,6 +34,7 @@ export function asset(){
 		html += '<label>Amount To Start With: <input type="text" name="_amount" class="saveable" value="'+esc(dummy._amount)+'" /></label>';
 	html += '</div>';
 
+	html += '<span title="These override completion desc if conditions are met">Conditional completion descs: </span><div class="cond_desc"></div>';
 	html += '<span title="Text added to the quest description after this objective is completed">Completion desc: </span><br /><textarea name="completion_desc" class="saveable">'+esc(dummy.completion_desc)+'</textarea>';
 
 	html += '<span title="Events that should increase this objective amount">Events: </span><div class="events"></div>';
@@ -44,6 +46,7 @@ export function asset(){
 
 
 	this.dom.querySelector("div.visibility_conditions").appendChild(EditorCondition.assetTable(this, asset, "visibility_conditions"));
+	this.dom.querySelector("div.cond_desc").appendChild(EditorText.assetTable(this, asset, "cond_desc"));
 	this.dom.querySelector("div.events").appendChild(EditorQuestObjectiveEvent.assetTable(this, asset, "events", false, true));
 
 	HelperAsset.autoBind( this, asset, DB);

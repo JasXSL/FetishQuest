@@ -74,6 +74,7 @@ export function list(){
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({
+		id : Generic.generateUUID(),
 		label : 'vendorAsset_'+Generic.generateUUID(),
 		name : 'New Asset'
 	}));

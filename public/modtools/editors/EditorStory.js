@@ -38,6 +38,7 @@ export function asset(){
 		html += '<label>Max Nr Player Options: <input type="number" name="max_nr_player_options" min=0 step=1 class="saveable" value="'+esc(dummy.max_nr_player_options)+'" /></label>';
 		html += '<label>Min Nr Player Options: <input type="number" name="min_nr_player_options" min=1 step=1 class="saveable" value="'+esc(dummy.min_nr_player_options)+'" /></label>';
 		html += '<label>Max Level: <input type="number" name="max_level" min=1 step=1 class="saveable" value="'+esc(dummy.max_level)+'" /></label>';
+		html += '<label>Battle won HP regen multiplier: <input type="number" name="battle_won_hp_regen" min=0 step=0.01 class="saveable" value="'+esc(dummy.battle_won_hp_regen)+'" /></label>';
 		html += '<label>Allow Gallery: <input type="checkbox" name="allow_gallery" class="saveable" value=1 '+(dummy.allow_gallery ? 'checked' : '')+' /></label>';
 		html += '<label>Freeze Time: <input type="checkbox" name="freeze_time" class="saveable" value=1 '+(dummy.freeze_time ? 'checked' : '')+' /></label>';
 		html += '<label>Unleveled equipment: <input type="checkbox" name="leveled_gear" class="saveable" value=1 '+(dummy.leveled_gear ? 'checked' : '')+' /></label>';

@@ -856,6 +856,16 @@ export function asset(){
 		};
 
 	}
+	else if( type === Types.execSleep ){
+		if( !asset.data )
+			asset.data = {duration:0};
+
+		html += '<div class="labelFlex">';
+			html += '<label>Hours: <input type="number" step=1 name="data::duration" class="saveable" value="'+esc(asset.data.duration || 0)+'" /></label>';
+		html += '</div>';	
+		
+
+	}
 	else if( type === Types.resetRoleplay ){
 		if( !asset.data || typeof asset.data !== "object" )
 			asset.data = {

@@ -683,6 +683,7 @@ export default class UI{
 		this.yourTurn.toggleClass('hidden', !myTurn || !game.battle_active);
 		this.yourTurnBorder.toggleClass('hidden', !myTurn || !game.battle_active);
 
+		const isRerollRandom = player.isRerollRandom();
 		const rerolls = player.getReroll(Player.MOMENTUM.All);
 		let reSubs = [0,0,0];
 		if( rerolls ){
@@ -690,8 +691,6 @@ export default class UI{
 			reSubs[1] = !player.isRerollDisabled(Player.MOMENTUM.Def);
 			reSubs[2] = !player.isRerollDisabled(Player.MOMENTUM.Uti);
 		}
-		console.log(reSubs);
-
 		// Update resource bar
 		this.rerolls[0].classList.toggle("hidden", rerolls < 1);
 		this.rerollsSpan[0].innerText = rerolls;
@@ -754,8 +753,8 @@ export default class UI{
 			dots[i].dataset.i = type;
 
 			cList.toggle('re', Boolean(type !== -1 && reSubs[type]));
+			cList.toggle('rerand', isRerollRandom);
 
-			// Animate a sweep
 			if( pre !== type ){
 
 				cList.remove(...momTypes);

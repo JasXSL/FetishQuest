@@ -634,7 +634,11 @@ export default class StaticModal{
 				let html = '', th = this;
 				let quests = game.quests;
 				let selectedQuest = quests[0];
-				const me = game.getMyActivePlayer();
+				const me = game.getMyActivePlayer() || game.players[0];
+				const evt = new GameEvent({
+					sender : me,
+					target : me
+				});
 
 				for( let quest of quests ){
 					if( quest.id === localStorage.selected_quest )
@@ -662,8 +666,15 @@ export default class StaticModal{
 					html += '<p>'+stylizeText(selectedQuest.description)+'</p>';
 
 					for( let objective of selectedQuest.objectives ){
-						if( objective.isCompleted() && objective.completion_desc )
-							html += '<p>'+stylizeText(objective.completion_desc)+'</p>';
+						
+						if( objective.isCompleted() ){
+							
+							const desc = objective.getCompletionDesc();
+							if( desc )
+								html += '<p>'+desc.run(evt, true)+'</p>';
+
+						}
+
 					}
 					
 

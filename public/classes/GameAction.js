@@ -1191,6 +1191,9 @@ export default class GameAction extends Generic{
 		else if( this.type === types.setLevel ){
 			player.level = Calculator.run(this.data.level, new GameEvent({sender:player, target:player})) || 1;
 		}
+		else if( this.type === types.execSleep ){
+			game.sleep(player, undefined, this.data.duration, true);
+		}
 
 		else if( this.type === types.gameOver ){
 			console.log("Todo: Handle game over");
@@ -1388,7 +1391,9 @@ GameAction.types = {
 	setRain : 'setRain',
 	mathScript : 'mathScript',					// Runs the calculator. Useful since the math engine comes with built in functions that lets you do more complex modifications on dVars
 	setLevel : 'setLevel',				
-	gameOver : 'gameOver',						
+	gameOver : 'gameOver',
+	execSleep : 'execSleep',
+						
 };
 
 GameAction.TypeDescs = {
@@ -1423,6 +1428,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.rentRoom] : '{cost:(int)copper, text:(str)rp, success_text:(str)successfully_rented_text, player:(str)label} - Draws the rent a room icon on a target.',
 	[GameAction.types.execRentRoom] : '{cost:(int)copper, success_text:(str)successfully_rented_text, renter:(str)renter_merchant_label} - Execs a room rental in this dungeon. This is generated automatically by above.',
 	[GameAction.types.sleep] : '{actions:(arr)game_actions} -  Used on a mesh to attach a sleep picker to it.',
+	[GameAction.types.execSleep] : '{duration:(int)hours} - Executes sleep, bypassing the sleep picker.',
 	[GameAction.types.resetRoleplay] : '{roleplay:(str)label} - Resets a roleplay. If no roleplay is provided and the gameEvent can parent up to a roleplay, it resets that one',
 	[GameAction.types.setDungeon] : '{dungeon:(str)dungeon, room:(int)index} - Sets the dungeon. If you leave out dungeon, it targets your active dungeon',
 	[GameAction.types.addFaction] : '{faction:(str)label, amount:(int)amount} - Adds or removes reputation',

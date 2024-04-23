@@ -796,10 +796,10 @@ class Action extends Generic{
 				return err("Can't use that right now");
 
 			// Charge finish are unaffected by knockdowns or daze
-			if( this.ranged === Action.Range.Melee && pl.hasTag(stdTag.wrKnockdown) && !isChargeFinish )
+			if( this.ranged === Action.Range.Melee  && pl.hasTag(stdTag.wrKnockdown) && !pl.getActiveEffectsByType(Effect.Types.ignoreKnockdown) )
 				return err("Can't use while knocked down");
 
-			if( this.ranged === Action.Range.Ranged && pl.hasTag(stdTag.wrDazed) && !isChargeFinish )
+			if( this.ranged === Action.Range.Ranged && pl.hasTag(stdTag.wrDazed) && !isChargeFinish && !pl.getActiveEffectsByType(Effect.Types.ignoreSilence) )
 				return err("Can't use while dazed");
 
 			if( pl && pl.isIncapacitated() )

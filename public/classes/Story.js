@@ -24,6 +24,7 @@ export default class Story extends Generic{
 		this.desc = '';
 		this.icon = '';
 		
+		this.battle_won_hp_regen = 0.1;		// Amount of HP restored when winning a battle, multiplied by max HP
 		this.max_nr_player_options = 0;		// use 0 for no max
 		this.min_nr_player_options = 1;		// NR options you can pick from
 		this.player_options = [];			// PlayerGalleryTemplate objects you can pick from
@@ -74,6 +75,7 @@ export default class Story extends Generic{
 			leveled_gear : this.leveled_gear,
 			death_action_override : this.death_action_override,
 			no_kinks : this.no_kinks,
+			battle_won_hp_regen: this.battle_won_hp_regen,
 		};
 
 		if( full ){

@@ -60,6 +60,8 @@ export function asset(){
 
 	html += 'Vars (this is a key/value object that can be acted upon by game actions and used in conditions):<br />';
 	html += '<textarea class="json" name="vars">'+esc(JSON.stringify(dummy.vars))+'</textarea><br />';
+	html += 'Developer comments:<br />';
+	html += '<textarea name="comments" class="saveable">'+esc(dummy.comments, true)+'</textarea><br />';
 
 	// Keep
 	html += 'Tags: <br /><div name="tags">'+HelperTags.build(dummy.tags)+'</div>';

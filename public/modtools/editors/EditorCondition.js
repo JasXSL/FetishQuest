@@ -532,6 +532,13 @@ export function asset(){
 		};
 
 	}
+	else if( type === types.rpVar ){
+
+		setDefaultData({id:'', data:''});
+		html += '<label>Var: <input class="saveable" name="data::id" value="'+esc(asset.data.id)+'" /></label>';
+		html += '<label>Value: <input class="jsonify" name="data::data" value="'+esc(asset.data.data)+'" /></label>';
+
+	}
 	else if( type === types.location ){
 
 		setDefaultData({dungeon:'', room:-1});
@@ -688,6 +695,19 @@ export function asset(){
 		html += '</div>';
 		fnBind = () => {
 			this.dom.querySelector("div.label").appendChild(EditorEffect.assetTable(this, asset, "data::label", false));
+		};
+
+	}
+	else if( type === types.roleplayCompleted ){
+
+		setDefaultData({
+			rp : '',
+		});
+
+		
+		html += 'Roleplay: <div class="label"></div>';
+		fnBind = () => {
+			this.dom.querySelector("div.label").appendChild(EditorRoleplay.assetTable(this, asset, "data::rp", false));
 		};
 
 	}

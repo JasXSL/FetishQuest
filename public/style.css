@@ -3497,7 +3497,15 @@ div.scroll{
 		cursor:pointer;
 		box-shadow:0 -0.25vh 1vh rgba(207,233,255,.75);
 	}
-	#ui > div.actionbar > div.resources > div.point.re.on:hover > div{
+	#ui > div.actionbar > div.resources > div.point.re.on.rerand:hover > div{
+		display:none;
+	}
+	#ui > div.actionbar > div.resources > div.point.re.on.rerand:hover > div:first-child{
+		display:block;
+		background-image: url(media/ui/questionmark.svg), linear-gradient(to bottom, #f6f4b8 0%,#70ef67 50%,#5de256 51%,#6f80f2 100%);
+	}
+	
+	#ui > div.actionbar > div.resources > div.point.re.on:hover> div{
 		width:100%;
 		position: absolute;
 		top:0; left:0;

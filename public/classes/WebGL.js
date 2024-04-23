@@ -787,73 +787,7 @@ class WebGL{
 		
 		// RC runs at 30 FPS
 		if( time-this._last_rc > 33 && (!window.game || game === true || !game.ui.visible) && this.stage && this.stage.group ){
-
-			const intersecting = [];	// Meshes being raycasted onto
-
-
-			this._last_rc = time;
-			this.raycaster.setFromCamera( this.mouse, this.camera );
-			
-			const meshes = 
-				this.stage.group.children.filter(el => !el.userData.dungeonAsset?.room)
-				.concat(this.playerMarkers.filter(el => el))
-			;
-			let objCache = [];
-
-			let intersects = this.raycaster.intersectObjects( meshes, true )
-				.map(el => {
-
-					if( !this.stage )
-						return false;
-					// This one has its own mouseover handler, return that
-					if( el.object.userData.mouseover )
-						return el;
-					// Objects named HITBOX use the root item unless it has its own mouseover handler
-					if( el.object.name === 'HITBOX' )
-						el.object = this.stage.getMeshStageParent(el.object);
-					return el;
-
-				}).filter(el => {
-
-					if(!(el && el.object && el.object.visible && el.object.userData && typeof el.object.userData.mouseover === "function"))
-						return false;
-					if( ~objCache.indexOf(el.object) )
-						return false;
-					objCache.push(el.object);
-					return true;	
-
-				});
-
-
-			// Raycaster
-			// Mouseover
-			for( let obj of intersects ){
-
-				intersecting.push(obj.object);
-
-				if( obj.object.userData._mouseover )
-					break;
-				obj.object.userData.mouseover.call(obj.object, obj.object);
-				obj.object.userData._mouseover = true;
-
-			}
-
-			// Mouseout
-			for( let obj of this.intersecting ){
-
-				if( obj.userData._mouseover && intersecting.indexOf(obj) === -1 ){
-
-					obj.userData._mouseover = false;
-					if( typeof obj.userData.mouseout === "function" )
-						obj.userData.mouseout.call(obj, obj);
-
-				}
-
-			}
-
-			this.intersecting = intersecting;
-
-
+			this.runRaycast();
 		}
 		
 		if( this.iconRendererActive )
@@ -872,6 +806,78 @@ class WebGL{
 			this.renderer.render( this.scene, this.camera);
 
 	}
+
+	runRaycast( debug = false ){
+
+		const time = Date.now();
+		const intersecting = [];	// Meshes being raycasted onto
+		this._last_rc = time;
+		this.raycaster.setFromCamera( this.mouse, this.camera );
+		
+		const meshes = 
+			this.stage.group.children.filter(el => !el.userData.dungeonAsset?.room)
+			.concat(this.playerMarkers.filter(el => el))
+		;
+		let objCache = [];
+
+		
+		let intersects = this.raycaster.intersectObjects( meshes, true );
+		if( debug )
+			console.debug("Raycasting against meshes", meshes, "pre filter intersects", intersects);
+		intersects = intersects.map(el => {
+
+			if( !this.stage )
+				return false;
+			// This one has its own mouseover handler, return that
+			if( el.object.userData.mouseover )
+				return el;
+			// Objects named HITBOX use the root item unless it has its own mouseover handler
+			if( el.object.name === 'HITBOX' )
+				el.object = this.stage.getMeshStageParent(el.object);
+			return el;
+
+		}).filter(el => {
+
+			if(!(el && el.object && el.object.visible && el.object.userData && typeof el.object.userData.mouseover === "function"))
+				return false;
+			if( ~objCache.indexOf(el.object) )
+				return false;
+			objCache.push(el.object);
+			return true;	
+
+		});
+		if( debug )
+			console.debug("Intersects", intersects);
+
+		// Raycaster
+		// Mouseover
+		for( let obj of intersects ){
+
+			intersecting.push(obj.object);
+
+			if( obj.object.userData._mouseover ) // Already mousing over this
+				break;
+			obj.object.userData.mouseover.call(obj.object, obj.object);
+			obj.object.userData._mouseover = true;
+
+		}
+
+		// Mouseout
+		for( let obj of this.intersecting ){
+
+			if( obj.userData._mouseover && intersecting.indexOf(obj) === -1 ){
+
+				obj.userData._mouseover = false;
+				if( typeof obj.userData.mouseout === "function" )
+					obj.userData.mouseout.call(obj, obj);
+
+			}
+
+		}
+
+		this.intersecting = intersecting;
+	}
+
 
 	// User data that sh ould be scrubbed when putting back into global cache
 	scrubUserData( mesh ){
@@ -2325,13 +2331,14 @@ class Stage{
 		
 
 		// Calculate a bounding box before attaching anything to the mesh
-		const bb = new THREE.Box3();
+		c.computeBoundingBox && c.computeBoundingBox();
 		c.traverse(el => {
-			if( el.geometry )
-				el.geometry.computeBoundingBox();
+			el?.geometry?.computeBoundingBox();
+			el.computeBoundingBox && el.computeBoundingBox(); // SkinnedMesh has this
 		});
+		const bb = new THREE.Box3();
+		bb.setFromObject(c);
 		c.userData.boundingBox = bb;
-		bb.setFromObject(c);			// Note: THREE.js bounding box calculation is BROKEN, may be fixed in a future update
 
 		// Create labels
 		// Door

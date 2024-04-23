@@ -178,10 +178,9 @@ GameEvent.Types = {
 	playerDefeated : 'playerDefeated',	
 	diminishingResist : 'diminishingResist',
 	effectTrigger : 'effectTrigger',		
-	armorBroken : 'armorBroken',		
 	armorEquipped : 'armorEquipped',		
 	armorUnequipped : 'armorUnequipped',		
-	downedProtection : 'downedProtection',		
+	downedProtection : 'downedProtection',
 
 	stdAttCombo : 'stdAttCombo',
 
@@ -252,7 +251,6 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.playerDefeated] : 'Player was defeated, sender was the player that defeated target, action might be included, wrapper is included',	// 
 	[GameEvent.Types.diminishingResist] : 'target resisted sender\'s wrapper due to diminishing returns',		// 
 	[GameEvent.Types.effectTrigger] : 'Raised when an effect has been triggered',				// 
-	[GameEvent.Types.armorBroken] : 'An armor piece has been broken. Sender is the player that triggered the break, Target is the player who wears it',		// 
 	[GameEvent.Types.armorUnequipped] : 'An armor piece has been unequipped. Sender is the player that triggered the unequip, Target is the player who wore it',		// 
 	[GameEvent.Types.armorEquipped] : 'An armor piece has been equipped. Sender is the player that triggered the equip, Target is the player who wore it',		// 
 
