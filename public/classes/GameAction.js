@@ -176,7 +176,6 @@ export default class GameAction extends Generic{
 		if( !this.data )
 			console.error("Data is missing from", this);
 
-
 		if( this.type === this.constructor.types.loot && !Array.isArray(this.data.genLoot) ){
 
 			this.data.min = parseInt(this.data.min) || 1;
@@ -193,7 +192,6 @@ export default class GameAction extends Generic{
 				min = loot.length;
 			if( max > loot.length || max < 0 )
 				max = loot.length;			
-
 
 			let numItems = Math.floor(Math.random()*(max-min))+min;
 			const out = [];
@@ -590,7 +588,7 @@ export default class GameAction extends Generic{
 			if( Array.isArray(this.data.targets) && this.data.targets.length ){
 
 				let targs = Calculator.targetsToKeys(this.data.targets, evt, id);
-				if( typeof pre !== "object" || !pre )
+				if( typeof pre !== "object" || !pre || Array.isArray(pre) )
 					pre = {};
 				for( let t of targs ){
 
@@ -608,6 +606,7 @@ export default class GameAction extends Generic{
 			if( debug )
 				console.log("Setting RP var", id, "to", val);
 			rp._vars.set(id, val);
+			game.saveRPState(rp);
 			
 
 		}
@@ -801,6 +800,43 @@ export default class GameAction extends Generic{
 			if( addedAssets && this.data.equip )
 				addedAssets.map(el => pl.equipAsset(el.id, pl, true));
 
+		}
+
+		// {"assets":(arr)viable_assets, "amount":(int)amount=1, "alert":(bool)notify=false, "duplicates":(bool)allow_duplicates=false}
+		else if( this.type === types.addInventoryRandom ){
+
+			let pl = player;
+			if( !pl ){
+				console.error("Player not found", pl);
+				return;
+			}
+
+			let assets = Asset.loadThese(this.data.assets, this);
+			if( !assets.length ){
+				console.error("Assets not found", this.data.assets);
+				return;
+			}
+			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
+			shuffle(assets);
+
+			for( let i = 0; i < amount && assets.length; ++i ){
+
+				// Todo: add assets
+				let asset = assets[0].clone();
+				asset.restore();
+				pl.addAsset(asset, 1);
+				if( this.data.alert )
+					game.ui.addText( player.getColoredName()+" received "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
+
+				
+
+				if( this.data.duplicates )
+					shuffle(assets);
+				else
+					assets.shift();
+
+			}
+			
 		}
 
 		else if( this.type === types.openShop ){
@@ -1347,6 +1383,7 @@ GameAction.types = {
 	quest : "quest",				// 
 	questObjective : "questObjective",		// 
 	addInventory : "addInventory",			// 
+	addInventoryRandom : "addInventoryRandom",			// 
 	toggleCombat : "toggleCombat",			// 
 	roleplay : "roleplay",					// 
 	finishQuest : "finishQuest",			// 
@@ -1410,6 +1447,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.quest] : '{quest:(str/Quest)q} - Starts a quest',
 	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1, killParentAsset:(bool)kill=false} - Adds or subtracts from an objective. killParentAsset will kill a dungeon room asset when the game action is used on one.',
 	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1, "alert":(bool)notify=false, "equip":""} - Adds or removes inventory from a player. Equip can be empty (no equip) or "yes" to equip it.',
+	[GameAction.types.addInventoryRandom] : '{"assets":(arr)viable_assets, "amount":(int)amount=1, "alert":(bool)notify=false, "duplicates":(bool)allow_duplicates=false} - Add random inventory to target. Assets are picked at random up to amount. If duplicates is true, it allows the same item to be picked multiple times.',
 	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
 	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',
 	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',

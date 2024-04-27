@@ -1086,12 +1086,13 @@ export default class Game extends Generic{
 		if( !player.isLeader() )
 			return false;
 		
+		let sleepInteractions = [];
 		if( !force ){
 
 			if( !dungeonAsset || !dungeonAsset.interactions.length )
 				return false;
 
-			const sleepInteractions = dungeonAsset.interactions.filter(e => e.type === GameAction.types.sleep);
+			sleepInteractions = dungeonAsset.interactions.filter(e => e.type === GameAction.types.sleep);
 			if( !sleepInteractions.length ){
 
 				console.error("Sleep interaction not found");

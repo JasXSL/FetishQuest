@@ -2054,7 +2054,8 @@ NetworkManager.whitelist = [
 	'discordapp.com',
 	'catbox.moe',
 	'imgchest.com',
-	'shitpost.to'
+	'shitpost.to',
+	'imgbb.com'
 ];
 
 

@@ -606,7 +606,7 @@ export default class Condition extends Generic{
 			else if( this.type === T.encounterCompleted )
 				success = event.encounter && event.encounter.completed;
 			else if( this.type === T.roleplayCompleted ){
-				success = game.isRoleplayCompleted(data.rp);
+				success = game.isRoleplayCompleted(this.data.rp);
 			}
 			else if( this.type === T.rng ){
 
@@ -1231,7 +1231,7 @@ export default class Condition extends Generic{
 			}
 
 			else if( this.type === T.formula ){
-				success = Calculator.run(this.data.formula, event);
+				success = Calculator.run(this.data.formula, event, {}, true);
 			}
 			else if( this.type === T.mathVarCompare ){
 

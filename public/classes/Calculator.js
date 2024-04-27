@@ -144,12 +144,13 @@ class Calculator{
 
 		// Try/catch is needed or debugging will be a pain
 		try{
+
 			let targs = event.target ? toArray(event.target) : [];
 			let out = [];
 			for( let item of targArray ){
 				let itm = String(item);
 
-				if( itm === Calculator.Targets.Targets ){
+				if( itm === Calculator.Targets.Targets || itm === Calculator.Targets.Target ){ // If not supplying a number after Calculator.Targets.Target, it works exactly the same as Targets
 					out.push(...targs.map(el => el.id));
 				}
 				else if( itm === Calculator.Targets.Set ){
@@ -193,6 +194,7 @@ class Calculator{
 						out.push(game.roleplay._targetPlayers[nr]);
 
 				}
+
 			}
 
 			// Makes unique
@@ -268,6 +270,12 @@ class Calculator{
 			return tag;
 		tag = tag.substring(2); // Remove '@@'
 
+		// Start with ! if you want to stringify numeric outputs
+		let stringitize = tag.charAt(0) === '!';
+		if( stringitize )
+			tag = tag.substring(1);
+		
+
 		tag = Calculator.tokenizeAtVar(tag); // break out the @@ var, splitting it into the [tag, tail] 
 		let trail = tag[1];
 		tag = tag[0];
@@ -321,7 +329,7 @@ class Calculator{
 				
 				let val = mathVarList[vTag];
 				if( val === undefined )
-					val = '';
+					val = 0; // 0 is required to not throw an error.
 
 				// For Set_T, Set_Trace etc, where we're requesting info about the player rather than the var
 				if( targVar ){
@@ -345,14 +353,16 @@ class Calculator{
 
 		}
 
-
 		if( num )
 			vals = [vals.length];
 		else if( sum )
-			vals = [numberToText(vals.reduce((pre, cur) => {
+			vals = [vals.reduce((pre, cur) => {
 				if( !isNaN(cur) )
 					return pre+cur;
-			}, 0))];
+			}, 0)];
+		
+		if( stringitize )
+			vals = vals.map( v => isNaN(v) ? v : numberToText(v) );
 
 		let out = vals.join(separator || " and ");
 		// Setting defaultSeparator means we always want 
@@ -379,7 +389,7 @@ class Calculator{
 
 	// Supplying a JSON array to a formula will treat it as an array of constants to be feched, and causes an array to be returned
 	// Useful when you want to set a dvar or rpvar to a player ID
-	static run( formula, event, customMathVars ){
+	static run( formula, event, customMathVars, returnUndefined = false ){
 
 		if( this.debug )
 			console.debug("Formula", formula, "event", event, "mathvars", customMathVars);
@@ -438,7 +448,7 @@ class Calculator{
 				'@@'+c, 
 				event, 
 				vars, 
-				false, // returnUndefined
+				returnUndefined, // returnUndefined
 				false, // defaultSeparator
 				true	// noStyling
 			);
@@ -455,7 +465,7 @@ class Calculator{
 			out = parser.evaluate(formula);
 		}
 		catch(err){
-			console.error(err);
+			console.error(err, "in", formula, event, customMathVars);
 			out = 0;
 		}
 

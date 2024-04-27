@@ -394,6 +394,8 @@ export default class Roleplay extends Generic{
 
 	onStart( players ){
 
+		this.loadState();
+		
 		this._targetPlayers = [];
 		if( Array.isArray(players) )
 			this._targetPlayers = players.map(el => {

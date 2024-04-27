@@ -405,6 +405,28 @@ export function asset(){
 		};
 		
 	}
+	else if( type === Types.addInventoryRandom ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				assets : [],
+				amount : 1,
+				alert : false,
+				duplicates : false
+			};
+
+		html += 'Asset: <div class="assets"></div>';
+		html += '<div class="labelFlex">';
+			html += '<label>Amount: <input type="number" min=1 step=1 name="data::amount" class="saveable" value="'+esc(asset.data.amount || 0)+'" /></label>';
+			html += '<label title="Outputs a chat message">Notify chat: <input type="checkbox" name="data::alert" class="saveable" '+( asset.data.alert ? 'checked' : '' )+' /></label>';
+			html += '<label>Allow duplicates: <input type="checkbox" name="data::duplicates" class="saveable" '+( asset.data.duplicates ? 'checked' : '' )+' /></label>';
+		html += '</div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "data::assets"));
+		};
+		
+	}
 	else if( type === Types.addCopper ){
 
 		if( !asset.data || typeof asset.data !== "object" )
