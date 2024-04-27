@@ -1213,9 +1213,13 @@ export default class Player extends Generic{
 		canvas.width = 256;
 		canvas.height = 256;
 		const ctx = canvas.getContext("2d");
-		if( this.portrait )
-			ctx.drawImage(this.portrait, 0,0,256,256);
-
+		if( this.portrait  ){
+			const img = document.createElement('img');
+			img.src = this.portrait;
+			img.onload = () => {
+				ctx.drawImage(img, 0,0,256,256);
+			}
+		}
 		else if( this.pd ){
 			
 			this.getActiveIcon(useCache).then(full => {
@@ -3089,6 +3093,9 @@ export default class Player extends Generic{
 
 			if( this.getMajorEffects() & Effect.Major.Dexterity )
 				amount *= 2;
+			amount *= this.getGenericAmountStatMultiplier(Effect.Types.globalBlockMod);
+			amount += this.getGenericAmountStatPoints(Effect.Types.globalBlockMod);
+
 			if( game.isTurnPlayer(this) )
 				this.block += amount;
 			else

@@ -411,7 +411,9 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.sameTeam )
 				success = s && t && s.team === t.team;
-
+			else if( this.type === T.turnNumber ){
+				success = t && t._turns === (parseInt(this.data.turns) || 0);
+			}
 			else if( this.type === T.hourRange ){
 
 				let min = +this.data.min || 0, 
@@ -1596,6 +1598,7 @@ Condition.Types = {
 	diceRollSuccess : 'diceRollSuccess',
 	diceRollCritSuccess : 'diceRollCritSuccess',
 	diceRollCritFail : 'diceRollCritFail',
+	turnNumber : 'turnNumber',
 
 };
 
@@ -1715,6 +1718,7 @@ Condition.descriptions = {
 	[Condition.Types.diceRollSuccess] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has done a successful roll',
 	[Condition.Types.diceRollCritSuccess] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has rolled a 20',
 	[Condition.Types.diceRollCritFail] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has rolled a 1',
+	[Condition.Types.turnNumber] : '{turn:(int)turn} - Checks if all targets are on a specific turn',
 };
 
 

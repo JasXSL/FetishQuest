@@ -217,6 +217,7 @@ GameEvent.Types = {
 	sleep : 'sleep',		
 	stun : 'stun',
 	orgasm : 'orgasm', 	// Quicker way of checking wrapper added and wrapper overwhelming orgasm
+	diceRoll : 'diceRoll', // Rolled a dice in an RP
 	
 };
 
@@ -284,6 +285,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.blockSubtracted] : '{evt_amount:(int)amount} Raised when block is subtracted.',			
 	[GameEvent.Types.blockBroken] : 'sender, target. Block has been broken (not expired).',			
 	[GameEvent.Types.orgasm] : 'sender, target. Target has orgasmed.',			
+	[GameEvent.Types.diceRoll] : 'sender, target. Target has rolled a dice.',			
 
 };
 

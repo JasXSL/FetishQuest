@@ -2544,6 +2544,8 @@ Effect.Types = {
 	ignoreSilence : 'ignoreSilence',
 	battleWonHpRegen : 'battleWonHpRegen',
 	rerollRandom : 'rerollRandom',
+	preventEquip : 'preventEquip',
+	globalBlockMod : 'globalBlockMod'
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2620,6 +2622,8 @@ Effect.Passive = {
 	[Effect.Types.ignoreSilence] : true,
 	[Effect.Types.battleWonHpRegen] : true,
 	[Effect.Types.rerollRandom] : true,
+	[Effect.Types.preventEquip] : true,
+	[Effect.Types.globalBlockMod] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2649,6 +2653,7 @@ Effect.TypeDescs = {
 	[Effect.Types.preventBlock] : "{} - Ignores block",
 	[Effect.Types.preventReroll] : "{type:(int)Player.MOMENTUM.*=Player.MOMENTUM.All} - Prevents player from rerolling",
 	[Effect.Types.preventBlockAutoFade] : "{} - Prevents block from fading at the start of your turn",
+	[Effect.Types.globalBlockMod] : "{amount:(int)(float)(string)amount, multiplier:(bool)isMultiplier=false} - When gainin block, adds or multiplies",
 	
 	[Effect.Types.setHP] : "{amount:(str)(nr)amount} - Sets HP value",						
 	[Effect.Types.setArousal] : "{amount:(str)(nr)amount} - Sets arousal value",				
@@ -2757,6 +2762,7 @@ Effect.TypeDescs = {
 	[Effect.Types.ignoreSilence] : '{} - Can still use ranged actions while knocked down',
 	[Effect.Types.battleWonHpRegen] : '{amount:(float)amount, multiplier:(bool)is_multiplier} - Add a fixed amount or multiply against the multiplier set in Story',
 	[Effect.Types.rerollRandom] : '{} - Makes rerolls random',
+	[Effect.Types.preventEquip] : '{conditions:(arr)conditions} - Prevents equipping assets that match conditions',
 };
 
 

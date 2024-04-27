@@ -1096,6 +1096,12 @@ export class RoleplayStageOption extends Generic{
 
 		this._roll = roll;
 		this._mod = this.getDiceModifier(player);
+
+		new GameEvent({
+			type : GameEvent.Types.diceRoll,
+			sender: player,
+			target: player,
+		}).raise();
 		
 	}
 

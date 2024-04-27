@@ -270,14 +270,27 @@ export default class Asset extends Generic{
 
 	equippable(){
 
-		let verifyConds = Condition.all(this.equip_conditions, new GameEvent({
-			type : GameEvent.Types.none,
-			sender : this.parent,
-			target : this.parent,
-			asset : this,
-			dungeon : game.dungeon,
-		}));
-		return this.slots.length && verifyConds;
+		// If this is owned by a player, check equip conditions
+		if( this.parent instanceof Player ){
+
+			let conds = this.equip_conditions.slice();
+			this.parent.getActiveEffectsByType(Effect.Types.preventEquip).map(el => {
+				conds = conds.concat(el.data.conditions);
+			});
+			const evt = new GameEvent({
+				type : GameEvent.Types.none,
+				sender : this.parent,
+				target : this.parent,
+				asset : this,
+				dungeon : game.dungeon,
+			});
+
+			if( !Condition.all(conds, evt) )
+				return false;
+			
+		}
+
+		return this.slots.length;
 
 	}
 

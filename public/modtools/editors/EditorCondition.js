@@ -1011,6 +1011,16 @@ export function asset(){
 		'</div>';
 
 	}
+	else if( type === types.turnNumber ){
+		setDefaultData({
+			turn : 0
+		});
+
+		html += '<div class="labelFlex">'+
+			'<label>Turn: <input type="number" step=1 min=0 name="data::turn" class="saveable" value="'+esc(asset.data.turn)+'" /></label>'+
+		'</div>';
+
+	}
 	else if( type === types.roomIsOutdoors ){}
 	else if( type === types.roomZ ){
 		setDefaultData({
