@@ -64,7 +64,8 @@ export default class Encounter extends Generic{
 		this.passives = [];			// Use add_conditions to filter out the player(s) the passive should affect
 		this.startText = '';		// Text to trigger when starting
 		this.conditions = [];
-		this.isEvt = false;			// This encounter is a random event. Currently only used in the procedural dungeon generator.
+		this.isEvt = false;			// This encounter is a random event.
+		this.evtOnce = false;		// Use with isEvt. When set, the encounter will only be triggered once per game.
 		this.evtWeight = 1.0;		// Weight number. Higher will appear more frequently.
 
 		this.game_actions = [];			// Game actions to run when the encounter starts / passive things like RP
@@ -97,6 +98,7 @@ export default class Encounter extends Generic{
 			out.events = EncounterEvent.saveThese(this.events, full);
 			out.isEvt = this.isEvt;
 			out.evtWeight = this.evtWeight;
+			out.evtOnce = this.evtOnce;
 
 		}
 
@@ -121,6 +123,7 @@ export default class Encounter extends Generic{
 			out.completed = this.completed;
 			out.started = this.started;
 			out.time_started = this.time_started;
+			
 		}
 		else{
 			out.desc = this.desc;
@@ -295,6 +298,9 @@ export default class Encounter extends Generic{
 			player.onPlacedInWorld();
 
 		}
+
+		if( this.evtOnce )
+			game.setOnceEncounterStarted(this.label);
 
 	}
 

@@ -82,6 +82,7 @@ export default class Game extends Generic{
 		this.totTurns = 0;								// Total turns performed since battle started
 		this.modRepo = new ModRepo();
 		this.followers = [];							// Player objects. Followers in stasis.
+		this._completedExpEvts = [];					// Labels for encounters marked as expEvt with evtOnce set to true. Prevents them from recurring in the same game.
 
 		// Library of custom items
 		this.libAsset = {};
@@ -122,6 +123,7 @@ export default class Game extends Generic{
 		this._caches = 0;								// Level of depth of cache requests we're at
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
 		this._refreshMeshesOnGameData = false;			// Used in online games to refresh meshes when receiving game data from host
+		
 	}
 
 	destructor(){
@@ -267,6 +269,7 @@ export default class Game extends Generic{
 			out.id = this.id;
 			out.chat_log = this.chat_log;
 			out._combat_changed = this._combat_changed;
+			out._completedExpEvts = this._completedExpEvts;
 
 		}
 		else{
@@ -1190,6 +1193,21 @@ export default class Game extends Generic{
 
 
 
+	setOnceEncounterStarted( label ){
+
+		if( this._completedExpEvts.includes(label) )
+			return;
+
+		this._completedExpEvts.push(label);
+		this.save();
+
+	}
+
+	hasCompletedOnceEncounter( label ){
+
+		return this._completedExpEvts.includes(label);
+
+	}
 
 
 

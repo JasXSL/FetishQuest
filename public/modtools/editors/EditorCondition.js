@@ -201,6 +201,9 @@ export function asset(){
 
 		};
 
+		if( !Array.isArray(asset.data[field]) )
+			asset.data[field] = [];
+
 		for( let a of asset.data[field] )
 			addMultiSelect(a);
 
@@ -483,7 +486,7 @@ export function asset(){
 	//else if( type === types.dungeonIs ){} Uses JSON to compare two direct objects
 	else if( type === types.dungeonVar ){
 
-		setDefaultData({id:'', data:'', dungeon:''});
+		setDefaultData({id:'', data:'', dungeon:'', idx:''});
 
 		// Start by adding a dungeon picker
 		html += 'Dungeon: <div class="dungeon"></div>';
@@ -503,6 +506,7 @@ export function asset(){
 				html += '</select></label>';
 
 				html += '<label>Value: <input class="jsonify" name="data::data" value="'+esc(asset.data.data)+'" /></label>';
+				html += '<label>Index: <input name="data::idx" value="'+esc(asset.data.idx)+'" /></label>';
 
 			html += '</div>';
 
@@ -537,6 +541,20 @@ export function asset(){
 		setDefaultData({id:'', data:''});
 		html += '<label>Var: <input class="saveable" name="data::id" value="'+esc(asset.data.id)+'" /></label>';
 		html += '<label>Value: <input class="jsonify" name="data::data" value="'+esc(asset.data.data)+'" /></label>';
+		fnBind = () => {
+
+			const val = this.dom.querySelector('input.jsonify');
+			if( val )
+				val.addEventListener('change', event => {
+
+					let v;
+					try{ v = JSON.parse(val.value); }
+					catch(err){ v = val.value; }
+					asset.data.data = v;
+
+				});
+
+		};
 
 	}
 	else if( type === types.location ){

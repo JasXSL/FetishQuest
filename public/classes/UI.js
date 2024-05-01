@@ -240,6 +240,8 @@ export default class UI{
 		});
 
 		$(document).off('keydown').on('keydown', event => {
+			if( !window.game )
+				return;
 
 			if( event.shiftKey || event.ctrlKey )
 				return;

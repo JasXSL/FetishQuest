@@ -1386,7 +1386,9 @@ class DungeonRoom extends Generic{
 				const viable = this.encounters.slice();
 				// Shoulnd't be needed now that encounter is the current encounter? this.encounters = [];
 
-				const procEvtEncounters = Encounter.getAllProcEvtEncounters().filter(el => !dungeon._completedExpEvts.includes(el.label) );
+				const procEvtEncounters = Encounter.getAllProcEvtEncounters().filter(el => {
+					return !dungeon._completedExpEvts.includes(el.label) && (!el.evtOnce || !game.hasCompletedOnceEncounter(el.label)); 
+				});
 				const weightFunc = encounter => encounter.evtWeight;
 				// not a graceful solution, but it works well enough for these small arrays
 				const shuffleProcEvtEncounters = () => {

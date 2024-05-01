@@ -427,6 +427,20 @@ export function asset(){
 		};
 		
 	}
+	else if( type === Types.remInventoryConditional ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				conditions : [],
+			};
+
+		html += 'Asset Conditions: <div class="assetConditions"></div>';
+
+		fnBind = () => {
+			this.dom.querySelector("div.assetConditions").appendChild(EditorCondition.assetTable(this, asset, "data::assetConditions"));
+		};
+
+	}
 	else if( type === Types.addCopper ){
 
 		if( !asset.data || typeof asset.data !== "object" )

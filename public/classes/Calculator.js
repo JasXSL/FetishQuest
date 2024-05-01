@@ -75,6 +75,8 @@ class Calculator{
 				}
 			});
 			try{
+				if( Calculator.debug )
+					console.debug("Running gameAction", action);
 				await action.exec(event.target, undefined, undefined, event.sender);
 			}catch(err){
 				console.error("Calculator error in setDvar", err);
@@ -82,6 +84,17 @@ class Calculator{
 			}
 
 		});
+
+		// Get dvar. This allows arrays to be returned
+		parser.set('getDvar', (dLabel, varName) => {
+			
+			
+			const dvars = game.getDungeonVars(dLabel);
+			return dvars[varName];
+
+		});
+
+
 
 		parser.set('setRpVar', async (varName, varVal, targets, operation) => {
 			if( typeof varVal === "object" && !Array.isArray(varVal) )

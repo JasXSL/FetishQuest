@@ -1193,7 +1193,17 @@ export default class Condition extends Generic{
 					dungeon = this.data.dungeon;
 
 				const vars = game.getDungeonVars(dungeon);
-				const v = vars[this.data.id];
+				let v = vars[this.data.id];
+				const idx = parseInt(this.data.idx);
+				if( idx >= 0 ){
+					
+					if( Array.isArray(v) )
+						v = v[idx];
+					else
+						v = [];
+
+				}
+					
 				if( Array.isArray(v) )
 					success = v.includes(this.data.data);
 				else
@@ -1657,7 +1667,7 @@ Condition.descriptions = {
 	[Condition.Types.defeated] : 'void - Player is defeated',
 	[Condition.Types.punishNotUsed] : 'void - Player has not yet used a punishment since the end of the battle',
 	[Condition.Types.wrapperHasEffect] : '{filters:(arr/obj)getEffectsSearchFilter, originalWrapper:(bool)=false} - Searches through filters and returns true if at least one matches. See EffectSys.js getEffects for more info',	
-	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data with EXACT. If a dungeonVar is an array (set by math scripts), it checks if the array includes data instead, note that array search is type-sensitive.',	
+	[Condition.Types.dungeonVar] : '{id:(str)var_id, data:(var)data, dungeon:(str)label=_CURRENT_DUNGEON_, idx:(int)idx=undefined} - Compares a dungeonVar to data with EXACT. If a dungeonVar is an array (set by math scripts), it checks if the array includes data instead, note that array search is type-sensitive. You can an idx >= 0 to search for a specific element in the array, but if the set value is not an array, it fails.',	
 	[Condition.Types.dungeonVarMath] : '{vars:(str/arr)var_ids, formula:(str)formula, dungeon:(str)label=_CURRENT_DUNGEON_} - Compares a dungeonVar to data via a math formula. vars have to contain all dVars included in the formula. If one is not set, it becomes 0.',	
 	[Condition.Types.rpVar] : '{id:(str)var_id, data:(var)data} - Compares an rpVar to data with EXACT matching. Always targets the current RP.',
 	[Condition.Types.targetIsSender] : 'void - Checks if target and sender have the same id',	

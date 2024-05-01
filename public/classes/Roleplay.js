@@ -395,7 +395,7 @@ export default class Roleplay extends Generic{
 	onStart( players ){
 
 		this.loadState();
-		
+
 		this._targetPlayers = [];
 		if( Array.isArray(players) )
 			this._targetPlayers = players.map(el => {
@@ -704,6 +704,8 @@ export class RoleplayStage extends Generic{
 			return ptp[0];
 		if( this.target === RoleplayStage.Target.rpTargets )
 			return ptp;
+		if( this.target === RoleplayStage.Target.sender )
+			return this.getPlayer();
 		return game.getPlayerById(this._iniPlayer);
 
 	}
@@ -1003,6 +1005,7 @@ RoleplayStage.Target = {
 	auto : 'auto',					// Use auto target (the player who brought you to the stage)
 	rpTargets : 'rpTargets',		// Use RP targets
 	firstRpTarget: 'firstRpTarget',	// Use the first RP target
+	sender : 'sender',				// Sender (usually NPC)
 };
 
 

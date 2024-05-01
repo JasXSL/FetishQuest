@@ -132,6 +132,12 @@ export function asset(){
 			canvas.height = dim.height;
 		}
 
+		// Needed for it to render correctly
+		dummy.icon = asset.icon;
+		dummy.icon_lowerBody = asset.icon_lowerBody;
+		dummy.icon_upperBody = asset.icon_upperBody;
+		dummy.icon_nude = asset.icon_nude;
+
 		let copyFrom = await dummy.getActiveIcon(false, true); // canvas
 		const ctx = canvas.getContext("2d");
 		const scaleFactor = Math.min(
@@ -182,7 +188,9 @@ export function asset(){
 
 	};
 	canvas.onmousemove = async event => {
+
 		if(isDragging){
+
 			endX = event.offsetX;
 			endY = event.offsetY;
 			const ctx = canvas.getContext("2d");
@@ -203,6 +211,7 @@ export function asset(){
 			dummy.pd = asset.pd = this.dom.querySelector('input[name=pd]').value = Math.round((squareDiameter/(canvas.width-imgLeft*2))*1000)/1000;
 			
 		}
+
 	};
 	canvas.onmouseup = event => {
 		isDragging = false;

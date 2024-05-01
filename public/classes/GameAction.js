@@ -460,8 +460,10 @@ export default class GameAction extends Generic{
 		else if( this.type === types.removePlayer ){
 
 			let playersToRemove = game.players.filter(el => el.label === this.data.player);
-			if( !this.data.player )
-				return false;
+			
+			if( !this.data.player && player instanceof Player )
+				playersToRemove = [player];
+			
 			for( let pr of playersToRemove )
 				game.removePlayer(pr.id);
 			
@@ -838,7 +840,22 @@ export default class GameAction extends Generic{
 			}
 			
 		}
+		else if( this.type === types.remInventoryConditional ){
 
+			const conds = Condition.loadThese(this.data.assetConditions || []),
+				assets = player.getAssets(),
+				evt = new GameEvent({sender:player, target:player})
+			;
+			for( let asset of assets ){
+
+				evt.asset = asset;
+				if( Condition.all(conds, evt, debug) ){
+					player.destroyAsset(asset.id);
+				}
+
+			}
+
+		}
 		else if( this.type === types.openShop ){
 
 			const shop = game.getShopHere(this.data.shop);
@@ -1030,6 +1047,7 @@ export default class GameAction extends Generic{
 			}
 
 		}
+		
 
 		else if( this.type === types.wrappers ){
 
@@ -1384,6 +1402,7 @@ GameAction.types = {
 	questObjective : "questObjective",		// 
 	addInventory : "addInventory",			// 
 	addInventoryRandom : "addInventoryRandom",			// 
+	remInventoryConditional : "remInventoryConditional",
 	toggleCombat : "toggleCombat",			// 
 	roleplay : "roleplay",					// 
 	finishQuest : "finishQuest",			// 
@@ -1448,6 +1467,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.questObjective] : '{quest:(str)label, objective:(str)label, type:(str "add"/"set")="add", amount:(int)amount=1, killParentAsset:(bool)kill=false} - Adds or subtracts from an objective. killParentAsset will kill a dungeon room asset when the game action is used on one.',
 	[GameAction.types.addInventory] : '{"player":(label)=evt_player, "asset":(str)label, "amount":(int)amount=1, "alert":(bool)notify=false, "equip":""} - Adds or removes inventory from a player. Equip can be empty (no equip) or "yes" to equip it.',
 	[GameAction.types.addInventoryRandom] : '{"assets":(arr)viable_assets, "amount":(int)amount=1, "alert":(bool)notify=false, "duplicates":(bool)allow_duplicates=false} - Add random inventory to target. Assets are picked at random up to amount. If duplicates is true, it allows the same item to be picked multiple times.',
+	[GameAction.types.remInventoryConditional] : '{"assetConditions":(arr)conditions} - Removes any items from inventory that match the conditions.',
 	[GameAction.types.toggleCombat] : '{on:(bool)combat, enc:(bool)make_encounter_hostile=true} - Turns combat on or off. If enc is not exactly false, it also makes the encounter hostile.',
 	[GameAction.types.roleplay] : '{rp:(str/obj)roleplay} - A label or roleplay object',
 	[GameAction.types.finishQuest] : '{quest:(str/arr)ids, force:(bool)force=false} - Allows handing in of one or many completed quests here. If force is true, it finishes the quest regardless of progress.',
@@ -1482,7 +1502,7 @@ GameAction.TypeDescs = {
 	[GameAction.types.book] : '{label:(str)label} - Opens the book dialog',
 	[GameAction.types.transmog] : '{player:(str)player_offering} - Lets a player offer transmogging',
 	[GameAction.types.trap] : '{action:(str)action_label, game_actions:(arr)labels, chance:(float)=1.0, stat:(int)stat_offs, name:(str)trapName=trap} - If max targets -1 it can hit everyone. Always tries to trigger on the player that set off the trap. When a trap is triggered, a custom trap player is used with the average player level, stat being added or subtracted from the type used in the action (phys, corr, etc), and name specified in the action. Game actions are always triggered when the trap is triggered regardless of if it hit or not. They are ran with the sender and target being the person who triggered the trap.',
-	[GameAction.types.removePlayer] : '{player:(str)playerLabel} - Removes a player from the game.',
+	[GameAction.types.removePlayer] : '{player:(str)playerLabel} - Removes a player from the game. If player is empty, it removes the TARGET of the gameEvent.',
 	[GameAction.types.restorePlayerTeam] : '{team:(int)team=Player.TEAM_PLAYER} - Shortcut that fully restores HP and clears arousal from Player.TEAM_PLAYERS.',
 	[GameAction.types.setPlayerTeam] : '{team=Player.TEAM_PLAYER} - Changes game action target team',
 	[GameAction.types.sortRpTargets] : '{mathvars:[{var:(str)label, desc:(bool)desc=false}...]} - Sorts rpTargets based on mathvars. Only mathvars for ta_ are set',
@@ -1532,6 +1552,7 @@ GameAction.TypeRelations = function(){
 		[GameAction.types.addFaction] : {faction:Faction},
 		[GameAction.types.trade] : {asset:Asset, from:Player, to:Player},
 		[GameAction.types.learnAction] : {conditions:Condition, action:Action},
+		[GameAction.types.remInventoryConditional] : {conditions:Condition},
 		[GameAction.types.addCopper] : {player:Player},
 		[GameAction.types.book] : {label:Book},
 		[GameAction.types.transmog] : {player:Player},

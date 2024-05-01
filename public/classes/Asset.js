@@ -268,15 +268,11 @@ export default class Asset extends Generic{
 
 	}
 
-	equippable(){
+	equippable( debug = false ){
 
 		// If this is owned by a player, check equip conditions
 		if( this.parent instanceof Player ){
 
-			let conds = this.equip_conditions.slice();
-			this.parent.getActiveEffectsByType(Effect.Types.preventEquip).map(el => {
-				conds = conds.concat(el.data.conditions);
-			});
 			const evt = new GameEvent({
 				type : GameEvent.Types.none,
 				sender : this.parent,
@@ -285,7 +281,16 @@ export default class Asset extends Generic{
 				dungeon : game.dungeon,
 			});
 
-			if( !Condition.all(conds, evt) )
+			let conds = this.equip_conditions.slice();
+			const prevent = this.parent.getActiveEffectsByType(Effect.Types.preventEquip);
+			for( let fx of prevent ){
+				
+				if( Condition.all(fx.data.conditions, evt, debug) )
+					return false;
+
+			}
+			
+			if( !Condition.all(conds, evt, debug) )
 				return false;
 			
 		}
