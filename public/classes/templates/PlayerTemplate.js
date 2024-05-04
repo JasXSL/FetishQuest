@@ -8,13 +8,14 @@ import PlayerClass from '../PlayerClass.js';
 import ActionLearnable from '../ActionLearnable.js';
 import { Wrapper } from '../EffectSys.js';
 import Game from '../Game.js';
+import PlayerIconState from '../PlayerIconState.js';
 
 
 class PlayerTemplate extends Generic{
 
 	static getRelations(){ 
 		return {
-			random_loot : PlayerTemplateLoot
+			random_loot : PlayerTemplateLoot,
 		};
 	}
 
@@ -27,6 +28,7 @@ class PlayerTemplate extends Generic{
 		this.icon_lowerBody = "";			// == || ==
 		this.icon_nude = "";				// == || ==
 		this.icon_ai = false;
+		this.istates = [];					// PlayerIconState objects. Labels only.
 
 		this.species = "";
 		this.description = "";
@@ -120,6 +122,7 @@ class PlayerTemplate extends Generic{
 			random_loot : PlayerTemplateLoot.saveThese(this.random_loot, full),
 			max: this.max,
 			voice : this.voice,
+			istates : this.istates,
 		};
 	}
 
@@ -159,6 +162,7 @@ class PlayerTemplate extends Generic{
 		player.icon_lowerBody = this.icon_lowerBody;			// == || ==
 		player.icon_nude = this.icon_nude;				// == || ==
 		player.icon_ai = this.icon_ai;
+		player.istates = PlayerIconState.loadThese(this.istates, player);
 		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;
 		player.species = this.species;

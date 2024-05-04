@@ -41,6 +41,8 @@ export default class Story extends Generic{
 		this.death_action_override = false;	// Prevents the default revive
 		this.no_kinks = false;				// Don't auto generate kinks
 
+		this.no_std_actions = false;		// Prevents actions marked as "standard" from being automatically added.
+
 		// Picks what templates are allowed from autoloot. Note that these only affect autoloot!
 		// Note: These are always IDs
 		this.allowed_templates_armor = [];
@@ -76,9 +78,11 @@ export default class Story extends Generic{
 			death_action_override : this.death_action_override,
 			no_kinks : this.no_kinks,
 			battle_won_hp_regen: this.battle_won_hp_regen,
+			 
 		};
 
 		if( full ){
+			out.no_std_actions = this.no_std_actions;
 			out.game_actions = GameAction.saveThese(this.game_actions, full); // These are reset when starting the game
 			out.death_actions = GameAction.saveThese(this.death_actions, full); // These are reset when starting the game
 		}

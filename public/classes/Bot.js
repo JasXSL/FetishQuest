@@ -177,7 +177,8 @@ class Bot{
 					chance < 0.1 || 		// 10% chance to go yolo and attack
 					AP > this.player.getMaxMomentum()*0.6 ||	// If greater or equal to 60%, always attack.
 					AP > 12 ||
-					this.player.getTauntedBy(undefined, false).length
+					this.player.getTauntedBy(undefined, false).length ||
+					this.player.hasTag(stdTag.plAlwaysAttack)
 				)
 			){
 
@@ -309,6 +310,8 @@ class Bot{
 						time = Math.floor(time*0.5);
 					if( !success )
 						time = 400;
+					if( this.player.isCasting() )
+						time = 100;
 					++this.actions_used;
 					return time;
 

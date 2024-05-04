@@ -4524,6 +4524,7 @@ Game.new = async function( name, players, story ){
 			player.g_resetID();
 			game.addPlayer(player);
 			player.onPlacedInWorld();
+			player.onPlacedNewGame();
 
 		}
 

@@ -44,7 +44,8 @@ export function asset(){
 		html += '<label>Unleveled equipment: <input type="checkbox" name="leveled_gear" class="saveable" value=1 '+(dummy.leveled_gear ? 'checked' : '')+' /></label>';
 		html += '<label>Prevent default death action: <input type="checkbox" name="death_action_override" class="saveable" value=1 '+(dummy.death_action_override ? 'checked' : '')+' /></label>';
 		html += '<label>Disable experience: <input type="checkbox" name="no_exp" class="saveable" value=1 '+(dummy.no_exp ? 'checked' : '')+' /></label>';
-		html += '<label>Disable kinks: <input type="checkbox" name="no_kinks" class="saveable" value=1 '+(dummy.no_kins ? 'checked' : '')+' /></label>';
+		html += '<label>Disable kinks: <input type="checkbox" name="no_kinks" class="saveable" value=1 '+(dummy.no_kinks ? 'checked' : '')+' /></label>';
+		html += '<label>No std actions: <input type="checkbox" name="no_std_actions" class="saveable" value=1 '+(dummy.no_std_actions ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="desc" class="saveable">'+esc(dummy.desc)+'</textarea>';
@@ -184,6 +185,14 @@ export function help(){
 		'<tr>'+
 			'<td>Start game actions</td>'+
 			'<td>Game actions to run once when the game starts</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Player loss game action</td>'+
+			'<td>Game actions to run if the player loses. If set, it prevents the default action of being booted back to the dungeon entrance.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>No std actions</td>'+
+			'<td>Prevents actions marked as standard from being auto added</td>'+
 		'</tr>'
 	;
 		

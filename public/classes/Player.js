@@ -1557,6 +1557,18 @@ export default class Player extends Generic{
 			this.shuffleKinks();
 		
 	}
+	// Run on PCs when a new game is started, use it to slot abilities
+	onPlacedNewGame(){
+
+		const actions = this.getActions(false, true, false, false);
+		for( let action of actions ){
+
+			if( !this.actionSlotsFull() && !action.std )
+				this.activateAction(action.id);
+
+		}
+
+	}
 	onRebalanced(){
 		this.addHP(Infinity);
 		//this.addMP(Infinity);
@@ -3642,7 +3654,7 @@ export default class Player extends Generic{
 			return;
 
 		const evt = new GameEvent({sender:this, target:this});
-		let lib = Object.values(glib.getFull('Action')).filter(el => el.std && Condition.all(el.std_conds, evt));
+		let lib = Object.values(glib.getFull('Action')).filter(el => el.std && Condition.all(el.std_conds, evt) && (!game.story.no_std_actions || el.label === 'stdEndTurn'));
 		for( let action of lib ){
 
 			if(!this.getActionByLabel(action.label))
@@ -3656,6 +3668,7 @@ export default class Player extends Generic{
 
 	addActionFromLibrary( label ){
 
+		
 		let asset = glib.getFull('Action')[label];
 		if( !asset ){
 			console.error("Invalid library asset", label);
@@ -4096,9 +4109,7 @@ export default class Player extends Generic{
 				continue;
 			this.addAction(action, silent);
 		
-
 		}
-
 
 	}
 

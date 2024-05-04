@@ -72,7 +72,8 @@ export default {
 	plNoGrapple : 'pl_no_grapple',				// Doesn't use grapple
 	plAlwaysGrapple : 'pl_always_grapple',		// Always grappled when possible
 	plNoFetish : 'pl_no_fetish',				// Don't generate fetishes on this player
-
+	plAlwaysAttack : 'pl_always_attack',		// By default, the NPC will have a chance of attacking based on their momentum. If this is set, it will always use actions when it can.
+	
 	// Used for gameplay
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
@@ -83,7 +84,6 @@ export default {
 	gpInvisible : 'gp_invisible',				// Doesn't draw in the UI and can't be targeted.
 	gpSkipTurns : 'gp_skip_turns',				// Automatically skip turns
 	gpNoBondageTarget : 'gp_no_bondage_targ',	// Can't be targeted by bondage device
-	
 	
 
 	// Player behavior tags
