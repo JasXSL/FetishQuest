@@ -1144,6 +1144,8 @@ export default class Player extends Generic{
 		for( let icon of sl ){
 
 			let iBase = this.icon_base;
+			if( !iBase.endsWith('/') )
+				iBase += '/';
 			if( baseLayer === this.constructor.MISSING_ART )
 				iBase = '';
 			promises.push(this.constructor.fetchCachedImage(iBase + icon.icon));

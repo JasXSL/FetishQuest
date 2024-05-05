@@ -9,6 +9,7 @@ import ActionLearnable from '../ActionLearnable.js';
 import { Wrapper } from '../EffectSys.js';
 import Game from '../Game.js';
 import PlayerIconState from '../PlayerIconState.js';
+import AssetTemplate, { MaterialTemplate } from './AssetTemplate.js';
 
 
 class PlayerTemplate extends Generic{
@@ -16,6 +17,30 @@ class PlayerTemplate extends Generic{
 	static getRelations(){ 
 		return {
 			random_loot : PlayerTemplateLoot,
+			istates : PlayerIconState,
+			viable_asset_materials : MaterialTemplate,
+			viable_asset_templates : AssetTemplate,
+			viable_consumables : Asset,
+			viable_gear : Asset,
+			viable_consumables : Asset,
+			random_loot : Asset,
+			require_assets: Asset,
+			require_actions : Action,
+		};
+	}
+
+	// Prevent these relations from being auto loaded
+	static getIgnoreAutoLink(){
+		return {
+			istates : true,
+			viable_asset_materials : true,
+			viable_asset_templates : true,
+			viable_consumables : true,
+			viable_gear : true,
+			viable_consumables : true,
+			random_loot : true,
+			require_assets: true,
+			require_actions : true,
 		};
 	}
 
@@ -28,6 +53,7 @@ class PlayerTemplate extends Generic{
 		this.icon_lowerBody = "";			// == || ==
 		this.icon_nude = "";				// == || ==
 		this.icon_ai = false;
+		this.icon_base = "";				// Prepended to all icons
 		this.istates = [];					// PlayerIconState objects. Labels only.
 
 		this.species = "";
@@ -69,6 +95,7 @@ class PlayerTemplate extends Generic{
 		this.no_equip = false;					// Prevents equip of the gear. Useful for things like mimics.
 		this.max = -1;							// Max nr of these generated into any encounter
 		this.hpMulti = 1.0;						// Multiplier against HP
+		
 		this.load(...args);
 	}
 
@@ -123,6 +150,7 @@ class PlayerTemplate extends Generic{
 			max: this.max,
 			voice : this.voice,
 			istates : this.istates,
+			icon_base : this.icon_base,
 		};
 	}
 
@@ -162,6 +190,7 @@ class PlayerTemplate extends Generic{
 		player.icon_lowerBody = this.icon_lowerBody;			// == || ==
 		player.icon_nude = this.icon_nude;				// == || ==
 		player.icon_ai = this.icon_ai;
+		player.icon_base = this.icon_base;				// Prepended to all icons
 		player.istates = PlayerIconState.loadThese(this.istates, player);
 		player.generated = true;	// Also set in dungeon encounter, but it's needed here for learnable actions to work
 		player.description = this.description;

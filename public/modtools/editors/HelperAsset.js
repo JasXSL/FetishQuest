@@ -3,6 +3,8 @@ import Window from '../WindowManager.js';
 import Condition from '../../classes/Condition.js';
 import Generic from '../../classes/helpers/Generic.js';
 import Audio from '../../classes/Audio.js';
+import * as EditorPlayerIconState from './EditorPlayerIconState.js';
+import PlayerIconState from '../../classes/PlayerIconState.js';
 
 export default{
 
@@ -778,11 +780,30 @@ export default{
 			elSub.type = 'button';
 			elSub.value = 'Delete Selected';
 
+			// Batch export
 			elSub = document.createElement('input');
 			el.appendChild(elSub);
 			elSub.classList.add('exportSelected');
 			elSub.type = 'button';
 			elSub.value = 'Export Selected';
+
+			// Batch create conditions
+		if( library === 'actions' ){
+			
+			elSub = document.createElement('input');
+			el.appendChild(elSub);
+			elSub.classList.add('createConditionsPrefix');
+			elSub.type = 'text';
+			elSub.placeholder = 'Prefix';
+
+			elSub = document.createElement('input');
+			el.appendChild(elSub);
+			elSub.classList.add('createConditionsButton');
+			elSub.type = 'button';
+			elSub.value = 'Create Conditions';
+
+			
+		}
 
 		const table = document.createElement('table');
 		container.appendChild(table);
@@ -1030,6 +1051,44 @@ export default{
 				}
 				
 			};
+
+			// Create conditions from actions
+			let btn = batchDiv.querySelector('input.createConditionsButton');
+			if( btn )
+				btn.onclick = event => {
+					
+					let prefix = batchDiv.querySelector('input.createConditionsPrefix').value;
+					// Todo: Create conditions for selected objects
+					let created = 0;
+					const markers = win.dom.querySelectorAll("input.marker:checked").values();
+					for( let marker of markers ){
+						
+						let action = MOD.getAssetById('actions', marker.parentElement.parentElement.dataset.id);
+						let actionLabel = action.label;
+						if( actionLabel.startsWith(prefix) )
+							actionLabel = actionLabel.substring(prefix.length);
+
+						let label = prefix+(prefix.endsWith('_') ? '' : '_')+"action_"+actionLabel;
+						let existing = MOD.getAssetById('conditions', label);
+						if( existing )
+							continue;
+
+						this.insertAsset('conditions', {
+							label : label,
+							type : Condition.Types.actionLabel,
+							data : {label:action.label},
+							targnr : 0,
+						}, win, false);
+						++created;
+
+					}
+
+					if( created )
+						this.rebuildAssetLists('conditions');
+					btn.value = 'Created '+created;
+
+				};
+
 			batchDiv.querySelector('input.exportSelected').onclick = event => {
 				
 				const checkedLabels = [];
@@ -1344,6 +1403,114 @@ export default{
 	},
 
 	helpLinkedList : 'This is a linked list. Click an item to edit it (provided it belongs to this mod), ctrl+click to remove an item. Use the arrows to move it up/down.',
+
+
+	// Todo: URL should use icon_base
+
+	// Player/PlayerTemplate JSON file parser
+	bindAdvancedArtLayers( win, asset, DB ){
+
+		win.dom.querySelector("div.istates").appendChild(EditorPlayerIconState.assetTable(win, asset, "istates"));
+		win.dom.querySelector("input.importAdvancedIcons").onchange = event => {
+
+			if( !event.target.files.length )
+				return;
+			const reader = new FileReader();
+			reader.onload = rEvt => {
+	
+				event.target.value = "";
+	
+				const json = JSON.parse(rEvt.target.result);
+				const data = json.layers;
+				const url = json.url || "";
+
+	
+				if( !Array.isArray(data) )
+					throw 'Invalid JSON data. Not an array.';
+				
+				if( win.dom.querySelector("input.replaceAll").checked && asset.istates ){
+					
+					for( let istate of asset.istates ) {
+						window.mod.mod.deleteAsset('playerIconStates', istate);
+					}
+					asset.istates = [];
+	
+				}
+	
+				if( !Array.isArray(asset.istates) )
+					asset.istates = [];
+	
+				asset.icon_base = url;
+
+				const replaceIntoIstates = istate => {
+	
+					if( !isNaN(istate.opacity) )
+						istate.opacity = Math.round(istate.opacity*100)/100;
+					const out = istate.save("mod");
+					out._mParent = {type : DB, label : asset.label};
+					window.mod.mod.mergeAsset("playerIconStates", out);
+					if( !asset.istates.includes(istate.id) )
+						asset.istates.push(istate.id);
+					window.mod.setDirty(true);
+	
+				}
+
+				for( let istate of data )
+					replaceIntoIstates(new PlayerIconState(istate));
+				
+
+				win.dom.querySelector("div.istates").replaceChildren(EditorPlayerIconState.assetTable(win, asset, "istates"));
+				win.dom.querySelector("input[name=icon_base]").value = url;
+
+
+			};
+			reader.readAsText(event.target.files[0]);
+	
+		};
+	
+		win.dom.querySelector("input.exportAdvancedIcons").onclick = () => {
+	
+			if( !Array.isArray(asset.istates) || !asset.istates.length )
+				return;
+
+			let outData = {
+				url : asset.icon_base,
+				layers : [],
+			};
+			const out = asset.istates.map(el => mod.mod.getAssetById('playerIconStates', el)).filter(el => Boolean(el));
+			
+			outData.layers = out;
+
+			const blob = new Blob([JSON.stringify(outData, null, 4)], { type: "text/json" });
+			const link = document.createElement("a");
+			
+	
+			link.download = asset.label+".json";
+			link.href = window.URL.createObjectURL(blob);
+			link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+	
+			const evt = new MouseEvent("click", {
+				view: window,
+				bubbles: true,
+				cancelable: true,
+			});
+	
+			link.dispatchEvent(evt);
+			link.remove();
+	
+		};
+
+	},
+
+	getAdvancedArtLayersForm(){
+		
+		return 'Advanced icon states: <div class="istates"></div>'+
+		'<div class="labelFlex">'+
+			'<label>Import JSON <input type="file" class="importAdvancedIcons" accept=".json" /> Replace ALL: <input type="checkbox" checked class="replaceAll" /></label>'+
+			'<label><input type="button" value="Export JSON" class="exportAdvancedIcons" /></label>'+
+		'</div>';
+	
+	},
 
 };
 

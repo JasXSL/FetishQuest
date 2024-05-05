@@ -44,6 +44,9 @@ export function asset(){
 		html += '<label>Image Upper Body: <input name="icon_upperBody" value="'+esc(dummy.icon_upperBody)+'" type="text" class="saveable" /></label>';
 		html += '<label>Image Lower Body: <input name="icon_lowerBody" value="'+esc(dummy.icon_lowerBody)+'" type="text" class="saveable" /></label>';
 		html += '<label>Image Nude: <input name="icon_nude" value="'+esc(dummy.icon_nude)+'" type="text" class="saveable" /></label>';
+		html += '<label title="If all images (including advanced) share the same path, you can set it here to save time. Ex if all your art URLs start with https://i.ibb.co/ then you put that here and you can skip that part in the art fields.">'+
+			'Image base path: <input type="text" name="icon_base" class="saveable" value="'+esc(dummy.icon_base)+'" />'+
+		'</label>'; 
 		html += '<label title="Allows players to turn off AI art">Art is AI generated: <input type="checkbox" name="icon_ai" '+(dummy.icon_ai ? 'checked' : '')+' class="saveable"  /></label>';
 		html += '<label title="Max actions this can have, -1 = infinite">Max Actions: <input name="max_actions" value="'+esc(dummy.max_actions)+'" type="number" min=-1 step=1 class="saveable" /></label>';
 		html += '<label>Min Level: <input name="min_level" value="'+esc(dummy.min_level)+'" type="number" min=1 step=1 class="saveable" /></label>';
@@ -97,6 +100,8 @@ export function asset(){
 
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
 	
+	html += HelperAsset.getAdvancedArtLayersForm();
+
 	html += 'Random unequipped loot: <div class="random_loot"></div>';
 	html += 'Viable Gear: <div class="viable_gear"></div>';
 	html += 'Viable Asset Materials: <div class="viable_asset_materials"></div>';
@@ -107,14 +112,6 @@ export function asset(){
 	html += 'Viable Classes: <div class="classes"></div>';
 	html += 'Passives: <div class="passives"></div>';
 	
-	html += 'Advanced icon states: <div class="istates"></div>';
-	html += '<div class="labelFlex">'+
-			'<label>Import JSON <input type="file" class="importAdvancedIcons" accept=".json" /> Replace ALL: <input type="checkbox" class="replaceAll" /></label>'+
-			'<label><input type="button" value="Export JSON" class="exportAdvancedIcons" /></label>'+
-		'</div>'
-	;
-
-
 	this.setDom(html);
 
 	this.dom.querySelector("div.viable_gear").appendChild(EditorAsset.assetTable(this, asset, "viable_gear"));
@@ -126,82 +123,9 @@ export function asset(){
 	this.dom.querySelector("div.classes").appendChild(EditorPlayerClass.assetTable(this, asset, "classes"));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
 	this.dom.querySelector("div.random_loot").appendChild(EditorPlayerTemplateLoot.assetTable(this, asset, "random_loot"));
-	this.dom.querySelector("div.istates").appendChild(EditorPlayerIconState.assetTable(this, asset, "istates"));
 
 	// Icon states
-	this.dom.querySelector("input.importAdvancedIcons").onchange = event => {
-
-		if( !event.target.files.length )
-			return;
-		const reader = new FileReader();
-		reader.onload = rEvt => {
-
-			event.target.value = "";
-
-			const data = JSON.parse(rEvt.target.result);
-
-			if( !Array.isArray(data) )
-				throw 'Invalid JSON data. Not an array.';
-			
-			if( this.dom.querySelector("input.replaceAll").checked ){
-				
-				for( let istate of asset.istates ) {
-					window.mod.mod.deleteAsset('playerIconStates', istate);
-				}
-				asset.istates = [];
-
-			}
-
-			if( !Array.isArray(asset.istates) )
-				asset.istates = [];
-
-			const replaceIntoIstates = istate => {
-
-				if( !isNaN(istate.opacity) )
-					istate.opacity = Math.round(istate.opacity*100)/100;
-				const out = istate.save("mod");
-				out._mParent = {type : DB, label : asset.label};
-				window.mod.mod.mergeAsset("playerIconStates", out);
-				if( !asset.istates.includes(istate.id) )
-					asset.istates.push(istate.id);
-				window.mod.setDirty(true);
-
-			}
-			for( let istate of data )
-				replaceIntoIstates(new PlayerIconState(istate));
-
-
-			this.dom.querySelector("div.istates").replaceChildren(EditorPlayerIconState.assetTable(this, asset, "istates"));
-
-
-
-		};
-		reader.readAsText(event.target.files[0]);
-
-	};
-
-	this.dom.querySelector("input.exportAdvancedIcons").onclick = () => {
-
-		if( !Array.isArray(asset.istates) || !asset.istates.length )
-			return;
-		const out = asset.istates.map(el => mod.mod.getAssetById('playerIconStates', el)).filter(el => Boolean(el));
-		const blob = new Blob([JSON.stringify(out, null, 4)], { type: "text/json" });
-		const link = document.createElement("a");
-
-		link.download = asset.label+".json";
-		link.href = window.URL.createObjectURL(blob);
-		link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
-
-		const evt = new MouseEvent("click", {
-			view: window,
-			bubbles: true,
-			cancelable: true,
-		});
-
-		link.dispatchEvent(evt);
-		link.remove();
-
-	};
+	HelperAsset.bindAdvancedArtLayers(this, asset, DB);
 
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {

@@ -66,7 +66,13 @@ export default class Generic{
 		if( this.constructor.getRelations ){
 
 			const rel = this.constructor.getRelations();
+			let ignoreAutoLink = {};
+			if( this.constructor.ignoreAutoLink )
+				ignoreAutoLink = this.constructor.ignoreAutoLink();
 			for( let i in rel ){
+
+				if( ignoreAutoLink[i] )
+					continue;
 
 				// Handle auto loading
 				if( Array.isArray(this[i]) )

@@ -95,12 +95,7 @@ export function asset(){
 	html += 'Description: <br /><textarea class="saveable" name="description">'+esc(dummy.description, true)+'</textarea><br />';
 	html += 'Secret information: <br /><textarea class="saveable" style="min-height:1vmax" name="secret">'+esc(dummy.secret, true)+'</textarea><br />';
 
-	html += 'Advanced icon states: <div class="istates"></div>';
-	html += '<div class="labelFlex">'+
-			'<label>Import JSON <input type="file" class="importAdvancedIcons" accept=".json" /> Replace ALL: <input type="checkbox" class="replaceAll" /></label>'+
-			'<label><input type="button" value="Export JSON" class="exportAdvancedIcons" /></label>'+
-		'</div>'
-	;
+	html += HelperAsset.getAdvancedArtLayersForm();
 
 	html += 'PlayerClass: <div class="class"></div>';
 	html += 'Tags: <div name="tags">'+HelperTags.build(dummy.tags)+'</div>';
@@ -223,87 +218,15 @@ export function asset(){
 		updateXywh();
 	};
 
-	this.dom.querySelector("div.istates").appendChild(EditorPlayerIconState.assetTable(this, asset, "istates"));
+	
 	this.dom.querySelector("div.class").appendChild(EditorPlayerClass.assetTable(this, asset, "class", true));
 	this.dom.querySelector("div.actions").appendChild(EditorAction.assetTable(this, asset, "actions"));
 	this.dom.querySelector("div.assets").appendChild(EditorAsset.assetTable(this, asset, "assets", false));
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));
 	this.dom.querySelector("div.follower").appendChild(EditorRoleplay.assetTable(this, asset, "follower", true));
 	
-	this.dom.querySelector("input.importAdvancedIcons").onchange = event => {
-
-		if( !event.target.files.length )
-			return;
-		const reader = new FileReader();
-		reader.onload = rEvt => {
-
-			event.target.value = "";
-
-			const data = JSON.parse(rEvt.target.result);
-
-			if( !Array.isArray(data) )
-				throw 'Invalid JSON data. Not an array.';
-			
-			if( this.dom.querySelector("input.replaceAll").checked ){
-				
-				for( let istate of asset.istates ) {
-					window.mod.mod.deleteAsset('playerIconStates', istate);
-				}
-				asset.istates = [];
-
-			}
-
-			if( !Array.isArray(asset.istates) )
-				asset.istates = [];
-
-			const replaceIntoIstates = istate => {
-
-				if( !isNaN(istate.opacity) )
-					istate.opacity = Math.round(istate.opacity*100)/100;
-				const out = istate.save("mod");
-				out._mParent = {type : DB, label : asset.label};
-				window.mod.mod.mergeAsset("playerIconStates", out);
-				if( !asset.istates.includes(istate.id) )
-					asset.istates.push(istate.id);
-				window.mod.setDirty(true);
-
-			}
-
-			for( let istate of data )
-				replaceIntoIstates(new PlayerIconState(istate));
-
-
-			this.dom.querySelector("div.istates").replaceChildren(EditorPlayerIconState.assetTable(this, asset, "istates"));
-
-
-
-		};
-		reader.readAsText(event.target.files[0]);
-
-	};
-
-	this.dom.querySelector("input.exportAdvancedIcons").onclick = () => {
-
-		if( !Array.isArray(asset.istates) || !asset.istates.length )
-			return;
-		const out = asset.istates.map(el => mod.mod.getAssetById('playerIconStates', el)).filter(el => Boolean(el));
-		const blob = new Blob([JSON.stringify(out, null, 4)], { type: "text/json" });
-		const link = document.createElement("a");
-
-		link.download = asset.label+".json";
-		link.href = window.URL.createObjectURL(blob);
-		link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
-
-		const evt = new MouseEvent("click", {
-			view: window,
-			bubbles: true,
-			cancelable: true,
-		});
-
-		link.dispatchEvent(evt);
-		link.remove();
-
-	};
+	HelperAsset.bindAdvancedArtLayers(this, asset, DB);
+	
 
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
