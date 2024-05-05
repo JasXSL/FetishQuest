@@ -1250,7 +1250,11 @@ export default class GameAction extends Generic{
 		}
 
 		else if( this.type === types.gameOver ){
-			console.log("Todo: Handle game over");
+			
+			game.game_over_action = this;
+			game.ui.draw();
+			game.save();
+			
 		}
 
 		else{
@@ -1577,6 +1581,7 @@ GameAction.typesToSendOnline = {
 	[GameAction.types.rentRoom] : true,
 	[GameAction.types.gym] : true,
 	[GameAction.types.transmog] : true,
+	[GameAction.types.gameOver] : true,
 };
 
 // Action types that should run clientside

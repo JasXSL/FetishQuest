@@ -132,6 +132,7 @@ export function asset(){
 		dummy.icon_lowerBody = asset.icon_lowerBody;
 		dummy.icon_upperBody = asset.icon_upperBody;
 		dummy.icon_nude = asset.icon_nude;
+		dummy.icon_base = asset.icon_base || "";
 
 		let copyFrom = await dummy.getActiveIcon(false, true); // canvas
 		const ctx = canvas.getContext("2d");

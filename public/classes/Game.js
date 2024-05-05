@@ -62,7 +62,9 @@ export default class Game extends Generic{
 		this.quests = [];								// Quest Objects of quests the party is on. 
 		this.net_load = false;							// Currently loading from network
 		this.time = 3600*10;							// Time in seconds. Game starts at 10 in the morning of the first day
+		this.game_over_action = new GameAction({id:'!'});		// GameAction that triggered the game over state if any
 		
+
 		this.story = new Story();				// Should be a story object
 		if( story )
 			this.story = story.clone();
@@ -249,6 +251,7 @@ export default class Game extends Generic{
 			difficulty : this.difficulty,
 			genders : this.genders,
 			story : this.story.save(full),
+			game_over_action : this.game_over_action.save(full),
 		};
 	
 		if( full ){
@@ -645,7 +648,9 @@ export default class Game extends Generic{
 
 	}
 
-
+	isGameOver(){
+		return Boolean(this.game_over_action.id !== "!");
+	}
 
 	// Config
 	isGenderEnabled( genders ){
@@ -3078,6 +3083,8 @@ export default class Game extends Generic{
 	// Use an action
 	// netPlayer is needed when received by the DM after a player uses this method; so that certain effects like repair can be relayed
 	useActionOnTarget( action, targets, player, netPlayer ){
+		if( this.isGameOver() )
+			return false;
 
 		if( !player )
 			throw 'Player not found';
@@ -3122,6 +3129,8 @@ export default class Game extends Generic{
 	}
 
 	attemptFleeFromCombat( player, force ){
+		if( this.isGameOver() )
+			return false;
 
 		if( !this.battle_active )
 			return;
@@ -3142,6 +3151,8 @@ export default class Game extends Generic{
 	}
 
 	execFleeFromCombat( player ){
+		if( this.isGameOver() )
+			return false;
 
 		this.ui.addText( player.getColoredName()+" calls for a retreat, the party succeeds in escaping!", undefined, player.id, player.id );
 		this.toggleBattle(false);
@@ -3150,6 +3161,8 @@ export default class Game extends Generic{
 	}
 
 	rerollMomentum( player, type, to ){
+		if( this.isGameOver() )
+			return false;
 		
 		if( !this.playerIsMe(player) )
 			throw "Not your player";
@@ -3197,6 +3210,8 @@ export default class Game extends Generic{
 
 	/* Roleplay */
 	useRoleplayOption( senderPlayer, option_id ){
+		if( this.isGameOver() )
+			return false;
 
 		if( this.roleplay._waiting )
 			return false;
@@ -3445,6 +3460,8 @@ export default class Game extends Generic{
 	/* ASSETS */
 
 	useAssetGameAction( assetGameAction ){
+		if( this.isGameOver() )
+			return false;
 		
 		if( !(assetGameAction instanceof GameAction) )
 			throw 'Game action not found';
@@ -3773,6 +3790,8 @@ export default class Game extends Generic{
 	}
 
 	transmogrify( transmogrifier, player, baseAsset, copyFrom ){
+		if( this.isGameOver() )
+			return false;
 
 		if( !(player instanceof Player) )
 			player = this.getPlayerById(player);
@@ -3891,6 +3910,9 @@ export default class Game extends Generic{
 
 	// hexColor is a color including #, or use an empty string if you want to remove the dye
 	dyeBySmith( smithPlayer, player, assetID, hexColor, allowError = true ){
+		if( this.isGameOver() )
+			return false;
+
 		const out = text => {
 			if( allowError )
 				throw text;
@@ -3946,6 +3968,8 @@ export default class Game extends Generic{
 	}
 
 	toggleAssetBanked( bankPlayer, asset, amount, player, deposit ){
+		if( this.isGameOver() )
+			return false;
 		
 		if( typeof player !== "object" )
 			player = this.getPlayerById(player);
@@ -4001,6 +4025,9 @@ export default class Game extends Generic{
 	}
 
 	shuffleKinksByAltar( altarPlayer, player, allowError = true ){
+		if( this.isGameOver() )
+			return false;
+
 		const out = text => {
 			if( allowError )
 				throw text;
@@ -4033,6 +4060,8 @@ export default class Game extends Generic{
 
 
 	sellAsset(shop, asset, amount, player){
+		if( this.isGameOver() )
+			return false;
 
 		if( !(shop instanceof Shop) )
 			shop = glib.get(shop, 'Shop');
@@ -4092,7 +4121,8 @@ export default class Game extends Generic{
 
 	// Shop is a label, asset is an ID of an item in shop, amount is nr items to buy, player is the buying player
 	buyAsset( shop, asset, amount, player ){
-
+		if( this.isGameOver() )
+			return false;
 		// Find a shop in active stage
 		if( !(shop instanceof Shop) )
 			shop = this.getShopHere(shop);
@@ -4176,6 +4206,8 @@ export default class Game extends Generic{
 	}
 
 	exchangePlayerMoney( myPlayer, bank ){
+		if( this.isGameOver() )
+			return false;
 
 		if( !(myPlayer instanceof Player) )
 			myPlayer = this.getPlayerById(myPlayer);
@@ -4222,6 +4254,8 @@ export default class Game extends Generic{
 	}
 
 	learnAction( gymPlayer, player, learnable ){
+		if( this.isGameOver() )
+			return false;
 
 		if( !this.gymAvailableTo(gymPlayer, player) )
 			throw 'Gym not available';
@@ -4262,6 +4296,8 @@ export default class Game extends Generic{
 
 	// Activates or deactivates an action
 	toggleAction( player, actionID ){
+		if( this.isGameOver() )
+			return false;
 
 		if( this.battle_active )
 			throw 'Battle active'

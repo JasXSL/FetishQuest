@@ -126,6 +126,8 @@ export default class UI{
 		this.actionbar_actions = $("> div.actions", this.action_selector);
 		this.rerolls = $("> div.reroll", this.action_selector);
 		this.rerollsSpan = $("> span", this.rerolls);
+		this.gameOverScreen = $("#gameOver");
+		this.gameOverButton = $("input", this.gameOverScreen);
 
 		this.blackScreen = $("#blackScreen");
 
@@ -446,6 +448,13 @@ export default class UI{
 
 		});
 
+		this.gameOverButton.off('click').on('click', async () => {
+			
+			await Game.delete(game.id);
+			this.gameOverScreen.toggleClass("hidden", true);
+			delete this._cache_game_over;
+
+		});
 		
 		this.resourceBar.off('click').on('click', event => {
 
@@ -623,6 +632,7 @@ export default class UI{
 			this.updateMiniMap();
 
 			this.drawGrapples();
+			this.drawGameOver();
 
 			//console.log("execDraw took", Date.now()-time, times);
 
@@ -1127,6 +1137,26 @@ export default class UI{
 			dots[i].classList.toggle('highlighted', highlighted);
 
 		}
+
+	}
+
+	drawGameOver(){
+		
+		const gameOver = game.isGameOver();
+		if( gameOver === this._cache_game_over )
+			return;
+		this._cache_game_over = gameOver;
+
+		this.gameOverScreen.toggleClass('hidden', !gameOver);
+		if( !gameOver )
+			return;
+		const content = $("div.frame", this.gameOverScreen);
+		content.toggleClass("h", true);
+		$("img.bg", this.gameOverScreen).attr('src', game.game_over_action.data.url);
+		setTimeout(() => {
+			content.toggleClass("h", false);
+		}, 10);
+		
 
 	}
 

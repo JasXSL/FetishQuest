@@ -284,6 +284,18 @@ export function asset(){
 			html += '<label title="Name of the asset(s) to trigger the animation on">Target (leave blank for parent mesh): <input type="text" name="data::targ" class="saveable" value="'+esc(asset.data.targ || '')+'" /></label>';
 		html += '</div>';
 	}
+	else if( type === Types.gameOver ){
+
+		if( !asset.data || typeof asset.data !== "object" )
+			asset.data = {
+				url : ''
+			};
+
+		html += '<div class="labelFlex">';
+			html += '<label>Url: <input type="text" name="data::url" class="saveable" value="'+esc(asset.data.url || '')+'" /></label>';
+		html += '</div>';
+		
+	}
 	else if( type === Types.lever ){
 
 		if( !asset.data || typeof asset.data !== "object" )

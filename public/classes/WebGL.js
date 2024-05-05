@@ -2279,7 +2279,7 @@ class Stage{
 			obj.userData.template.onRefresh( dungeonAsset, obj );
 	
 		obj.visible = !dungeonAsset.isHidden();
-	
+		this.recalculateBoundingBox(obj);
 
 	}
 
@@ -2299,6 +2299,22 @@ class Stage{
 		this.add(obj);
 		
 		return obj;
+
+	}
+
+	recalculateBoundingBox( mesh ){
+
+		const c = mesh;
+		c.computeBoundingBox && c.computeBoundingBox();
+		c.computeBoundingSphere && c.computeBoundingSphere();
+		c.traverse(el => {
+			el?.geometry?.computeBoundingBox();
+			el.computeBoundingBox && el.computeBoundingBox(); // SkinnedMesh has this
+			el.computeBoundingSphere && el.computeBoundingSphere();
+		});
+		const bb = new THREE.Box3();
+		bb.setFromObject(c);
+		c.userData.boundingBox = bb;
 
 	}
 
@@ -2331,14 +2347,7 @@ class Stage{
 		
 
 		// Calculate a bounding box before attaching anything to the mesh
-		c.computeBoundingBox && c.computeBoundingBox();
-		c.traverse(el => {
-			el?.geometry?.computeBoundingBox();
-			el.computeBoundingBox && el.computeBoundingBox(); // SkinnedMesh has this
-		});
-		const bb = new THREE.Box3();
-		bb.setFromObject(c);
-		c.userData.boundingBox = bb;
+		this.recalculateBoundingBox(c);
 
 		// Create labels
 		// Door
