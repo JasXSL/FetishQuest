@@ -23,7 +23,6 @@ class PlayerTemplate extends Generic{
 			viable_consumables : Asset,
 			viable_gear : Asset,
 			viable_consumables : Asset,
-			random_loot : Asset,
 			require_assets: Asset,
 			require_actions : Action,
 		};
@@ -38,7 +37,6 @@ class PlayerTemplate extends Generic{
 			viable_consumables : true,
 			viable_gear : true,
 			viable_consumables : true,
-			random_loot : true,
 			require_assets: true,
 			require_actions : true,
 		};
@@ -250,9 +248,11 @@ class PlayerTemplate extends Generic{
 			if( !item )
 				continue;
 			item.restore();
-			player.addAsset(item, undefined, undefined, true);
-			if( !this.no_equip )
-				item.equipped = true;
+			let added = player.addAsset(item, undefined, undefined, true);
+			if( !this.no_equip && added ){
+				added.map(el => el.equipped = el.equippable());
+			}
+			console.log(this, item);
 
 		}
 

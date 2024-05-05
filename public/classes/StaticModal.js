@@ -1385,7 +1385,7 @@ export default class StaticModal{
 							continue;
 						
 						const img = document.createElement('img'); 
-						img.src = 'media/wrapper_icons/'+asset.getIcon()+".svg";
+						img.src = asset.getIconFullPath();
 						const div = document.createElement('div');
 						out.append(div);
 						div.classList.add('list', 'item', 'tooltipParent', 'third', 'dmActionLearner', Action.TypesCSS[asset.type], asset.detrimental ? 'detrimental' : 'beneficial');

@@ -2223,15 +2223,35 @@ div.scroll{
 	
 
 	@keyframes chargedAction{
-		from{ background:rgba(0,0,0,.75); }
-		to{ background:rgba(50,0,0,.75); }
+		from{ box-shadow:0 0 1vmax rgba(255,128,0,1), 0.2vmax 0.2vmax 0.5vmax #000; }
+		to{ box-shadow:0 0 2vmax rgba(255,255,255,1), 0.2vmax 0.2vmax 0.5vmax #000;  }
 	}
-	#ui > div.players div.topRight > div.charging > div.chAction{
+	#ui > div.players div.charging{
+		position:absolute;
+		top:50%;
+		left: 0;
+    	transform: translate(-10%, -50%);
+	}
+	#ui > div.players div.charging > div.chAction > div.bg{
+		width:100%; height:100%; position: absolute;
+		background-size:cover;
+		background-position: center;
+		top:0; left:0;
+	}
+	#ui > div.players div.charging > div.chAction{
 		animation: chargedAction ease-in-out 0.5s alternate infinite;
-		border: 0.1vmax solid #FA6;
+		border: 0.5vmax solid #FA6;
+		width: 5vmax;
+		height: 5vmax;
+		display:inline-block;
+		padding:0.5vmax;
+		margin:0.2vmax;
+		background-color: rgba(0,0,0,.75);
+		border-radius:0.5vmax;
+
 	}
 
-	#ui > div.players div.topRight > div.charging > div.chAction,
+
 	div.kinks > div.wrapper,
 	#ui > div.players div > div.wrapper{
 		display:inline-block;
@@ -2240,7 +2260,6 @@ div.scroll{
 		margin:0.2vmax;
 		border-radius:0.2vmax;
 		box-shadow:0.2vmax 0.2vmax 1vmax rgba(0,0,0,.25);
-		
 	}
 	div.kinks > div.wrapper > div.background,
 	#ui > div.players div > div.wrapper > div.background{
@@ -2277,8 +2296,14 @@ div.scroll{
 		text-shadow:0.1vmax 0.1vmax 0.2vmax #000;
 	}
 	#ui > div.players div.charging > div.chAction > div.duration{
-		font-size:1.15vmax;
-		transform:translate(-50%,50%);
+		font-size: 3vmax;
+		transform: translate(-50%, -70%);
+		position: absolute;
+		top: 50%;
+		line-height: 100%;
+		font-weight: bold;
+		pointer-events: none;
+		z-index:2;
 	}
 	div.kinks > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.stacks{
@@ -2687,22 +2712,28 @@ div.scroll{
 	{
 		display: block;
 	}
+	*.bgIconColor.corr,
 	div.action.corr > img,
 	div.dmActionLearner.corr > img
 	{
 		filter: sepia(100%) saturate(250) hue-rotate(251deg);
 	}
+
+	*.bgIconColor.phys,
 	div.action.phys > img,
 	div.dmActionLearner.phys > img
 	{
 		filter: sepia(100%) saturate(250) hue-rotate(294deg);
 	}
+
+	*.bgIconColor.arc,
 	div.action.arc > img,
 	div.dmActionLearner.arc > img
 	{
 		filter: sepia(100%) saturate(250) hue-rotate(97deg);
-		
 	}
+
+
 
 	
 	#gameIcons > div.highlighted,
@@ -2982,10 +3013,18 @@ div.scroll{
 		height:1vmax;
 		background: linear-gradient(to left, rgba(100,100,255,0.5) 0%,rgba(100,100,255,0.1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 		transition:opacity 0.25s ease-out;
+		pointer-events: none;
 	}
 	#ui > div.grapples > div.taunt{
 		height:0.25vmax;
 		background: linear-gradient(to right, rgba(255,50,50,0.4) 0%,rgba(255,50,50,0.1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	}
+	#ui > div.grapples > div.charged{
+		z-index:1;
+		border-radius:0.5vmax;
+		height:0.5vmax;
+		background: linear-gradient(to left, rgba(255,128,50,0) 2%, rgba(255,128,50,0.5) 5%,rgba(255,128,50,0.0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+		mask-image: repeating-linear-gradient(270deg, transparent, #999 0 0.5vmax, transparent 0.5vmax 1vmax);
 	}
 	@keyframes grappleFadeOut{
 		0%{opacity: 1.0; }

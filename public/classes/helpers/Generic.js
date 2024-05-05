@@ -67,8 +67,8 @@ export default class Generic{
 
 			const rel = this.constructor.getRelations();
 			let ignoreAutoLink = {};
-			if( this.constructor.ignoreAutoLink )
-				ignoreAutoLink = this.constructor.ignoreAutoLink();
+			if( this.constructor.getIgnoreAutoLink )
+				ignoreAutoLink = this.constructor.getIgnoreAutoLink();
 			for( let i in rel ){
 
 				if( ignoreAutoLink[i] )
@@ -76,9 +76,9 @@ export default class Generic{
 
 				// Handle auto loading
 				if( Array.isArray(this[i]) )
-					this[i] = rel[i].loadThese(this[i], this);
+					this[i] = rel[i].loadThese(this[i], this, i);
 				else
-					this[i] = rel[i].loadThis(this[i], this);
+					this[i] = rel[i].loadThis(this[i], this, i);
 
 			}
 
@@ -321,7 +321,7 @@ export default class Generic{
 		return glib.getFull(this.name);
 	};
 
-	static loadThese( entries = [], parent ){
+	static loadThese( entries = [], parent, field ){
 
 		let out = [];
 		if( typeof entries === "string" )
@@ -332,7 +332,7 @@ export default class Generic{
 		}
 
 		for( let entry of entries ){
-			let obj = this.loadThis(entry, parent);
+			let obj = this.loadThis(entry, parent, field);
 			if( obj !== false )
 				out.push(obj);
 		}
@@ -340,7 +340,7 @@ export default class Generic{
 
 	}
 
-	static loadThis( entry, parent ){
+	static loadThis( entry, parent, field ){
 
 		if( typeof entry === "string" ){
 
@@ -351,7 +351,7 @@ export default class Generic{
 
 			let n = glib.get(entry, this.name);
 			if( typeof n !== "object" )
-				console.error("Found a none-object asset in library", this.name, ":", n, "entry was", entry, "parent was", parent);
+				console.error("Found a none-object asset in library", this.name, ":", n, "entry was", entry, "parent was", parent, "field was", field);
 
 			if( !n ){
 				console.error("Item", entry, "not found in database of", this.name, "parent was", parent, "DB:", glib.getFull(this.name));

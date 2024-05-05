@@ -1147,6 +1147,10 @@ class Action extends Generic{
 		return out;
 	}
 
+	getIconFullPath(){
+		return 'media/wrapper_icons/'+esc(this.getIcon())+".svg";
+	}
+
 	isSelfCast(){
 		return this.target_type === Action.TargetTypes.self;
 	}

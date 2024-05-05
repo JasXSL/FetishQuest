@@ -64,9 +64,9 @@ const playerTemplate = $(
 				'</span>'+
 			'</div>'+
 		'</div>'+
+		'<div class="charging"></div>'+
 		'<div class="topRight">'+
 			'<div class="wrappers"></div>'+
-			'<div class="charging"></div>'+
 		'</div>'+
 		'<div class="topLeft hidden"></div>'+
 		'<div class="targetingStats"></div>'+
@@ -125,7 +125,7 @@ export default class UI{
 		this.resourceBar = $("div.resources", this.action_selector);
 		this.actionbar_actions = $("> div.actions", this.action_selector);
 		this.rerolls = $("> div.reroll", this.action_selector);
-			this.rerollsSpan = $("> span", this.rerolls);
+		this.rerollsSpan = $("> span", this.rerolls);
 
 		this.blackScreen = $("#blackScreen");
 
@@ -1450,34 +1450,64 @@ export default class UI{
 
 			const el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
 				grapples = p.getActiveEffectsByType(Effect.Types.grapple),		// We are the victim
-				taunts = p.getActiveEffectsByType(Effect.Types.taunt).filter(fx => !fx.data.grapple)
+				taunts = p.getActiveEffectsByType(Effect.Types.taunt).filter(fx => !fx.data.grapple),
+				charges = p.isCasting() || []
 			;
 			grapples.push(...taunts);
 			// prevents duplicates
 			let senders = {
 				taunts : {},
-				grapples : {}
+				grapples : {},
 			};
+
+			for( let action of charges ){
+
+				let startDiv = $("div.chAction[data-id='"+esc(action.id)+"']", el);
+				const targs = action.getChargePlayers();
+				for( let target of targs ){
+
+					let endDiv = $("div.player[data-id='"+esc(target.id)+"']", this.players);
+					grapples.push({
+						isChargedAction : true,
+						startDiv,
+						endDiv
+					});
+
+				}
+
+			}
 
 			for( let i = 0; i < grapples.length; ++i ){
 
 				const effect = grapples[i];
+				const isCharged = effect.isChargedAction;
 				const isTaunt = effect.type === Effect.Types.taunt;
+				let startDiv, endDiv;
 
-				let sender = effect.parent.getCaster();
-				if( !sender || sender.id === p.id )
-					continue;
+				if( isCharged ){
 
-				let field = isTaunt ? 'taunts' : 'grapples';
-				if( senders[field][sender.id] )
-					continue;
+					startDiv = effect.startDiv;
+					endDiv = effect.endDiv;
 
-				let startDiv = el;
-				let endDiv = $("div.player[data-id='"+esc(sender.id)+"']", this.players);
-				if( !endDiv.length )
-					continue;
-	
-				senders[field][sender.id] = true;
+				}
+				else{
+
+					let sender = effect.parent.getCaster();
+					if( !sender || sender.id === p.id )
+						continue;
+
+					let field = isTaunt ? 'taunts' : 'grapples';
+					if( senders[field][sender.id] )
+						continue;
+
+					startDiv = el;
+					endDiv = $("div.player[data-id='"+esc(sender.id)+"']", this.players);
+					if( !endDiv.length )
+						continue;
+		
+					senders[field][sender.id] = true;
+
+				}
 
 				let div = this.grappleLines[n];
 				++n;
@@ -1493,20 +1523,35 @@ export default class UI{
 
 	
 				div.classList.toggle('taunt', isTaunt);
+				div.classList.toggle('charged', isCharged);
 				div.classList.toggle('r', true);	// Reserve the div
 				div.classList.toggle('hidden', false);	// Reserve the div
 				const rectA = startDiv[0].getBoundingClientRect();
 				const rectB = endDiv[0].getBoundingClientRect();
 				
-				const start = new THREE.Vector2(
-					p.team === Player.TEAM_PLAYER ? rectA.right : rectA.left, 
-					rectA.top+rectA.height/2
-				);
-				const end = new THREE.Vector2(
-					sender.team === Player.TEAM_PLAYER ? rectB.right : rectB.left, 
-					rectB.top+rectB.height/2
-				);
-				
+				let start, end;
+				if( isCharged ){
+					start = new THREE.Vector2(
+						rectA.left+rectA.width/2, 
+						rectA.top+rectA.height/2
+					);
+					end = new THREE.Vector2(
+						rectB.left+rectB.width/2, 
+						rectB.top+rectB.height/2
+					);
+				}
+				else{
+
+					start = new THREE.Vector2(
+						p.team === Player.TEAM_PLAYER ? rectA.right : rectA.left, 
+						rectA.top+rectA.height/2
+					);
+					end = new THREE.Vector2(
+						sender.team === Player.TEAM_PLAYER ? rectB.right : rectB.left, 
+						rectB.top+rectB.height/2
+					);
+
+				}
 				const dist = start.distanceTo(end);
 				const angle = Math.atan2((start.y-end.y),(start.x-end.x))*(180/Math.PI);
 	
@@ -1514,6 +1559,8 @@ export default class UI{
 				div.style.left = ((end.x+start.x)/2 - dist/2)+'px';
 				div.style.top = ((end.y-start.y)/2+start.y)+'px';
 				div.style.transform = 'rotate('+(angle)+'deg)';
+
+				console.log("Drawing", div);
 				
 			}
 
@@ -1572,10 +1619,11 @@ export default class UI{
 			bgEl = $('> div.bg', contentEl),
 			shieldsEl = $('> div.shields', el),
 				shieldEl = $('> div.shield', shieldsEl),
-			
+
+			chargingEl = $('> div.charging', el),
 			topRightEl = $('> div.topRight', el),
 				wrappersEl = $('> div.wrappers', topRightEl),
-				chargingEl = $('> div.charging', topRightEl),
+			
 			topLeftEl = $('> div.topLeft', el),
 			netgameStatus = $('> div.netgameStatus', el)
 		;
@@ -1696,15 +1744,14 @@ export default class UI{
 
 			const actionButtonTemplate = $(
 				'<div class="chAction tooltipParent">'+
-					'<span class="label"></span>'+
+					'<div class="bg bgIconColor"></div>'+
 					'<div class="duration"></div>'+
 					'<div class="tooltip"></div>'+
 				'</div>'
 			);
 			
 			// Helper function for escaping a player name
-			const escPlayerName = pl => esc(pl.name);
-			for( let i=0; i< chargedActions.length; ++i ){
+			for( let i = 0; i < chargedActions.length; ++i ){
 
 				const a = chargedActions[i];
 				let el = chargedActionButtons[i];
@@ -1714,23 +1761,29 @@ export default class UI{
 				}
 				el = $(el);
 
-				const name = esc(a.name)+' at '+a.getChargePlayers().map(escPlayerName),
-					tooltip = a.getTooltipText(),
+				const tooltip = '<h3 style="margin:0">Charged Action Completing in ' + a._cast_time + ' turn'+(a._cast_time > 1 ? 's' : '')+':</h3>' + a.getTooltipText(),
 					durEl = $('> div.duration', el),
 					tooltipEl = $('> div.tooltip', el),
-					labelEl = $('> span.label', el)
+					bgEl = $('> div.bg', el)
 				;
 
-
+				el[0].dataset.id = a.id;
 				el.toggleClass('hidden', false);
-				if( name !== labelEl.html() )
-					labelEl.html(name);
-
+				bgEl.toggleClass('corr phys arc', false);
+				bgEl.toggleClass(Action.TypesCSS[a.type], true);
 				
-				if( +durEl.text() !== a._cast_time )
+
+					durEl.text(a._cast_time);
 					durEl.text(a._cast_time);
 				if( tooltipEl.html() !== tooltip )
-					tooltipEl.html(tooltip);
+				durEl.text(a._cast_time);
+				if( tooltipEl.html() !== tooltip )
+				tooltipEl.html(tooltip);
+
+				const icon = a.getIconFullPath();
+				bgEl.css('background-image', 'url('+icon+')');
+
+
 			}
 			
 		}
@@ -3479,7 +3532,7 @@ export default class UI{
 			
 		// Update icon
 		const img = $('> img', button),
-			imgSrc = 'media/wrapper_icons/'+esc(action.getIcon())+'.svg';
+			imgSrc = action.getIconFullPath();
 		if( img.attr('src') !== imgSrc )
 			img.attr('src', imgSrc);
 

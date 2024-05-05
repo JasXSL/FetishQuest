@@ -510,19 +510,14 @@ export default class Asset extends Generic{
 
 	}
 
-	// Gets tooltip text for UI
-	getTooltipText(){
+	// Gets tooltip text for UI. 
+	getTooltipText( ){
 		
-		const isConsumable = this.isConsumable(),
-			isBreakable = ~this.slots.indexOf(Asset.Slots.upperBody) || ~this.slots.indexOf(Asset.Slots.lowerBody)
-		;
+		const isConsumable = this.isConsumable();
 		let html = '';
 		// Usable items shows the action tooltip instead
 		if( isConsumable && !this.iuad )
 			return this.use_action.getTooltipText(true, this.rarity);
-
-		
-
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
 		// Low level indicator (only affects upper/lowerbody since they're the only ones that give protection
