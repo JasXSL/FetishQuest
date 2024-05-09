@@ -106,6 +106,7 @@ export default class Player extends Generic{
 		this.block = 0;				// Blocking points of damage
 		this.iBlock = 0;			// Block applied while it wasn't my turn
 		this._untappedBlock = 0;		// Set on turn start and contains the value of any block wasted. Not saved.
+		this._blockOnTurnStart = 0;		// Set on turn start and contains the value of the block that was wasted, or WOULD have been wasted if the player didn't have a persistent block effect.
 
 		this.svPhysical = 0;
 		this.svArcane = 0;
@@ -368,6 +369,8 @@ export default class Player extends Generic{
 			out.hp = this.hp;
 			out.momBon = this.momBon;
 			out.block = this.block;
+			out._blockOnTurnStart = this._blockOnTurnStart;
+			out._untappedBlock = this._untappedBlock;
 			out.iBlock = this.iBlock;
 			out.wrappers = Wrapper.saveThese(this.wrappers, full);
 			out.netgame_owner = this.netgame_owner;
@@ -728,6 +731,7 @@ export default class Player extends Generic{
 		vars[prefix+'Casting'] = +Boolean(this.isCasting()) || 0;
 
 		vars[prefix+'UntappedBlock'] = this._untappedBlock;
+		vars[prefix+'BlockOnturnStart'] = this._blockOnTurnStart;
 
 		vars[prefix+'Block'] = this.getBlock();
 		
@@ -1620,12 +1624,16 @@ export default class Player extends Generic{
 		this._missed_since_last = {};
 		this._missing_since_last = {};
 		
+		this._untappedBlock = this._blockOnTurnStart = this.block;
 		// Prevent block from fading
-		if( this.blockFadeLocked() )
+		if( this.blockFadeLocked() ){
+			
 			this.iBlock += this.block;
+			this._untappedBlock = 0;		// We don't waste any block
 
-		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn
-		this._untappedBlock = this.block;
+		}
+
+		// Convert incoming block (block added while it's not your turn) into block that vanishes the next turn		
 		this.block = this.iBlock;
 		this.iBlock = 0;
 		
@@ -1718,6 +1726,8 @@ export default class Player extends Generic{
 		this._turn_action_used = 0;
 		this._turn_std_combo = 0;
 		this._turn_atypes = 0;
+		this._blockOnTurnStart = 0;
+		this._untappedBlock = 0;
 		this.block = this.iBlock = 0;
 		if( this.arousal >= this.getMaxArousal() )
 			this.arousal = this.getMaxArousal()-1;
@@ -1783,7 +1793,7 @@ export default class Player extends Generic{
 
 		const retHpPoints = this.getGenericAmountStatPoints(Effect.Types.battleWonHpRegen);
 		const retHpMul = this.getGenericAmountStatMultiplier(Effect.Types.battleWonHpRegen);
-		this.addHP(Math.ceil(this.getMaxHP()*game.story.battle_won_hp_regen*retHpMul+retHpPoints));		// Regen 10% of your HP
+		this.addHP(Math.ceil(this.getMaxHP()*game.story.battle_won_hp_regen*retHpMul+retHpPoints), this, undefined, undefined, false, true);		// Regen 10% of your HP
 		this.addArousal(-Math.ceil(this.getMaxArousal()*0.15), undefined, true);
 
 	}
@@ -1999,6 +2009,11 @@ export default class Player extends Generic{
 	}
 
 	onDeath( attacker, effect ){
+
+		const actions = this.getActions();
+		for( let action of actions ){
+			action.onParentDeath();
+		}
 
 		if( this.remOnDeath ){
 			game.removePlayer(this);
@@ -3032,7 +3047,6 @@ export default class Player extends Generic{
 	// Todo: Should check if we even have a spell that can use a type of momentum
 	equalizeMomentum(){
 
-		console.log("Reroll", this.reroll);
 		for( let i = 0; i < this.reroll; ++i ){
 			
 			let moms = [];
@@ -3110,7 +3124,7 @@ export default class Player extends Generic{
 			amount *= this.getGenericAmountStatMultiplier(Effect.Types.globalBlockMod);
 			amount += this.getGenericAmountStatPoints(Effect.Types.globalBlockMod);
 
-			if( game.isTurnPlayer(this) )
+			if( game.isTeamTurn(this.team) ) // Have to check the team here, since it may bork if we've ended our personal turn, but it still being our team's turn
 				this.block += amount;
 			else
 				this.iBlock += amount;
@@ -3276,6 +3290,7 @@ export default class Player extends Generic{
 			const fx = glib.get("overWhelmingOrgasm", "Wrapper").clone();
 			fx.duration = Math.max(1, fx.duration+this.getGenericAmountStatPoints(Effect.Types.orgasmDuration, sender, undefined));			
 			fx.useAgainst(sender, this, false);
+			
 			game.save();
 			game.ui.draw();
 			new GameEvent({

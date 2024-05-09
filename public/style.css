@@ -2228,9 +2228,9 @@ div.scroll{
 	}
 	#ui > div.players div.charging{
 		position:absolute;
-		top:50%;
+		bottom:4vmax;
 		left: 0;
-    	transform: translate(-10%, -50%);
+    	transform: translateX(-10%);
 	}
 	#ui > div.players div.charging > div.chAction > div.bg{
 		width:100%; height:100%; position: absolute;
@@ -2286,7 +2286,8 @@ div.scroll{
 	div.kinks > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.duration,
-	#ui > div.players div.charging > div.chAction > div.duration
+	#ui > div.players div.charging > div.chAction > div.duration,
+	#ui > div.players div.charging > div.chAction > div.hitChance
 	{
 		position: absolute;
 		bottom:0; left:50%;
@@ -2304,6 +2305,10 @@ div.scroll{
 		font-weight: bold;
 		pointer-events: none;
 		z-index:2;
+	}
+	#ui > div.players div.charging > div.chAction > div.hitChance{
+		font-size: 1.5vmax;
+		transform:translate(-50%, 50%);
 	}
 	div.kinks > div.wrapper > div.stacks,
 	#ui > div.players div > div.wrapper > div.stacks{

@@ -429,7 +429,7 @@ export function asset(){
 		html += buildDefaultValueFields(); 
 		html += '<label>Event custom field: <input name="data::field" value="'+esc(asset.data.field || '')+'" class="saveable" placeholder="amount" /></label>';
 	}
-	else if( type === types.blockValue ){
+	else if( type === types.blockValue || type === types.wastedBlockValue || type == types.blockOnTurnStart ){
 		html += buildDefaultValueFields();
 	}
 	else if( type === types.assetEquipped ){}

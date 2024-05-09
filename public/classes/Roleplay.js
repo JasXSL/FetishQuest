@@ -524,6 +524,15 @@ export default class Roleplay extends Generic{
 
 	}
 
+	getVar( label ){
+
+		let v = this._vars.get(label);
+		if( v === undefined )
+			v = this.vars.get(label);
+		return v;
+
+	}
+
 }
 
 // queued chats
@@ -668,7 +677,7 @@ export class RoleplayStage extends Generic{
 	}
 
 	// Selected can be an ID of the selected option. We never hide the selected option since we need to show what a player successfully clicked
-	getOptions( player, selected ){
+	getOptions( player, selected, debug = false ){
 
 		if( !this.options.length && window.game && !this.leave ){
 			this.options.push(new RoleplayStageOption({
@@ -686,7 +695,7 @@ export class RoleplayStage extends Generic{
 			}, this));
 
 		}
-		return this.options.filter(opt => opt.id === selected || opt.validate(player));
+		return this.options.filter(opt => opt.id === selected || opt.validate(player, debug));
 	}
 
 	getOptionById( id ){
@@ -1176,7 +1185,7 @@ export class RoleplayStageOption extends Generic{
 	}
 
 	
-	validate( player ){
+	validate( player, debug = false ){
 
 		player = this.getFixedSender(player);
 
@@ -1187,9 +1196,9 @@ export class RoleplayStageOption extends Generic{
 			sender : player,
 			target : this.getTargets(player),
 			dungeon : game.dungeon,
-			room : game.dungeon.getActiveRoom()
+			room : game.dungeon.getActiveRoom(),
 		});
-		return Condition.all(this.conditions, evt);
+		return Condition.all(this.conditions, evt, debug);
 
 	}
 

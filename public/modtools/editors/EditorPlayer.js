@@ -455,7 +455,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Armor</td>'+
-			'<td>Used primarily for beasts, since humanoids get their armor from wearing clothes. Higher armor reduces damage taken by that amount. So 0.4 would reduce damage taken by 40%. Tentacrabs use 0.4, whereas squishier enemies like cocktopus has only 0.15</td>'+
+			'<td>Used primarily for beasts, since humanoids get their armor from wearing clothes. Higher armor reduces damage taken by that amount. So 40 would reduce damage taken by 40%. Tentacrabs use 0.4, whereas squishier enemies like cocktopus has only 0.15</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Talkative</td>'+

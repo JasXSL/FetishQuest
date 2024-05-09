@@ -320,7 +320,7 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Armor</td>'+
-			'<td>Mainly used for beasts, granting them an armor value. Between 0 and 1 where the nr equals to damage reduction. So 0.4 (like tentacrab) takes 40% less damage. Humanoids get their armor from clothes.</td>'+
+			'<td>Mainly used for beasts, granting them an armor value. Between 0 and 100 where the nr equals to damage reduction. So 40 (like tentacrab) takes 40% less damage. Humanoids get their armor from clothes.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>No equip</td>'+

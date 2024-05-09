@@ -1058,7 +1058,7 @@ export default{
 				btn.onclick = event => {
 					
 					let prefix = batchDiv.querySelector('input.createConditionsPrefix').value;
-					// Todo: Create conditions for selected objects
+
 					let created = 0;
 					const markers = win.dom.querySelectorAll("input.marker:checked").values();
 					for( let marker of markers ){
@@ -1068,7 +1068,7 @@ export default{
 						if( actionLabel.startsWith(prefix) )
 							actionLabel = actionLabel.substring(prefix.length);
 
-						let label = prefix+(prefix.endsWith('_') ? '' : '_')+"action_"+actionLabel;
+						let label = prefix+(prefix.endsWith('_') || !prefix ? '' : '_')+"action_"+actionLabel;
 						let existing = MOD.getAssetById('conditions', label);
 						if( existing )
 							continue;

@@ -291,7 +291,8 @@ class Wrapper extends Generic{
 			}
 
 			let caster = obj.getCaster(),
-				victim = game.getPlayerById(obj.victim)
+				victim = game.getPlayerById(obj.victim),
+				action = this.parent instanceof Action ? this.parent : null
 			;
 			const testEvt = new GameEvent({
 				sender:caster, 
@@ -371,7 +372,7 @@ class Wrapper extends Generic{
 							sender : caster,
 							target : victim,
 							wrapper : obj,
-							action : this.getAction(),
+							action,
 						}).raise();
 						continue;
 
@@ -383,7 +384,7 @@ class Wrapper extends Generic{
 						sender : caster,
 						target: victim,
 						wrapper : obj,
-						action : this.getAction()
+						action,
 					}).raise();
 
 				}
@@ -398,7 +399,7 @@ class Wrapper extends Generic{
 					sender : caster,
 					target : victim,
 					wrapper : obj,
-					action : this.parent && this.parent.constructor === Action ? this.parent : null,
+					action,
 				});
 				for( let effect of obj.effects ){
 					effect.trigger(evt, undefined, out);
@@ -420,6 +421,7 @@ class Wrapper extends Generic{
 					sender : caster,
 					target : victim,
 					wrapper : obj,
+					action
 				}).raise();
 				
 				evt.type = GameEvent.Types.internalWrapperTick;
@@ -744,10 +746,11 @@ class Wrapper extends Generic{
 
 	}
 	onTurnEnd(){
-
+		/*
+		I don't know why this was here. Ext SHOULD be able to tick.
 		if( this.ext )
 			return;
-
+		*/
 		if( this.tick_on_turn_end )
 			this.tick();
 
@@ -991,6 +994,9 @@ class Effect extends Generic{
 	trigger( event, template, wrapperReturn, debug ){
 
 		debug = debug || this.debug;
+
+		if( game.isGameOver() )
+			return;
 
 		const wrapper = this.parent;
 
@@ -1466,6 +1472,13 @@ class Effect extends Generic{
 					t.consumeMoney(-amt);
 				else
 					t.addCopperAsMoney(amt);
+
+			}
+			else if( this.type === Effect.Types.setEvtActionCrit ){
+
+				const crit = this.parent._crit = Boolean(this.data.crit || this.data.crit === undefined)
+				if( evt.action )
+					evt.action._crit = crit;
 
 			}
 			else if( this.type === Effect.Types.randomizeMomentum ){
@@ -2405,8 +2418,8 @@ Effect.Major = {
 	Momentum : 0x200,		// 512 | +1 momentum regen
 	Lifesteal : 0x400,		// 1024 | +2 HP to any player attacking the target
 	Accuracy : 0x800,		// 2048 | +30% hit chance
-	Touch : 0x1000,			// 8192 | +50% arousal generated
-	Laze : 0x2000,			// 16384 | -1 momentum regen
+	Touch : 0x1000,			// 4096 | +50% arousal generated
+	Laze : 0x2000,			// 8192 | -1 momentum regen
 	Brawn : 0x4000, 		// +5 physical proficiency
 	Corruption : 0x8000,	// +5 corruption proficiency
 	Arcana : 0x10000,		// +5 arcane proficiency
@@ -2545,7 +2558,8 @@ Effect.Types = {
 	battleWonHpRegen : 'battleWonHpRegen',
 	rerollRandom : 'rerollRandom',
 	preventEquip : 'preventEquip',
-	globalBlockMod : 'globalBlockMod'
+	globalBlockMod : 'globalBlockMod',
+	setEvtActionCrit : 'setEvtActionCrit',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2762,6 +2776,7 @@ Effect.TypeDescs = {
 	[Effect.Types.ignoreSilence] : '{} - Can still use ranged actions while knocked down',
 	[Effect.Types.battleWonHpRegen] : '{amount:(float)amount, multiplier:(bool)is_multiplier} - Add a fixed amount or multiply against the multiplier set in Story',
 	[Effect.Types.rerollRandom] : '{} - Makes rerolls random',
+	[Effect.Types.setEvtActionCrit] : '{crit:(bool)crit=true} - Requires action in event. Will set the action critical hit flag. Can be useful when an action adds arousal and should crit on orgasm, since action crit is calculated right before running the wrappers.',
 	[Effect.Types.preventEquip] : '{conditions:(arr)conditions} - Prevents equipping assets that match conditions',
 };
 

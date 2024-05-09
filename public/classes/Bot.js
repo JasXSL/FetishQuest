@@ -86,6 +86,9 @@ class Bot{
 		let all = this.player.getActions('e').filter(a => {
 			return a.label.startsWith("stdPunish");
 		});
+		if( !all.length )
+			return;
+
 		for( let action of all )
 			actions[action.label] = action;
 
@@ -94,6 +97,12 @@ class Bot{
 		let target = this.pickTargetBySexuality( players );
 		if( !target )
 			return;
+
+		// If only one, just use it
+		if( all.length === 1 ){
+			game.useActionOnTarget( all[0], target, this.player );
+			return;
+		}
 
 		// try a sadistic punishment
 		if( Math.random() < this.player.sadistic ){

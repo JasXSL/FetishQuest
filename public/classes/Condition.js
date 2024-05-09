@@ -775,6 +775,11 @@ export default class Condition extends Generic{
 			
 			else if( this.type === T.blockValue )
 				success = t && this.compareValue(s, t, t.getBlock());
+			else if( this.type === T.wastedBlockValue )
+				success = t && this.compareValue(s, t, t._untappedBlock);
+			else if( this.type === T.blockOnTurnStart )
+				success = t && this.compareValue(s, t, t._blockOnTurnStart);
+				
 			else if( this.type === T.hpValue ){
 
 				let v = t.hp;
@@ -1235,8 +1240,7 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.rpVar ){
 
-				const vars = game.roleplay.vars;
-				success = vars && vars[this.data.id] == this.data.data; // Soft == because it's a text input in the editor
+				success = game.roleplay.getVar(this.data.id) == this.data.data; // Soft == because it's a text input in the editor
 
 			}
 
@@ -1600,6 +1604,8 @@ Condition.Types = {
 	numRpTargets : 'numRpTargets',
 	mathVarCompare : 'mathVarCompare',
 	blockValue : 'blockValue',
+	wastedBlockValue : 'wastedBlockValue',
+	blockOnTurnStart : 'blockOnTurnStart',
 	gameActionDataTags : 'gameActionDataTags',
 	lastActionRange : 'lastActionRange',
 	lastActionType : 'lastActionType',
@@ -1648,6 +1654,8 @@ Condition.descriptions = {
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
 	[Condition.Types.hasEffectType] : '{type:(arr)(str)type, byCaster:(bool)byCaster=false}',
 	[Condition.Types.blockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var.',
+	[Condition.Types.wastedBlockValue] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Block that faded on turn start last turn.',
+	[Condition.Types.blockOnTurnStart] : '{amount:(int)amount, operation:(str)<>=} - Default > Amount can be a math var. Block players had on turn start that either faded, or that would have faded if the player didn\'t have a persistent block effect.',
 	[Condition.Types.momentumValue] : '{amount:(number)momentumAmount, operation:(str)<>=, perc:(bool)percentage, type:(str)momentumType=ANY} - Compares against target momentum. Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
 	[Condition.Types.hpValue] : '{amount:(number)amount, operation:(str)<>=, perc:(bool)percentage} - Default > Amount can be a math var. If perc, then amount is a float between 0-1.',
 	[Condition.Types.eventCustomAmount] : '{amount:(int)amount, operation:(str)<>=, field:(str)"amount"} - Default > Amount can be a math var. By default checks for an amount field in event.custom, but field can be used to check other fields in event.custom',

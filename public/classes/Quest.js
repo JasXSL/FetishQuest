@@ -216,9 +216,13 @@ class Quest extends Generic{
 		
 		// Give exp
 		let players = game.getTeamPlayers();
-		for( let player of players )
-			player.addExperience(this.getExperience());
+		const exp = this.getExperience();
+		if( exp > 0 ){
+			
+			for( let player of players )
+				player.addExperience(exp);
 
+		}
 		
 		for( let reward of this.rewards ){
 

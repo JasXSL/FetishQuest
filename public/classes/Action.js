@@ -50,7 +50,7 @@ class Action extends Generic{
 
 
 
-		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. Can be a math formula. Use getCooldown()
+		this.cooldown = null;					// Turns needed to add a charge. Setting this to 0 will make charges infinite. If you want to make an action not auto recharge, use permanent charges instead of a cooldown. Can be a math formula. Use getCooldown()
 		this.init_cooldown = 0;					// Cooldown to be set when a battle starts.
 		this.min_targets = 1;
 		this.max_targets = 1;
@@ -364,6 +364,9 @@ class Action extends Generic{
 	}
 
 	
+	onParentDeath(){
+		this._cast_time = 0;
+	}
 
 	onBattleEnd(){
 
@@ -822,6 +825,9 @@ class Action extends Generic{
 		}
 	}
 
+	getHitChance( target ){
+		return Player.getHitChance(this.getPlayerParent(), target, this);
+	}
 
 	// Uses this action on array targets. 
 	useOn( targets, isChargeFinish = false, netPlayer ){
@@ -896,7 +902,7 @@ class Action extends Generic{
 			if( this.isDetrimentalTo(target) ){
 
 				let chance = Math.random()*100,
-					hit = Player.getHitChance(sender, target, this)
+					hit = this.getHitChance(target)
 				;
 
 				// miss

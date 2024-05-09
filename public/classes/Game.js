@@ -525,7 +525,7 @@ export default class Game extends Generic{
 		this.factions = Faction.loadThese(this.factions);
 		this.followers = Player.loadThese(this.followers);
 		this.story = Story.loadThis(this.story);
-		
+		this.game_over_action = GameAction.loadThis(this.game_over_action, this);		
 
 		this.state_roleplays = Collection.loadThis(this.state_roleplays);
 		for( let i in this.state_roleplays ){
@@ -651,7 +651,11 @@ export default class Game extends Generic{
 	isGameOver(){
 		return Boolean(this.game_over_action.id !== "!");
 	}
-
+	resetGameOver(){
+		this.game_over_action = new GameAction({id:'!'});
+		this.save();
+		this.ui.draw();
+	}
 	// Config
 	isGenderEnabled( genders ){
 
@@ -1089,7 +1093,7 @@ export default class Game extends Generic{
 		return this.getDayPercentage()*24;
 	}
 	// Sleep players, duration is in hours
-	sleep( player, dungeonAsset, duration, force = false ){
+	sleep( player, dungeonAsset, duration, force = false, silent = false ){
 
 		if( !player.isLeader() )
 			return false;
@@ -1136,6 +1140,7 @@ export default class Game extends Generic{
 				this.ui.draw();
 
 			}
+
 			for( let interaction of sleepInteractions ){
 
 				let actions = interaction.data.actions;
@@ -1189,7 +1194,9 @@ export default class Game extends Generic{
 			
 
 		});
-		this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
+
+		if( !silent )
+			this.ui.addText("You rest for "+duration+" hour"+(duration !== 1 ? 's' : '')+".", "sleep", player.id, player.id, 'sleep');
 		
 		
 
@@ -2839,13 +2846,21 @@ export default class Game extends Generic{
 
 	}
 
-	// Gets current turn player
+	// Checks if a player may play. Note that this will return faslse if the player has ended their turn, but it may still be their TEAM's turn.
+	// Use isTeamTurn if you want to check if the team has the turn
 	isTurnPlayer( player ){
 	
 		if( !this.battle_active || !player )
 			return false;
 
 		return !player.endedTurn && player.team === this.initiative[this.turn];
+
+	}
+	isTeamTurn( team ){
+		
+		if( !this.battle_active )
+			return false;
+		return team === this.initiative[this.turn];
 
 	}
 
@@ -3115,7 +3130,9 @@ export default class Game extends Generic{
 			this.ui.captureActionMessage = true;
 		
 		// Can't use caching here, or some texts will fail
-		const att = player.useActionId( action.id, targets, netPlayer )
+		if( !action )
+			console.error("Undefined action", action, targets, player, netPlayer);
+		const att = player.useActionId( action.id, targets, netPlayer );
 	
 		Wrapper.checkAllStayConditions();
 

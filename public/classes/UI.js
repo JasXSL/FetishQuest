@@ -1512,7 +1512,7 @@ export default class UI{
 				const effect = grapples[i];
 				const isCharged = effect.isChargedAction;
 				const isTaunt = effect.type === Effect.Types.taunt;
-				let startDiv, endDiv;
+				let startDiv, endDiv, sender;
 
 				if( isCharged ){
 
@@ -1522,7 +1522,7 @@ export default class UI{
 				}
 				else{
 
-					let sender = effect.parent.getCaster();
+					sender = effect.parent.getCaster();
 					if( !sender || sender.id === p.id )
 						continue;
 
@@ -1590,8 +1590,6 @@ export default class UI{
 				div.style.top = ((end.y-start.y)/2+start.y)+'px';
 				div.style.transform = 'rotate('+(angle)+'deg)';
 
-				console.log("Drawing", div);
-				
 			}
 
 		}
@@ -1776,6 +1774,7 @@ export default class UI{
 				'<div class="chAction tooltipParent">'+
 					'<div class="bg bgIconColor"></div>'+
 					'<div class="duration"></div>'+
+					'<div class="hitChance"></div>'+
 					'<div class="tooltip"></div>'+
 				'</div>'
 			);
@@ -1794,7 +1793,8 @@ export default class UI{
 				const tooltip = '<h3 style="margin:0">Charged Action Completing in ' + a._cast_time + ' turn'+(a._cast_time > 1 ? 's' : '')+':</h3>' + a.getTooltipText(),
 					durEl = $('> div.duration', el),
 					tooltipEl = $('> div.tooltip', el),
-					bgEl = $('> div.bg', el)
+					bgEl = $('> div.bg', el),
+					hitChancheEl = $('> div.hitChance', el)
 				;
 
 				el[0].dataset.id = a.id;
@@ -1802,12 +1802,16 @@ export default class UI{
 				bgEl.toggleClass('corr phys arc', false);
 				bgEl.toggleClass(Action.TypesCSS[a.type], true);
 				
-
-					durEl.text(a._cast_time);
-					durEl.text(a._cast_time);
-				if( tooltipEl.html() !== tooltip )
+				let myActive = game.getMyActivePlayer();
+				let hc = '';
+				const targs = a.getChargePlayers();
+				const chargingAtMe = myActive && targs.includes(myActive);
+				if( targs.length === 1 || chargingAtMe ) // Draw hit chance if only 1 target or if targeting me
+					hc = Math.round(a.getHitChance( chargingAtMe ? myActive : targs[0] ))+'%';
+				
 				durEl.text(a._cast_time);
-				if( tooltipEl.html() !== tooltip )
+				hitChancheEl.text(hc);
+
 				tooltipEl.html(tooltip);
 
 				const icon = a.getIconFullPath();
