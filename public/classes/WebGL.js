@@ -82,6 +82,7 @@ class WebGL{
 		this.iconRenderer.setSize(813,813);
 		this.iconRenderer.domElement.style = '';
 		this.initIconRenderer();
+		this.runAfterRender = []; // Functions to run after rendering
 		
 
 		this.iconRendererTimer = false;
@@ -418,6 +419,10 @@ class WebGL{
 			func : func
 		});
 
+	}
+
+	runAfterNextRender( fn ){
+		this.runAfterRender.push(fn);
 	}
 
 	setSize( width, height ){
@@ -804,6 +809,12 @@ class WebGL{
 			this.composer.render();
 		else
 			this.renderer.render( this.scene, this.camera);
+
+		if( this.runAfterRender.length ){
+			for( let fn of this.runAfterRender )
+				fn();
+			this.runAfterRender = [];
+		}
 
 	}
 
@@ -2076,12 +2087,18 @@ class Stage{
 	}
 
 	toggle( on ){
+
 		this.enabled = on;
 		if( !on )
 			this.onTurnOff();
 		else
 			this.onTurnOn();
 		this.group.visible = Boolean(on);
+
+		this.parent.runAfterNextRender(() => {
+			this.reloadBoundingBoxes();
+		});
+
 	}
 
 	onTurnOn(){
@@ -2512,10 +2529,11 @@ class Stage{
 		for( let asset of this.group.children )
 			this.onObjRefresh(asset);
 
-			
-	
 	}
 
+	reloadBoundingBoxes(){
+		this.group.traverse(el => el.recalculateBoundingBox && el.recalculateBoundingBox());
+	}
 
 
 

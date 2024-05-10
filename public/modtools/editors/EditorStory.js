@@ -7,6 +7,7 @@ import * as EditorDungeon from './EditorDungeon.js';
 import * as EditorAssetTemplate from './EditorAssetTemplate.js';
 import * as EditorMaterialTemplate from './EditorMaterialTemplate.js';
 import * as EditorGameAction from './EditorGameAction.js';
+import * as EditorEncounter from './EditorEncounter.js';
 import Faction from '../../classes/Faction.js';
 import Generic from '../../classes/helpers/Generic.js';
 import Story from '../../classes/Story.js';
@@ -46,6 +47,8 @@ export function asset(){
 		html += '<label>Disable experience: <input type="checkbox" name="no_exp" class="saveable" value=1 '+(dummy.no_exp ? 'checked' : '')+' /></label>';
 		html += '<label>Disable kinks: <input type="checkbox" name="no_kinks" class="saveable" value=1 '+(dummy.no_kinks ? 'checked' : '')+' /></label>';
 		html += '<label>No std actions: <input type="checkbox" name="no_std_actions" class="saveable" value=1 '+(dummy.no_std_actions ? 'checked' : '')+' /></label>';
+		html += '<label>Disable Awareness: <input type="checkbox" name="disable_awareness" class="saveable" value=1 '+(dummy.disable_awareness ? 'checked' : '')+' /></label>';
+		html += '<label>Players always go first: <input type="checkbox" name="players_always_go_first" class="saveable" value=1 '+(dummy.players_always_go_first ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="desc" class="saveable">'+esc(dummy.desc)+'</textarea>';
@@ -55,6 +58,7 @@ export function asset(){
 
 	html += '<br />Allowed asset templates: <div class="allowed_templates_armor"></div>';
 	html += '<br />Allowed material templates: <div class="allowed_templates_material"></div>';
+	html += '<br />Allowed random encounters: <div class="limit_random_encounters"></div>';
 	html += '<br />Start game actions: <div class="game_actions"></div>';
 	html += '<br />Player loss game actions: <div class="death_actions"></div>';
 
@@ -83,6 +87,7 @@ export function asset(){
 	this.dom.querySelector("div.allowed_templates_material").appendChild(EditorMaterialTemplate.assetTable(this, asset, "allowed_templates_material"));
 	this.dom.querySelector("div.game_actions").appendChild(EditorGameAction.assetTable(this, asset, "game_actions"));
 	this.dom.querySelector("div.death_actions").appendChild(EditorGameAction.assetTable(this, asset, "death_actions"));
+	this.dom.querySelector("div.limit_random_encounters").appendChild(EditorEncounter.assetTable(this, asset, "limit_random_encounters"));
 
 
 	HelperAsset.autoBind( this, asset, DB);

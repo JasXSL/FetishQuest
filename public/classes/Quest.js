@@ -29,8 +29,8 @@ class Quest extends Generic{
 		this.completion_objectives = [];			// One of these will trigger. This allows you to add auto hand ins through events
 		this.completed = false;						// Set internally when the quest finishes to prevent further objective evaluation
 		this.hide_rewards = false;					// Todo: Hide rewards from screen
-		this.multiply_money = true;					// Multiplies the money reward by nr of players when quest is accepted
-		this.multiply_reward = false;				// Multiplies all rewards except money by nr of players when quest is accepted
+		this.multiply_money = true;					// Gives money rewards to all players
+		this.multiply_reward = false;				// Gives non money rewards to all players 
 
 		this.load(data);
 	}
@@ -45,7 +45,7 @@ class Quest extends Generic{
 			rewards : QuestReward.saveThese(this.rewards, full),
 			hide_rewards : this.hide_rewards,
 			exp_multiplier : this.exp_multiplier,
-			completion_objectives : QuestObjective.saveThese(this.completion_objectives, full)
+			completion_objectives : QuestObjective.saveThese(this.completion_objectives, full),
 		};
 
 		if( full !== "mod" ){
@@ -228,6 +228,8 @@ class Quest extends Generic{
 
 			// Who is eligible for this?
 			players = this.getViablePlayersForReward(reward);
+			let reward_players = players.slice();
+			let money_players = players.slice();
 
 			// No viable players
 			if( !players.length )
@@ -236,42 +238,45 @@ class Quest extends Generic{
 			// Asset reward type
 			if( reward.type === QuestReward.Types.Asset ){
 
+				const asset = reward.data;
 				// Leveled reward
 				if( reward.data.level === -1 )
 					reward.data.level = game.getAveragePlayerLevel();
 				
-				if( reward.category !== Asset.Categories.currency && !this.multiply_reward )
-					players = [players[Math.floor(Math.random()*players.length)]];
+				if( asset.category !== Asset.Categories.currency && !this.multiply_reward )
+					reward_players = [reward_players[Math.floor(Math.random()*reward_players.length)]]; 
+				if( asset.category === Asset.Categories.currency && !this.multiply_money )
+					money_players = [money_players[Math.floor(Math.random()*players.length)]];
 
 			}
 
-			// Give said reward to each player
+			// Rewards added to PARTY
+			if( reward.type === QuestReward.Types.Reputation )
+				game.addFactionStanding(reward.data.faction, reward.data.amount);
+
+			// Rewards added to players
 			for( let player of players ){
 
-				if( reward.type === QuestReward.Types.Reputation )
-					game.addFactionStanding(reward.data.faction, reward.data.amount);
+				const asset = reward.data.clone();
+				if( reward.type === QuestReward.Types.Asset ){
+					
+					if( asset.category === Asset.Categories.currency && !money_players.includes(player) )
+						continue;
+					if( asset.category !== Asset.Categories.currency && !reward_players.includes(player) )	
+						continue;
 
-				// Clonable rewards
-				else{
+					player.addAsset(asset);
+					game.ui.addText( 
+						player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", 
+						undefined, 
+						player.id, 
+						player.id, 
+						'statMessage important' 
+					);
 
-					const asset = reward.data.clone();
-					if( reward.type === QuestReward.Types.Asset ){
-						
-						player.addAsset(asset);
-						game.ui.addText( 
-							player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", 
-							undefined, 
-							player.id, 
-							player.id, 
-							'statMessage important' 
-						);
-
-					}
-					else if( reward.type === QuestReward.Types.Action )
-						player.addAction(asset);	// This method outputs text
-
-		
 				}
+				else if( reward.type === QuestReward.Types.Action )
+					player.addAction(asset);	// This method outputs text
 
 			}
 

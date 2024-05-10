@@ -59,9 +59,6 @@ export default class Roleplay extends Generic{
 
 	getActiveStage(){
 
-		if( this.stage === '0' )	// Netcode will convert to string. This is a legacy fix.
-			this.stage = 0;
-
 		if( !this.stage )
 			return this.stages[0];
 
@@ -80,10 +77,6 @@ export default class Roleplay extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 
-		let vars = this._vars;
-		if( !(vars instanceof Collection) )
-			vars = Collection.loadThis(vars);
-
 		let out = {
 			id : this.id,
 			label : this.label,
@@ -96,11 +89,11 @@ export default class Roleplay extends Generic{
 			portrait : this.portrait,
 			music : this.music,
 			_targetPlayers : this._targetPlayers,
-			_vars : vars.save(full),
+			_vars : this._vars.save(full),
+			vars : this.vars.save(full),
 		};
 
 		if( full ){
-			out.vars = this.vars.save(full);
 			out.autoplay = this.autoplay;
 			out.apOnce = this.apOnce;
 			out.desc = this.desc;
@@ -117,7 +110,6 @@ export default class Roleplay extends Generic{
 		else
 			this.g_sanitizeDefaults(out);
 
-		
 		return out;
 
 	}
@@ -161,7 +153,7 @@ export default class Roleplay extends Generic{
 			// Reset to default
 			if( !state )
 				state = new Collection({
-					stage : 0,
+					stage : '',
 					completed : false,
 					stages : new Collection()
 				});
@@ -415,7 +407,7 @@ export default class Roleplay extends Generic{
 				evt					// Forces a conditions check
 			);
 		}
-		
+
 		const stage = this.getActiveStage();
 		if( stage )
 			stage.onStart( players );
@@ -721,7 +713,13 @@ export class RoleplayStage extends Generic{
 	
 	getPlayer(){
 		
+		if( this.portrait === '%T' )
+			return this.getInitiatingPlayer();
+		if( this.portrait === '%P' )
+			return this.parent.getTargetPlayers()[0];
+
 		if( this.player ){
+
 			// Try from stage first
 			let pl = game.getPlayerByLabel(this.player);
 			if( pl )
@@ -730,41 +728,26 @@ export class RoleplayStage extends Generic{
 			pl = glib.get(this.player, 'Player');
 			if( pl )
 				return pl;
+
 		}
+
 		return this.parent.getPlayer();
 
 	}
 
 	getPortrait(){
 
-		const ini = this.getInitiatingPlayer();
 		const pl = this.getPlayer();
-		const rpTarg = this.parent.getTargetPlayers()[0];
 
 		let portrait = this.parent.portrait;
 		if( pl instanceof Player )
 			portrait = pl.getActivePortrait();
 
-		if( this.portrait )
+		if( this.portrait && this.portrait !== '%P' && this.portrait !== '%T' )
 			portrait = this.portrait;
 
 		if( this.portrait.toLowerCase() === 'none' )
 			portrait = '';
-		
-		if( portrait === '%T' ){
-			
-			portrait = ini?.portrait;
-			if( !portrait )
-				portrait = ini?.icon || '';
-
-		}
-		else if( portrait === '%P' ){
-			
-			portrait = rpTarg?.portrait;
-			if( !portrait )
-				portrait = rpTarg?.icon || '';
-
-		}
 
 		if( portrait instanceof HTMLCanvasElement )
 			return portrait;
@@ -1126,8 +1109,9 @@ export class RoleplayStageOption extends Generic{
 		if( !(player instanceof Player) )
 			return 0;
 
+		const luck = Math.floor(player.getGenericAmountStatPoints(Effect.Types.luck));
 		if( !this.dice_mod )
-			return 0;
+			return luck;
 
 		return Math.trunc(Calculator.run(
 			this.dice_mod,
@@ -1135,7 +1119,7 @@ export class RoleplayStageOption extends Generic{
 				sender : player,
 				target : this.getTargets(player),
 			})
-		)) + Math.floor(player.getGenericAmountStatPoints(Effect.Types.luck));
+		)) + luck;
 
 	}
 	
@@ -1205,16 +1189,17 @@ export class RoleplayStageOption extends Generic{
 	// Returns a Player on success or fallback on fail
 	getFixedSender( fallback ){
 
-		if( !this.fixed_sender_conds.length )
-			return fallback;
+		if( this.fixed_sender_conds.length ){
 
-		const enabled = game.getEnabledPlayers();
-		const evt = new GameEvent({});
-		for( let pl of enabled ){
-			
-			evt.target = evt.sender = pl;
-			if( Condition.all(this.fixed_sender_conds, evt) )
-				return pl;
+			const enabled = game.getEnabledPlayers();
+			const evt = new GameEvent({});
+			for( let pl of enabled ){
+				
+				evt.target = evt.sender = pl;
+				if( Condition.all(this.fixed_sender_conds, evt) )
+					return pl;
+
+			}
 
 		}
 

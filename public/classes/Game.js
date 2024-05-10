@@ -84,7 +84,7 @@ export default class Game extends Generic{
 		this.totTurns = 0;								// Total turns performed since battle started
 		this.modRepo = new ModRepo();
 		this.followers = [];							// Player objects. Followers in stasis.
-		this._completedExpEvts = [];					// Labels for encounters marked as expEvt with evtOnce set to true. Prevents them from recurring in the same game.
+		this._completedExpEvts = [];					// Labels for encounters with evtOnce set to true. Prevents them from recurring in the same game when triggered through an exploration event.
 
 		// Library of custom items
 		this.libAsset = {};
@@ -2745,7 +2745,8 @@ export default class Game extends Generic{
 		this.updateShops();
 
 		// Always set proc evt encounters to completed to prevent repeats
-		if( encounter.isEvt )
+		// We also need to check if the room is an exp evt, otherwise it causes issues when you're making expEvts in mods that don't treat encounters as expEvts to prevent them from showing up in the main game
+		if( encounter.isEvt || this.dungeon.getActiveRoom().expEvt )
 			this.encounter.setCompleted(true);
 
 		this.refreshMusic();
@@ -2788,6 +2789,7 @@ export default class Game extends Generic{
 		if( this.battle_active ){
 
 			this.totTurns = 0;
+			this.turn = -1;
 
 			//log.log('Start A');
 			this.encounter.setCompleted(false);
@@ -2799,11 +2801,20 @@ export default class Game extends Generic{
 			// Battle just started, randomize initiative
 			this.initiative = [];
 			for( let player of this.players ){
+
 				if( !this.initiative.includes(player.team) )
 					this.initiative.push(player.team);
 				player.onBattleStart();
+
 			}
+
 			shuffle(this.initiative);
+			
+			// Force player team to go first
+			if( this.story.players_always_go_first && this.initiative.includes(Player.TEAM_PLAYER) )
+				this.initiative = [Player.TEAM_PLAYER].concat(this.initiative.filter(team => team !== 0));
+			
+
 			new GameEvent({
 				type : GameEvent.Types.battleStarted,
 				sender : game.players[0],
@@ -2811,7 +2822,7 @@ export default class Game extends Generic{
 			}).raise();
 
 
-			this.advanceTurn();
+			this.advanceTurn(true);
 
 		}
 		else{
@@ -2978,13 +2989,18 @@ export default class Game extends Generic{
 	}
 
 	// Advances turn
-	advanceTurn(){
+	advanceTurn( firstTurn = false ){
 
-		let turnPlayers = this.getTurnPlayers();
-		for( let pl of turnPlayers ){
-			
-			if( !pl.isDead() && !pl.disabled )
-				pl.onTurnEnd();
+		let turnPlayers = [];
+		if( !firstTurn ){
+
+			turnPlayers = this.getTurnPlayers();
+			for( let pl of turnPlayers ){
+				
+				if( !pl.isDead() && !pl.disabled )
+					pl.onTurnEnd();
+
+			}
 
 		}
 
@@ -4270,7 +4286,27 @@ export default class Game extends Generic{
 
 	}
 
+	// returns an ActionLearnable or false
+	getActionLearnableByGymToPlayer( gymPlayer, player, actionLearnableLabel, encounter = false ){
+		
+		const gyms = this.getGymsByPlayer(gymPlayer, player, encounter);
+		for(let gym of gyms ){
+			if( !gym.validate(player) )
+				continue;
+
+			const actions = player.getUnlockableActions(gym);
+			for( let action of actions ){
+				if( action.label === actionLearnableLabel )
+					return action;
+			}
+
+		}
+		return false;
+
+	}
+
 	learnAction( gymPlayer, player, learnable ){
+
 		if( this.isGameOver() )
 			return false;
 
@@ -4278,7 +4314,8 @@ export default class Game extends Generic{
 			throw 'Gym not available';
 
 		// Check if learnable exists and is valid
-		const action = glib.get(learnable, 'ActionLearnable');
+		;
+		const action = this.getActionLearnableByGymToPlayer(gymPlayer, player, learnable);
 		if( !action )
 			throw "Action not found";
 
@@ -4300,7 +4337,7 @@ export default class Game extends Generic{
 			return;
 		}
 
-		if( !player.addActionFromLibrary(action.action) )
+		if( !player.addActionFromLibrary(action.label) )
 			return;
 		
 		player.consumeMoney(action.getCost());

@@ -1,3 +1,4 @@
+import Encounter from './Encounter.js';
 import GameAction from './GameAction.js';
 import Player from './Player.js';
 import Generic from './helpers/Generic.js';
@@ -12,6 +13,7 @@ export default class Story extends Generic{
 			npcs : Player,
 			game_actions : GameAction,
 			death_actions : GameAction,
+			limit_random_encounters : Encounter,
 		};
 	}
 
@@ -30,7 +32,9 @@ export default class Story extends Generic{
 		this.player_options = [];			// PlayerGalleryTemplate objects you can pick from
 		this.allow_gallery = false;			// Allow players from the gallery table
 		this.npcs = [];						// Player objects that will be added as NPCs on your team
-		
+		this.players_always_go_first = false;	// If true, players will always go first
+		this.limit_random_encounters = [];	// Limits the game to only include these random encounters
+
 		this.max_level = 14;
 		this.freeze_time = false;			// 
 		this.leveled_gear = false;			// Removes levels from equipment
@@ -78,11 +82,12 @@ export default class Story extends Generic{
 			death_action_override : this.death_action_override,
 			no_kinks : this.no_kinks,
 			battle_won_hp_regen: this.battle_won_hp_regen,
-			 
+			players_always_go_first : this.players_always_go_first,
+			limit_random_encounters : Encounter.saveThese(this.limit_random_encounters, full),
+			no_std_actions : this.no_std_actions,
 		};
 
 		if( full ){
-			out.no_std_actions = this.no_std_actions;
 			out.game_actions = GameAction.saveThese(this.game_actions, full); // These are reset when starting the game
 			out.death_actions = GameAction.saveThese(this.death_actions, full); // These are reset when starting the game
 		}

@@ -1148,7 +1148,7 @@ export default class Player extends Generic{
 		for( let icon of sl ){
 
 			let iBase = this.icon_base;
-			if( !iBase.endsWith('/') )
+			if( iBase && !iBase.endsWith('/') )
 				iBase += '/';
 			if( baseLayer === this.constructor.MISSING_ART )
 				iBase = '';
@@ -2877,6 +2877,10 @@ export default class Player extends Generic{
 			this.reroll += offs;
 			amount -= offs;
 
+			// Prevent momentum for going above cap out of combat
+			if( !game.battle_active )
+				this.reroll = Math.min(this.getMaxMomentum(), this.reroll);
+
 		}
 		// Nothing to change. Also prevents division by 0.
 		if( !amount )
@@ -4137,7 +4141,7 @@ export default class Player extends Generic{
 		let lib = Object.values(glib.getFull("ActionLearnable"));
 		for( let a of lib ){
 
-			if( a.auto_learn || this.getLearnedActionByLabel(a.action) )
+			if( a.auto_learn || this.getLearnedActionByLabel(a.action.label) )
 				continue;
 			if( a.validate(this, gymGameAction) )
 				out.push(a);

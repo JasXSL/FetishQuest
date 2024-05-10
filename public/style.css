@@ -659,8 +659,12 @@ div.scroll{
 
 /* Game quickjoin */
 	#joinOnlineGame{
-		padding:30%;
+		text-align: center;
 	}
+	#joinOnlineGame input[type=text]{
+		max-width:20vmax;
+	}
+
 
 /* Modal */
 	#modal{

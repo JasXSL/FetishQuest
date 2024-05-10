@@ -142,7 +142,7 @@ export default class Encounter extends Generic{
 			difficulty = dungeon.getDifficulty();
 		else
 			difficulty = game.getTeamPlayers().length;
-		difficulty += this.difficulty_adjust;
+		difficulty *= (1+this.difficulty_adjust);
 		if( difficulty < 0.1 )
 			difficulty = 0.1;
 		

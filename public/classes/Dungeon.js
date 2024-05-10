@@ -1386,7 +1386,9 @@ class DungeonRoom extends Generic{
 				const viable = this.encounters.slice();
 				// Shoulnd't be needed now that encounter is the current encounter? this.encounters = [];
 
-				const procEvtEncounters = Encounter.getAllProcEvtEncounters().filter(el => {
+				const allEncounters = game.story.limit_random_encounters.length ? game.story.limit_random_encounters : Encounter.getAllProcEvtEncounters();
+
+				const procEvtEncounters = allEncounters.filter(el => {
 					return !dungeon._completedExpEvts.includes(el.label) && (!el.evtOnce || !game.hasCompletedOnceEncounter(el.label)); 
 				});
 				const weightFunc = encounter => encounter.evtWeight;

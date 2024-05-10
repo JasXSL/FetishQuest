@@ -1510,7 +1510,7 @@ export default class UI{
 			for( let i = 0; i < grapples.length; ++i ){
 
 				const effect = grapples[i];
-				const isCharged = effect.isChargedAction;
+				const isCharged = Boolean(effect.isChargedAction);
 				const isTaunt = effect.type === Effect.Types.taunt;
 				let startDiv, endDiv, sender;
 
