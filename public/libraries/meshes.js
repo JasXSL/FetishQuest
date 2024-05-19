@@ -2530,6 +2530,14 @@ function build(){
 				}),
 			},
 			Doodads : {
+				Key : new LibMesh({
+					url : 'doodads/key.glb',
+					materials : [
+						libMat.Metal.Rust
+					],
+					tags : [stdTag.mKey],
+					scale : 100
+				}),
 				Tankard : new LibMesh({
 					url : 'doodads/tankard.JD',
 					materials : [
@@ -5690,6 +5698,7 @@ function build(){
 				Default : new LibMesh({
 					auto_bounding_box : true,
 					url : 'gates/workshop_door.glb',
+					lockable : true,
 					want_actions : [gameActionDoors],
 					materials : [
 						libMat.Metal.SteampunkTrim

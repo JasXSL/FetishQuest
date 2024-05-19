@@ -1161,7 +1161,6 @@ class Editor{
 				continue;
 
 
-
 			let out = 0;
 			for( let want of wants ){
 				
@@ -1182,13 +1181,15 @@ class Editor{
 				
 			}
 
-
 			const hasWants = out === wants.length;
-			const mats = toArr(mesh.material);
-			for( let mat of mats ){
-				mat.color.g = mat.color.b = hasWants ? 1 : 0; 
-			}
-		
+			mesh.traverse(el => {
+				let mats = el.material;
+				if( !mats )
+					return;
+				mats = toArray(mats);
+				for( let mat of mats )
+					mat.color.g = mat.color.b = hasWants ? 1 : 0;
+			});
 		}
 
 	}

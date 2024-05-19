@@ -257,7 +257,7 @@ class Quest extends Generic{
 			// Rewards added to players
 			for( let player of players ){
 
-				const asset = reward.data.clone();
+				const asset = reward.data;
 				if( reward.type === QuestReward.Types.Asset ){
 					
 					if( asset.category === Asset.Categories.currency && !money_players.includes(player) )
@@ -265,7 +265,7 @@ class Quest extends Generic{
 					if( asset.category !== Asset.Categories.currency && !reward_players.includes(player) )	
 						continue;
 
-					player.addAsset(asset);
+					player.addAsset(asset.clone());
 					game.ui.addText( 
 						player.getColoredName()+" was rewarded "+asset.name+(asset._stacks > 1 ? ' x'+asset._stacks : '')+".", 
 						undefined, 

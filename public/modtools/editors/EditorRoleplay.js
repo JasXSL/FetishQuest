@@ -24,8 +24,8 @@ export function nodeBuild( asset, nodes ){
 		Goto : EditorRoleplayStageOptionGoto,
 	};
 	const remOnClone = {
-		Stage : ["options"],
-		Reply : ["index"],
+		Stage : ["options", "direct"],
+		Reply : ["index", "direct"],
 		Goto : ["index"],
 	};
 	const w = nodes._window;
@@ -174,6 +174,7 @@ export function nodeCompile( asset, nodes ){
 
 		const dbAsset = buildMissingAsset("roleplayStage", stage.id, stage.x, stage.y);
 		setAssetLinks(dbAsset, "options", stage.Replies);
+		dbAsset.direct = stage.Direct || '';
 
 	}
 	asset.stages = stages.map(el => el.id);

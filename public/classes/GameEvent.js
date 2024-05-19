@@ -218,7 +218,7 @@ GameEvent.Types = {
 	stun : 'stun',
 	orgasm : 'orgasm', 	// Quicker way of checking wrapper added and wrapper overwhelming orgasm
 	diceRoll : 'diceRoll', // Rolled a dice in an RP
-	
+	knockdown : 'knockdown', // Run when a player is knocked down
 };
 
 // Event data fields can be read in math vars by using evt_<var>. Ex shielding enchant checks for healingDone and adds block equal to "evt_overAmount"
@@ -286,6 +286,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.blockBroken] : 'sender, target. Block has been broken (not expired).',			
 	[GameEvent.Types.orgasm] : 'sender, target. Target has orgasmed.',			
 	[GameEvent.Types.diceRoll] : 'sender, target. Target has rolled a dice.',			
+	[GameEvent.Types.knockdown] : 'sender, target. Target has been knocked down.',
 
 };
 

@@ -192,6 +192,8 @@ export default class Game extends Generic{
 					// Don't raise on self
 					if( targ === s )
 						continue;
+					if( !targ.onTextTrigger )
+						console.error("invalid targ found in event", event);
 					targ.onTextTrigger(cl);
 				}
 				
@@ -3287,9 +3289,13 @@ export default class Game extends Generic{
 		if( typeof rp === "string" )
 			rp = glib.get(rp, 'Roleplay');
 
-		const pl = rp.validate(player);
-		if( !pl && !force ){
-			//console.error("No players passed filters for rp", rp, "using player", player);
+		let pl = rp.validate(player); // Find a valid player
+		if( !pl && force ) // Force always needs a player
+			pl = player;
+
+		// No player matched conditions
+		if( !pl ){
+			//console.error("No players passed filters for rp", rp);
 			return;
 		}
 

@@ -1939,12 +1939,17 @@ class Effect extends Generic{
 			}
 
 			else if( this.type === Effect.Types.knockdown ){
+				
 				if( isNaN(this.data.type) )
 					this.data.type = Math.floor(Math.random()*2);
+				
 				if( !this.data.ini ){
+					
 					let text = "knocked down on their "+(this.data.type === Effect.KnockdownTypes.Forward ? 'stomach' : 'back');
 					game.ui.addText( t.getColoredName()+" was "+text+".", undefined, t.id, t.id, 'statMessage' );
 					this.data.ini = true;
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this, type:GameEvent.Types.knockdown}).raise();
+
 				}
 			}
 
@@ -2719,7 +2724,7 @@ Effect.TypeDescs = {
 	[Effect.Types.bonArcane] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 	[Effect.Types.bonCorruption] : '{amount:(int)(str)amount, multiplier:(bool)is_multiplier}',
 
-	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers, stacks:(int)=auto} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. Stacks lets you override the stacks of the wrapper to run. -1 will use the same nr of stacks as the parent of this effect.',
+	[Effect.Types.runWrappers] : '{wrappers:(arr)wrappers, stacks:(int/str)=auto} - Runs wrappers. Auto target is victim, or caster if effect caster property is true. Stacks lets you override the stacks of the wrapper to run. -1 will use the same nr of stacks as the parent of this effect. Can be a formula.',
 	[Effect.Types.assetWrappers] : '{wrappers:(arr)wrappers, conditions:(arr)asset_conditions, max:(int)max_assets=1, random=true, unequipped=false} - Adds wrappers and attaches them to assets that pass conditions filters. Wrapper conditions are also checked before allowing them through. If unequipped is true, it also allows unequipped assets.',
 
 	[Effect.Types.disrobe] : '{slots:(arr)(str)Asset.Slots.*, numSlots:(int)max_nr=all}',

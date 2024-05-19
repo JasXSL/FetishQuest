@@ -7,6 +7,7 @@ import Condition from "./Condition.js";
 import GameAction from "./GameAction.js";
 import Dungeon, { DungeonRoom } from "./Dungeon.js";
 import GameEvent from "./GameEvent.js";
+import Calculator from "./Calculator.js";
 
 
 
@@ -67,7 +68,7 @@ export default class Encounter extends Generic{
 		this.isEvt = false;			// This encounter is a random event.
 		this.evtOnce = false;		// Use with isEvt. When set, the encounter will only be triggered once per game.
 		this.evtWeight = 1.0;		// Weight number. Higher will appear more frequently.
-
+		this.maxNumPlayers = '0';		// Max number of players. <1 = infinite. This only affects player templates, and this.players are subtracted from this value. Can be a formula.
 		this.game_actions = [];			// Game actions to run when the encounter starts / passive things like RP
 		this.completion_actions = [];	// Game actions to run when the encounter completes
 		this.events = [];				// EncounterEvent, lets you bind encounters to events
@@ -99,6 +100,7 @@ export default class Encounter extends Generic{
 			out.isEvt = this.isEvt;
 			out.evtWeight = this.evtWeight;
 			out.evtOnce = this.evtOnce;
+			out.maxNumPlayers = this.maxNumPlayers;
 
 		}
 
@@ -171,6 +173,11 @@ export default class Encounter extends Generic{
 			
 		if( totalSlots > 4 )
 			totalSlots = 4;		// Don't generate more than 5 enemies
+
+		let cap = Calculator.run(this.maxNumPlayers, new GameEvent({sender:game.players[0],target:game.players[0]}), {});
+		if( cap > 0 && totalSlots > cap )
+			cap = totalSlots;
+			
 		
 		if( hasTemplates ){
 		

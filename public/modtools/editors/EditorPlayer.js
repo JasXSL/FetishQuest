@@ -238,9 +238,9 @@ export function asset(){
 	const handleInventorySplice = index => {
 
 		// Remove from inventory list
-		const pos = asset.inventory.indexOf(index);
+		const pos = asset.assets.indexOf(index);
 		if( ~pos )
-			asset.inventory.splice(index, 1);
+			asset.assets.splice(index, 1);
 
 	};
 

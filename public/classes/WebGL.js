@@ -2532,7 +2532,10 @@ class Stage{
 	}
 
 	reloadBoundingBoxes(){
-		this.group.traverse(el => el.recalculateBoundingBox && el.recalculateBoundingBox());
+		this.group.traverse(el => {
+			el.computeBoundingBox && el.computeBoundingBox();
+			el.computeBoundingSphere && el.computeBoundingSphere();
+		});
 	}
 
 

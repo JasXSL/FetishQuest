@@ -55,7 +55,7 @@ export function list(){
 		'*label' : true,
 		'*name' : true,
 		'*pages' : asset => {return asset.pages.length;},
-		'*game_actions' : asset => asset.game_actions.length,
+		'*game_actions' : asset => asset?.game_actions?.length || 0,
 	}));
 
 	HelperAsset.bindList(this, DB, new CONSTRUCTOR({

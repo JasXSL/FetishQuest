@@ -39,6 +39,7 @@ export function asset(){
 		html += '<label title="Text to output when the encounter starts (string, not an asset)">Start text: <input type="text" name="startText" class="saveable" value="'+esc(dummy.startText)+'" /></label>';
 		html += '<label title="In seconds, 0 = no respawn">Respawn time: <input type="number" step=1 min=0 name="respawn" class="saveable" value="'+esc(dummy.respawn)+'" /></label>';
 		html += '<label title="Lets you increase or decrease difficulty, 1 = 100% more difficult">Difficulty Adjust: <input type="number" step=0.01 min=-0.95 name="difficulty_adjust" class="saveable" value="'+esc(dummy.difficulty_adjust)+'" /></label>';
+		html += '<label title="Can be a math formula">Max players: <input type="text" name="maxNumPlayers" class="saveable" value="'+esc(dummy.maxNumPlayers)+'" /></label>';
 	html += '</div>';
 
 	html += '<span title="">Ambient Music:</span> <div class="music"></div>';
@@ -149,6 +150,10 @@ export function help(){
 		'<tr>'+
 			'<td>Difficulty Adjust</td>'+
 			'<td>Increase or decrease difficulty. 0.5 = half difficulty, 1.0 = double, 0 = normal.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Max num players</td>'+
+			'<td>Only affects player templates. Fixed players are subtracted from this number.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Ambient Music</td>'+

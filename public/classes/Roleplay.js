@@ -89,7 +89,7 @@ export default class Roleplay extends Generic{
 			portrait : this.portrait,
 			music : this.music,
 			_targetPlayers : this._targetPlayers,
-			_vars : this._vars.save(full),
+			
 			vars : this.vars.save(full),
 		};
 
@@ -106,6 +106,7 @@ export default class Roleplay extends Generic{
 		if( full !== "mod" ){
 			out.completed = this.completed;
 			out.stage = this.stage;
+			out._vars = this.vars ? this._vars.save(full) : null;
 		}
 		else
 			this.g_sanitizeDefaults(out);
@@ -386,6 +387,7 @@ export default class Roleplay extends Generic{
 
 	onStart( players ){
 
+
 		this.loadState();
 
 		this._targetPlayers = [];
@@ -603,6 +605,7 @@ export class RoleplayStage extends Generic{
 		this.game_actions = [];			// GameActions to apply when encountering this stage
 		this.target = RoleplayStage.Target.auto;			// Selects who is considered the "target" when reaching this stage
 		this.leave = false;				// Automatically adds an option for [Leave]
+		this.direct = '';				// Automatically adds a [Continue] option that goes to this ID. RoleplayStageOption ID.
 		this.script = '';
 
 		// local
@@ -639,12 +642,12 @@ export class RoleplayStage extends Generic{
 			text : Text.saveThese(this.text, full),	// Needed for netcode
 			shuffle_texts : this.shuffle_texts,
 			leave : this.leave,
+			direct : this.direct,
 		};
 
 		if( full ){
 			out.target = this.target;
 			out.store_pl = this.store_pl;
-			out.leave = this.leave;
 			out.game_actions = GameAction.saveThese(this.game_actions, full);
 			out.script = this.script;
 		}
@@ -671,11 +674,19 @@ export class RoleplayStage extends Generic{
 	// Selected can be an ID of the selected option. We never hide the selected option since we need to show what a player successfully clicked
 	getOptions( player, selected, debug = false ){
 
-		if( !this.options.length && window.game && !this.leave ){
+		if( !this.options.length && window.game && !this.leave && !this.direct ){
 			this.options.push(new RoleplayStageOption({
 				text : '[Done]',
 				chat : RoleplayStageOption.ChatType.none,
 			}, this));
+		}
+		if( this.direct && !this.getOptionById('_direct_') && window.game ){
+
+			this.options.push(new RoleplayStageOption({
+				id : '_direct_',
+				direct : [this.direct]
+			}, this));
+
 		}
 		// Create leave option
 		if( this.leave && !this.getOptionById("leave") && window.game ){

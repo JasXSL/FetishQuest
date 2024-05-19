@@ -152,6 +152,7 @@ export default class Player extends Generic{
 		this._turn_std_combo = 0;				// How many times we've used a standard attack in a row
 		this._turn_atypes = 0;					// Action types used this turn. Maps to Action.Typeflags
 		this._threat = {};						// playerID : threatAmount
+		this._battle_action_used = 0;			// Actions used this battle
 
 		// These are incoming damage
 		this._aware = {};						// playerID : true - Using a targeted action against or being hit by a targeted action by a player makes you "aware". Attacks against unaware players have a +10% hit chance.
@@ -386,6 +387,7 @@ export default class Player extends Generic{
 			out._d_damage_since_last = Collection.flattenBasic(this._d_damage_since_last);
 			out._turns = this._turns;
 			out._turn_action_used = this._turn_action_used;
+			out._battle_action_used = this._battle_action_used;
 			out._turn_std_combo = this._turn_std_combo;
 			out._turn_atypes = this._turn_atypes;
 			out._riposted_since_last = Collection.flattenBasic(this._riposted_since_last);
@@ -710,6 +712,7 @@ export default class Player extends Generic{
 		vars[prefix+'Money'] = this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 		vars[prefix+'actionsUsedThisTurn'] = this._turn_action_used;
+		vars[prefix+'actionsUsedThisBattle'] = this._battle_action_used;
 		vars[prefix+'stdCombo'] = this._turn_std_combo;
 		vars[prefix+'aTypes'] = this._turn_atypes;
 		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
@@ -1648,14 +1651,16 @@ export default class Player extends Generic{
 		if( this.bot )
 			this.bot.onTurnStart();
 
-		
+		// This goes before wrappers so we can benefit from self buffs on charged actions
+		const actions = this.getActions();
+		for(let action of actions)
+			action.onTurnStart();
+
 		const wrappers = this.getWrappers(undefined, true);
 		for(let wrapper of wrappers)
 			wrapper.onTurnStart();
 
-		const actions = this.getActions();
-		for(let action of actions)
-			action.onTurnStart();
+		
 
 		/*
 		if( this.arousal > 0 && this._turns%2 === 0 ){
@@ -1712,6 +1717,7 @@ export default class Player extends Generic{
 	}
 	onBattleStart(){
 
+		this._battle_action_used = 0;
 		this._dp = 0;
 		this._used_chats = {};
 		this._turn_tags = [];

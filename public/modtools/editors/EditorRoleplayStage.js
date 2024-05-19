@@ -33,6 +33,7 @@ export function nodeBlock( nodes ){
 		onClick : (block, event) => EditorGraph.onBlockClick(DB, block, nodes),
 	})
 		.addInput('Replies', 'Reply')
+		.addInput('Direct', 'Stage', {single:true})
 	;
 
 }
@@ -53,6 +54,9 @@ export function nodeBuild( asset, nodes, root ){
 export function nodeConnect( asset, nodes ){
 
 	EditorGraph.autoConnect( nodes, EditorRoleplayStageOption, "Reply", asset.options, "Stage", asset.id, "Replies" );
+	// This is ugly, but I don't think you can access the whole self-module in ES6
+	EditorGraph.autoConnect( nodes, {DB, nodeConnect}, "Stage", [asset.direct], "Stage", asset.id, "Direct" );
+	
 
 }
 
