@@ -2097,7 +2097,7 @@ div.scroll{
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		width: 26vw;
+		width: 23vw;
 		top:0;
 		bottom:0;
 		position: absolute;
@@ -2779,8 +2779,8 @@ div.scroll{
 	#ui > div.middle{
 		bottom:7.5vh;
 		background:rgba(0,0,0,.5);
-		left:24vw;
-		right:24vw;
+		left:23vw;
+		right:23vw;
 		position:absolute;
 		top:0;
 		display:flex;
@@ -3068,7 +3068,7 @@ div.scroll{
 
 	#ui > div.players div.player{
 
-		width:25.5vw;
+		width:22vw;
 		margin:0.3vmax;
 		user-select: none;
 		cursor:pointer;

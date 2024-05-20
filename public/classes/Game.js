@@ -392,17 +392,20 @@ export default class Game extends Generic{
 		
 	}
 
-	// Std load
+	// Std load. Note that this can be called multiple times due to netgames overwriting existing games.
 	async load( data ){
 
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 
-		this.audio_fx = new Audio("fx");
-		this.audio_ambient = new Audio('ambient', false);
-		this.audio_music = new Audio('music', false, 0.15);
-		this.audio_ui = new Audio('ui', true);
-		this.audio_voice = new Audio('voice', true);
+		if( !this.audio_fx ){
+			this.audio_fx = new Audio("fx");
+			this.audio_ambient = new Audio('ambient', false);
+			this.audio_music = new Audio('music', false, 0.15);
+			this.audio_ui = new Audio('ui', true);
+			this.audio_voice = new Audio('voice', true);
+		}
 		
+
 		this.g_autoload(data);
 
 		// Custom ad-hoc libraries do not need to be rebased
@@ -450,7 +453,6 @@ export default class Game extends Generic{
 		*/
 		if( this.dungeon.label ){
 
-			console.log("Setting up renderer");
 			//this.dungeon.loadState(); -- Shouldn't be done here. Since it'll wipe the completed events.
 			this.renderer.loadActiveDungeon();
 			this.ui.setMinimapLevel(this.dungeon.getActiveRoom().z);

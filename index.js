@@ -21,7 +21,7 @@ import {default as Repo} from './mod_repo/ModRepo.js';
 
 const app = Express();
 const server = new Server(app);
-const io = new sio({
+const io = new sio(server, {
 	maxHttpBufferSize : 1e7, // 10mbyte (10 000 000 bytes)
 });
 const upload = multer({dest : import.meta.dirname+'/temp/'});

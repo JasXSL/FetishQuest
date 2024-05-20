@@ -126,7 +126,7 @@ export default class Roleplay extends Generic{
 		if( !this._vars )
 			this._vars = this.vars.clone();
 		else
-			this._vars = Collection.loadThis(this.vars, this);
+			this._vars = Collection.loadThis(this._vars, this);
 
 		if( this.hasGameParent() ){
 			this.loadState();

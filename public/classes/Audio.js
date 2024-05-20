@@ -190,7 +190,7 @@ class Audio{
 	}
 
 	destructor(){
-		this.setMusic({});
+		this.stopMusic();
 	}
 
 	async play( url, volume = 1.0, loop = false, x = 0, y = 0, z = -1 ){
