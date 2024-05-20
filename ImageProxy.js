@@ -3,8 +3,9 @@ const ALLOWED_DOMAINS = [
 	'e621\.net$'
 ];
 
+import https from 'https';
+import URL from 'url';
 
-const https = require('https'), URL = require('url');
 
 function fetch(url, depth = 0){
 
@@ -61,7 +62,7 @@ function fetch(url, depth = 0){
 };
 
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
 
 	const url = req.query.image;
 	if( url ){

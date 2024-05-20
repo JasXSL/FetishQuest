@@ -69,8 +69,6 @@ export default class Story extends Generic{
 			icon : this.icon,
 			max_nr_player_options: this.max_nr_player_options,
 			min_nr_player_options: this.min_nr_player_options,
-			player_options : PlayerGalleryTemplate.saveThese(this.player_options, full),
-			npcs : Player.saveThese(this.npcs, full),
 			start_dungeon : this.start_dungeon,
 			allow_gallery : this.allow_gallery,
 			start_cell : this.start_cell,
@@ -83,13 +81,15 @@ export default class Story extends Generic{
 			no_kinks : this.no_kinks,
 			battle_won_hp_regen: this.battle_won_hp_regen,
 			players_always_go_first : this.players_always_go_first,
-			limit_random_encounters : Encounter.saveThese(this.limit_random_encounters, full),
 			no_std_actions : this.no_std_actions,
 		};
 
 		if( full ){
 			out.game_actions = GameAction.saveThese(this.game_actions, full); // These are reset when starting the game
 			out.death_actions = GameAction.saveThese(this.death_actions, full); // These are reset when starting the game
+			out.limit_random_encounters = Encounter.saveThese(this.limit_random_encounters, full);
+			out.player_options = PlayerGalleryTemplate.saveThese(this.player_options, full);
+			out.npcs = Player.saveThese(this.npcs, full);
 		}
 		if( full !== "mod" ){
 

@@ -1,4 +1,4 @@
-const uuidv4 = require('uuid/v4');
+import {v4 as uuidv4} from 'uuid';
 
 class Game{
 
@@ -31,13 +31,12 @@ class Game{
 	}
 
 
-	addPlayer(socket, name){
+	addPlayer( socket, name ){
 
 		this.players.push(socket);
 		
 		socket.join(this.getRoomId());
-		
-		
+				
 		socket._game = this;
 		socket._name = name;
 
@@ -55,6 +54,7 @@ class Game{
 	}
 
 	onHostLeft(){
+		
 		for( let player of this.players ){
 
 			this.emit(Game.Tasks.hostLeft);
@@ -107,7 +107,6 @@ Game.onDisconnect = function( socket ){
 		if( ~index ){
 
 			socket.leave(game.getRoomId());
-
 			if( game.host === socket ){
 
 				// Shut down the game
@@ -146,12 +145,18 @@ Game.join = function(socket, data){
 		return false;
 
 	for( let game of Game.games ){
+
 		if( game.id === data.room ){
+
 			game.addPlayer(socket, data.name.trim().substr(0,16));
 			return true;
+
 		}
+
 	}
+
 	return false;
 }
 
-module.exports = Game;
+
+export default Game;

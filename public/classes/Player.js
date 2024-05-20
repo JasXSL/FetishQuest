@@ -980,6 +980,9 @@ export default class Player extends Generic{
 		for( let effect of tauntEffects ){
 			// Pick the sender
 			let sender = effect.parent.getCaster();
+			if( sender.isDead() ) // Skip dead taunters
+				continue;
+
 			if( effect.data && effect.data.victim )
 				sender = effect.parent.parent;
 
@@ -991,6 +994,7 @@ export default class Player extends Generic{
 
 	}
 
+	// Gets things we're taunted
 	getTaunting(){
 
 		return game.getEnabledPlayers().filter(el => {
@@ -1594,8 +1598,9 @@ export default class Player extends Generic{
 		for(let wrapper of wrappers)
 			wrapper.onTurnEnd();
 
-		for(let action of this.actions)
+		for( let action of this.actions )
 			action.onTurnEnd();
+
 		if( this._stun_diminishing_returns > 0 )
 			--this._stun_diminishing_returns;
 		this._damaging_since_last = {};
@@ -1607,7 +1612,7 @@ export default class Player extends Generic{
 	}
 
 	// Raised after effects
-	onTurnStart(){
+	async onTurnStart(){
 
 		
 		this._last_arange = Action.Range.None;
@@ -1653,8 +1658,15 @@ export default class Player extends Generic{
 
 		// This goes before wrappers so we can benefit from self buffs on charged actions
 		const actions = this.getActions();
-		for(let action of actions)
-			action.onTurnStart();
+		for( let action of actions ){
+			
+			// Returns nr of players hit by a charged action
+			let nrPlayersHit = action.onTurnStart();
+			if( nrPlayersHit )
+				await delay(500*nrPlayersHit);
+			
+
+		}
 
 		const wrappers = this.getWrappers(undefined, true);
 		for(let wrapper of wrappers)
@@ -2022,7 +2034,7 @@ export default class Player extends Generic{
 		}
 
 		if( this.remOnDeath ){
-			game.removePlayer(this);
+			game.removePlayer(this); // Note: async function, but I think it's fine
 		}
 
 	}

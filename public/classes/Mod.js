@@ -664,7 +664,7 @@ export default class Mod extends Generic{
 
 	// Merges an asset into a member array of this, overwriting if a label or id exists 
 	// Returns true if an item was overwritten
-	mergeAsset( table, asset ){
+	mergeAsset( table, asset, compareParent = false ){
 
 		if( !Array.isArray(this[table]) )
 			throw 'Table not found: '+table;
@@ -684,9 +684,28 @@ export default class Mod extends Generic{
 
 			const current = this[table][i];
 			if( current[mergeBy] === mergeData ){
+
+				if( compareParent ){
+
+					if( mergeBy === 'label' ){
+						console.error("CompareParent doesn't work if you merge by label, since we can't come up with a new label on the fly.");
+						return;
+					}
+
+					// They have different parents, we'll need to reset the ID and insert new
+					if( 
+						!current._mParent || !asset._mParent || current._mParent.type !== asset._mParent.type || current._mParent.label !== asset._mParent.label || 
+						(asset._h && current._h !== asset._h)
+					 ){
+						asset.id = Generic.generateUUID();
+						break;
+					}
+
+				}
 				console.log("Overwriting", this[table][i], "with", asset);
 				this[table][i] = asset;
 				return true;
+
 			}
 
 		}

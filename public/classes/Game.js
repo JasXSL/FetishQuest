@@ -125,7 +125,8 @@ export default class Game extends Generic{
 		this._caches = 0;								// Level of depth of cache requests we're at
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
 		this._refreshMeshesOnGameData = false;			// Used in online games to refresh meshes when receiving game data from host
-		
+		this._advancingTurn = false;
+
 	}
 
 	destructor(){
@@ -2025,7 +2026,7 @@ export default class Game extends Generic{
 
 	// Remove a player by id
 	// If fromEncounter is true, it also removes it from the current encounter
-	removePlayer( id, fromEncounter = true ){
+	async removePlayer( id, fromEncounter = true ){
 
 		if( id instanceof Player )
 			id = id.id;
@@ -2040,7 +2041,7 @@ export default class Game extends Generic{
 				this.players.splice(i,1);
 				this.verifyLeader();
 				if( this.battle_active && !this.currentTeamHasPlayers() )
-					this.advanceTurn();	// Handles checking if battle is over etc
+					await this.advanceTurn();	// Handles checking if battle is over etc
 				this.save();
 				this.ui.draw();
 				
@@ -2078,7 +2079,7 @@ export default class Game extends Generic{
 		for( let pl of p ){
 
 			if( (pl.generated && (!deadOnly || pl.isDead())) || pl.remOnDeath )
-				this.removePlayer(pl.id);
+				this.removePlayer(pl.id); // note: this function is async, but shouldn't cause an issue?
 
 		}
 
@@ -2567,7 +2568,7 @@ export default class Game extends Generic{
 			return false;
 
 		this.followers.push(player);
-		this.removePlayer(player.id);
+		this.removePlayer(player.id); // Note: Async, but shouldn't cause an issue
 
 	}
 
@@ -2824,7 +2825,7 @@ export default class Game extends Generic{
 			}).raise();
 
 
-			this.advanceTurn(true);
+			this.advanceTurn(true); // Note: This is async, but the async stuff is only relevant when a player is charging an action.
 
 		}
 		else{
@@ -2913,7 +2914,7 @@ export default class Game extends Generic{
 		}
 
 		// Battle ended
-		this.toggleBattle( false );	// Saves if there's a change
+		this.toggleBattle( false );	// Saves if there's a change. Note: Async function, but the asynciness only happens when the turn is changed.
 
 		// Needs to go after battle ended due to gameActions that restart the battle immediately
 		if( !this.encounter.completed ){
@@ -2991,7 +2992,14 @@ export default class Game extends Generic{
 	}
 
 	// Advances turn
-	advanceTurn( firstTurn = false ){
+	async advanceTurn( firstTurn = false ){
+
+		if( this._advancingTurn ){
+			console.error("Trying to advance turn too fast!");
+			return false;
+		}
+
+		this._advancingTurn = true; // Prevents some actions from being performed until the we're done
 
 		let turnPlayers = [];
 		if( !firstTurn ){
@@ -3036,7 +3044,7 @@ export default class Game extends Generic{
 
 				this.ui.captureActionMessage = true;
 				
-				pl.onTurnStart();
+				await pl.onTurnStart(); // May be async if the player was charging an action
 				// pl._turns are added on turn end
 				if( !pl._turns ){
 
@@ -3066,7 +3074,12 @@ export default class Game extends Generic{
 		this._bot_timer = setTimeout(this.autoPlay.bind(this), 1000);
 		this.save();
 		this.ui.draw();
+		this._advancingTurn = false;
 		
+	}
+
+	isAdvancingTurn(){
+		return this._advancingTurn;
 	}
 
 	// Tries to change control to a viable turn player
@@ -3091,14 +3104,14 @@ export default class Game extends Generic{
 	}
 
 	// Checks if end_turn_after_action is set and advances turn if it is
-	checkEndTurn(){
+	async checkEndTurn(){
 
 		let players = this.getTurnPlayers();
 		for( let player of players ){
 			if( !player.endedTurn )
 				return false;
 		}
-		this.advanceTurn();
+		await this.advanceTurn();
 		return true;
 
 	}
@@ -3117,6 +3130,9 @@ export default class Game extends Generic{
 	// netPlayer is needed when received by the DM after a player uses this method; so that certain effects like repair can be relayed
 	useActionOnTarget( action, targets, player, netPlayer ){
 		if( this.isGameOver() )
+			return false;
+
+		if( this.isAdvancingTurn() )
 			return false;
 
 		if( !player )
@@ -3157,14 +3173,14 @@ export default class Game extends Generic{
 		this.save();
 		this.ui.draw();
 		this.ui.flushMessages();
-		this.checkEndTurn();
+		this.checkEndTurn(); // Note: this is async, could this cause an issue?
 
 		return att;
 
 	}
 
 	attemptFleeFromCombat( player, force ){
-		if( this.isGameOver() )
+		if( this.isGameOver() || this.isAdvancingTurn() )
 			return false;
 
 		if( !this.battle_active )
@@ -3190,13 +3206,13 @@ export default class Game extends Generic{
 			return false;
 
 		this.ui.addText( player.getColoredName()+" calls for a retreat, the party succeeds in escaping!", undefined, player.id, player.id );
-		this.toggleBattle(false);
+		this.toggleBattle(false); // note: Async function, but the asynciness only happens if the turn is changed.
 		this.dungeon.goToRoom( player, this.dungeon.previous_room );	// Saves
 
 	}
 
 	rerollMomentum( player, type, to ){
-		if( this.isGameOver() )
+		if( this.isGameOver() || this.isAdvancingTurn() )
 			return false;
 		
 		if( !this.playerIsMe(player) )
@@ -3499,7 +3515,7 @@ export default class Game extends Generic{
 	/* ASSETS */
 
 	useAssetGameAction( assetGameAction ){
-		if( this.isGameOver() )
+		if( this.isGameOver() || this.isAdvancingTurn() )
 			return false;
 		
 		if( !(assetGameAction instanceof GameAction) )

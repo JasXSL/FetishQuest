@@ -1909,7 +1909,7 @@ export default class StaticModal{
 						if( !confirm('Really delete?') )
 							return;
 						
-						game.removePlayer(player.id);
+						game.removePlayer(player.id); // Note: Async, but not important
 						game.ui.draw();
 						this.close();
 						

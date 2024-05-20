@@ -74,7 +74,7 @@ export default {
 	plNoFetish : 'pl_no_fetish',				// Don't generate fetishes on this player
 	plAlwaysAttack : 'pl_always_attack',		// By default, the NPC will have a chance of attacking based on their momentum. If this is set, it will always use actions when it can.
 	
-	// Used for gameplay
+	// Used for gameplay. These should be not prefixed with pl_ in the editor
 	gpBoss : 'gp_boss',				// used on boss battles
 	gpDisableArousal : 'gp_no_arousal',			// Prevents arousal
 	gpDisableMomentum : 'gp_no_ap',				// Prevents you from getting momentum

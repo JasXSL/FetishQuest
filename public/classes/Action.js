@@ -107,12 +107,8 @@ class Action extends Generic{
 		
 		let out = {
 			label : this.label,
-			std : this.std,
 			name : this.name,
 			description : this.description,
-			wrappers : Wrapper.saveThese(this.wrappers, full),
-			cpassives : Wrapper.saveThese(this.cpassives, full),
-			passives : Wrapper.saveThese(this.passives, full),
 			cooldown : this.cooldown,
 			mom0 : this.mom0,
 			mom1 : this.mom1,
@@ -120,37 +116,45 @@ class Action extends Generic{
 			min_targets : this.min_targets,
 			max_targets : this.max_targets,
 			hit_chance : this.hit_chance,
-			detrimental : this.detrimental,
 			type : this.type,
-			hidden : this.hidden,
 			target_type : this.target_type,
-			tags : this.tags,
 			ranged : this.ranged,
-			ripostable : this.ripostable,
-			conditions : Condition.saveThese(this.conditions, full),
-			no_action_selector : this.no_action_selector,
 			cast_time : this.cast_time,
-			ct_taunt : this.ct_taunt,
 			charges : this.charges,
-			charges_perm : this.charges_perm,
-			allow_when_charging : this.allow_when_charging,
-			no_interrupt : this.no_interrupt,
-			show_conditions : Condition.saveThese(this.show_conditions, full),
-			hide_if_no_targets : this.hide_if_no_targets,
-			semi_hidden : this.semi_hidden,
 			icon : this.icon,
-			disable_override : this.disable_override,
-			reset_interrupt : this.reset_interrupt,
-			allow_self : this.allow_self,
-			_slot : this._slot,
-			ignore_wrapper_conds : this.ignore_wrapper_conds,
-			can_crit : this.can_crit,
-			no_clairvoyance : this.no_clairvoyance,
-			group : this.group
 		};
 
-		// Everything but mod
-		if( full !== "mod" ){
+		if( full !== 'netgame_libcache' ){
+			out.group = this.group;
+			out.disable_override = this.disable_override;
+			out.reset_interrupt = this.reset_interrupt;
+			out.allow_self = this.allow_self;
+			out._slot = this._slot;
+			out.ignore_wrapper_conds = this.ignore_wrapper_conds;
+			out.can_crit = this.can_crit;
+			out.no_clairvoyance = this.no_clairvoyance;
+			out.charges_perm = this.charges_perm;
+			out.allow_when_charging = this.allow_when_charging;
+			out.no_interrupt = this.no_interrupt;
+			out.show_conditions = Condition.saveThese(this.show_conditions, full);
+			out.hide_if_no_targets = this.hide_if_no_targets;
+			out.semi_hidden = this.semi_hidden;
+			out.ct_taunt = this.ct_taunt;
+			out.ripostable = this.ripostable;
+			out.conditions = Condition.saveThese(this.conditions, full);
+			out.no_action_selector = this.no_action_selector;
+			out.tags = this.tags;
+			out.hidden = this.hidden;
+			out.detrimental = this.detrimental;
+			out.wrappers = Wrapper.saveThese(this.wrappers, full);
+			out.cpassives = Wrapper.saveThese(this.cpassives, full);
+			out.passives = Wrapper.saveThese(this.passives, full);
+			out.std = this.std;
+
+		}
+
+		// Everything but mod or netgame_libcache (cache of learnable actions)
+		if( full !== "mod" && full !== 'netgame_libcache' ){
 
 			out.id = this.id;
 			out._cooldown = this._cooldown;
@@ -160,7 +164,7 @@ class Action extends Generic{
 
 		}
 
-		if( full ){
+		if( full && full !== 'netgame_libcache' ){
 
 			out.alias = this.alias;
 			out.riposte = Wrapper.saveThese(this.riposte, full);
@@ -336,8 +340,10 @@ class Action extends Generic{
 		
 	}
 
+	// Returns nr of targets we finished a cast on
 	onTurnStart(){
 
+		let finished = false;
 		this._cache_cooldown = false;
 
 		// Handle cooldown
@@ -356,10 +362,14 @@ class Action extends Generic{
 				// Cast finished
 				this.useOn(targs, true);
 				this._cast_targets = [];
+				finished = true;
 
 			}
 
 		}
+		if( finished )
+			return targs.length;
+		return 0;
 		
 	}
 

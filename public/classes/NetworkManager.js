@@ -55,6 +55,10 @@ class NetworkManager{
 		
 		this.io = io(this.host);
 
+		this.io.onAny((evt, ...args) => {
+			console.log("Socket received", evt, args);
+		});
+
 		// Connection event
 		this.io.on('connect', () => {
 
@@ -67,6 +71,7 @@ class NetworkManager{
 		// Host left
 		this.io.on('hostLeft', () => {
 			
+			console.debug("Host left the game");
 			game.ui.modal.addNotice("Host left the game");
 			this.disconnect();
 			this.handleEvent('hostLeft');
@@ -121,6 +126,7 @@ class NetworkManager{
 
 			game.ui.draw();
 
+
 			// This wasn't me who joined
 			if( data.id !== this.id && game.is_host ){
 
@@ -139,6 +145,7 @@ class NetworkManager{
 		// Disconnected from server
 		this.io.on('disconnect', async data => {
 
+			console.debug("Received disconnect from network server");
 			if( !game.is_host && this.public_id){
 
 				console.debug("Disconnected, trying to reconnect...");
@@ -190,7 +197,7 @@ class NetworkManager{
 	// Disconnects entirely
 	async disconnect(){
 
-		console.log("Disconnect");
+		console.trace("Disconnect");
 		if( !this.io )
 			return;
 
@@ -564,7 +571,8 @@ class NetworkManager{
 	/* STANDARD OUTPUT */
 	// Send a message to the DM
 	sendPlayerAction(task, data){
-		if( game.is_host || !this.isConnected() )
+
+		if( !this.isInNetgameNotHost() )
 			return;
 		this.io.emit('playerTask', {
 			task : task,
@@ -576,7 +584,7 @@ class NetworkManager{
 	// This is also used internally for modal updates
 	sendGameUpdate(){
 		
-		if( !game.is_host )
+		if( !this.isInNetgameHost() )
 			return;
 
 		// Auto
@@ -634,7 +642,7 @@ class NetworkManager{
 	// Lets DMs send custom tasks to players
 	sendHostTaskTo( id, task, data ){
 
-		if( !this.isConnected() || !game.is_host || !id )
+		if( !this.isInNetgameHost() || !id )
 			return;
 		this.io.emit('dmTask', {
 			player : id,
@@ -646,7 +654,7 @@ class NetworkManager{
 
 	// Sends a task from host to everyone
 	sendHostTask(task, data){
-		if( !game.is_host || !this.isConnected() )
+		if( !this.isInNetgameHost() )
 			return;
 		this.io.emit('dmTask', {
 			task : task,
@@ -1735,15 +1743,16 @@ class NetworkManager{
 			return detected
 		});
 		*/
-		if( this.debug )
-			console.debug("JSON encoding", JSON.stringify(fullGame).length);
+		
 		// Appends stuff that should only be sent with the full game on init
 		// Chat log
 		fullGame.chat_log = game.chat_log;	
 		// Action learnable
-		fullGame.lib_actionLearnable = ActionLearnable.saveThese(Object.values(glib.getFull("ActionLearnable")), "mod");
-		fullGame.lib_dungeons = Dungeon.saveThese(Object.values(glib.getFull('Dungeon')), 'netgame_libcache');
+		fullGame.lib_actionLearnable = ActionLearnable.saveThese(Object.values(glib.getFull("ActionLearnable")), "netgame_libcache");
+		fullGame.lib_dungeons = Dungeon.saveThese(Object.values(glib.getFull('Dungeon')), 'netgame_libcache'); // Might be able to limit these to only the ones that have default vars?
 
+		if( this.debug )
+			console.debug("JSON encoding", JSON.stringify(fullGame).length);
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
 		
 	}

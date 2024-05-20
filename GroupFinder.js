@@ -147,7 +147,5 @@ class Listing{
 
 
 
-module.exports = {
-	GroupFinder : GroupFinder
-};
+export {GroupFinder};
 

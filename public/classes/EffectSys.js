@@ -2138,6 +2138,16 @@ class Effect extends Generic{
 					action.trigger(t);
 
 			}
+			else if( this.type === Effect.Types.summonMinion ){
+				
+				let label = this.data.label;
+				let gameAction = new GameAction({
+					type : GameAction.types.addPlayer,
+					data : {player:label},
+				});
+				gameAction.exec(t, undefined, undefine, s);
+
+			}
 
 			else if( this.type === Effect.Types.summonAsset ){
 
@@ -2565,6 +2575,8 @@ Effect.Types = {
 	preventEquip : 'preventEquip',
 	globalBlockMod : 'globalBlockMod',
 	setEvtActionCrit : 'setEvtActionCrit',
+
+	summonMinion : 'summonMinion',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2783,6 +2795,7 @@ Effect.TypeDescs = {
 	[Effect.Types.rerollRandom] : '{} - Makes rerolls random',
 	[Effect.Types.setEvtActionCrit] : '{crit:(bool)crit=true} - Requires action in event. Will set the action critical hit flag. Can be useful when an action adds arousal and should crit on orgasm, since action crit is calculated right before running the wrappers.',
 	[Effect.Types.preventEquip] : '{conditions:(arr)conditions} - Prevents equipping assets that match conditions',
+	[Effect.Types.summonMinion] : '{label:(str)playerLabel} - Creates a game action and executes it.',
 };
 
 

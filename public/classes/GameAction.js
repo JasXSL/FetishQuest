@@ -465,7 +465,7 @@ export default class GameAction extends Generic{
 				playersToRemove = [player];
 			
 			for( let pr of playersToRemove )
-				game.removePlayer(pr.id);
+				await game.removePlayer(pr.id);
 			
 		}
 			

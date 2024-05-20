@@ -42,10 +42,13 @@ export default class ActionLearnable extends Generic{
 			label : this.label,
 			action: this.action && this.action.save ? Action.saveThis(this.action, full) : this.action,
 			conditions : Condition.saveThese(this.conditions, full),
-			auto_learn : this.auto_learn,
 			cost : this.cost,
-			gen_only : this.gen_only
 		};
+
+		if( full !== 'netgame_libcache' ){
+			out.auto_learn = this.auto_learn;
+			out.gen_only = this.gen_only;
+		}
 
 		if( full === "mod" )
 			this.g_sanitizeDefaults(out);

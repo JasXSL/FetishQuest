@@ -1444,11 +1444,12 @@ export default{
 
 				const replaceIntoIstates = istate => {
 	
+
 					if( !isNaN(istate.opacity) )
 						istate.opacity = Math.round(istate.opacity*100)/100;
-					const out = istate.save("mod");
+						const out = istate.save("mod");
 					out._mParent = {type : DB, label : asset.label};
-					window.mod.mod.mergeAsset("playerIconStates", out);
+					window.mod.mod.mergeAsset("playerIconStates", out, true);
 					if( !asset.istates.includes(istate.id) )
 						asset.istates.push(istate.id);
 					window.mod.setDirty(true);

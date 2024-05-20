@@ -1,23 +1,37 @@
 let port = 7175;
 if( process.env.PORT )
 	port = +process.env.PORT;
+let useModRepo = true;
+if( process.env.NO_MOD_REPO )
+	useModRepo = false;
 
-const basicAuth = require('express-basic-auth');
-const Express = require('express');
-let app = Express();
-const server = require('http').Server(app);
-const Game = require('./Game');
-const serveIndex = require('serve-index');
-const ImageProxy = require('./ImageProxy');
-const multer = require('multer');
-const upload = multer({dest : __dirname+'/temp/'});
-const fs = require('fs').promises;
-const gf = require('./GroupFinder').GroupFinder;
+import basicAuth from 'express-basic-auth';
+
+import Express from 'express';
+import {Server} from 'http';
+import Game from './Game.js';
+import serveIndex from 'serve-index';
+import ImageProxy from './ImageProxy.js';
+import multer from 'multer';
+import fs from 'fs/promises';
+import {GroupFinder as gf} from './GroupFinder.js';
+import {Server as sio} from 'socket.io';
+import {default as Repo} from './mod_repo/ModRepo.js';
+
+
+const app = Express();
+const server = new Server(app);
+const io = new sio({
+	maxHttpBufferSize : 1e7, // 10mbyte (10 000 000 bytes)
+});
+const upload = multer({dest : import.meta.dirname+'/temp/'});
 const GroupFinder = new gf();
-
-const io = require('socket.io')(server);
 server.listen(port);
 console.debug("Server online on port", port);
+
+function debug(...args){
+	//console.log(...args);
+}
 
 if( process.env.PASS ){
 	console.log("This app is now password protected");
@@ -27,58 +41,61 @@ if( process.env.PASS ){
 	}));
 }
 
-try{
+if( useModRepo ){
 
-	const Repo = require('./mod_repo/ModRepo');
-	Repo.init();
-	app.use('/mods', upload.single('file'), async (req, res) => {
+	try{
 
-		if( !Repo.ini ){
+		Repo.init();
+		app.use('/mods', upload.single('file'), async (req, res) => {
 
-			res.json({
-				success:false, 
-				data:{
-					error:'__INITIALIZING__'
-				}
-			});
-			return;
+			if( !Repo.ini ){
 
-		}
-
-		let out = {};
-		try{
-
-			const r = new Repo(req, res);
-			out = await r.run();
-
-			if( r.download && r.downloadName ){
-
-				res.download(r.download, r.downloadName);
+				res.json({
+					success:false, 
+					data:{
+						error:'__INITIALIZING__'
+					}
+				});
 				return;
 
 			}
 
-		}catch(err){
-			out.success = false;
-			out.err = err;
-		}
+			let out = {};
+			try{
 
-		res.json(out);
-	});
-		
-}catch(err){
-	console.log("Mod repo was not detected", err);
-	app.use('/mods', async (req, res) => {
-		res.json({success:false, data:{error:'__UNSUPPORTED__'}});
-	});
+				const r = new Repo(req, res);
+				out = await r.run();
+
+				if( r.download && r.downloadName ){
+
+					res.download(r.download, r.downloadName);
+					return;
+
+				}
+
+			}catch(err){
+				out.success = false;
+				out.err = err;
+			}
+
+			res.json(out);
+		});
+			
+	}catch(err){
+		console.log("Mod repo was not detected", err);
+		app.use('/mods', async (req, res) => {
+			res.json({success:false, data:{error:'__UNSUPPORTED__'}});
+		});
+	}
+
 }
 
 process.on('unhandledRejection', (reason, p) => {
 	console.log("Unhandled rejection at", p, "reason", reason);
 });
 
-const textureDir = __dirname+'/public/media/textures';
-const ambianceDir = __dirname+'/public/media/audio/ambiance';
+const textureDir = import.meta.dirname+'/public/media/textures';
+const ambianceDir = import.meta.dirname+'/public/media/audio/ambiance';
 Express.static.mime.define({'application/wasm' : ['wasm']});
 app.use('/modtools2.html', (req, res) => {
 	res.redirect('/modtools.html');
@@ -91,7 +108,7 @@ app.use('/build_date', async (req, res) => {
 	let version = '';
 	let success = false;
 	try{
-		const stat = await fs.stat(__dirname+'/public/libraries/MAIN.fqmod');
+		const stat = await fs.stat(import.meta.dirname+'/public/libraries/MAIN.fqmod');
 		version = stat.mtime;
 		success = true;
 	}catch(err){
@@ -101,7 +118,7 @@ app.use('/build_date', async (req, res) => {
 	res.json({success:success, data:version});
 
 });
-app.use(Express.static(__dirname+'/public'));
+app.use(Express.static(import.meta.dirname+'/public'));
 
 
 
@@ -111,7 +128,9 @@ GroupFinder.io = io;
 io.on('connection', socket => {
 	
 	socket.emit('_id_', socket.id);
-
+	socket.onAny((evt, ...args) => {
+		debug("Socket received", evt, args, "from", socket.id);
+	});
 	socket.on('host', (data, callback) => {
 
 		if( typeof callback !== "function" )
@@ -123,6 +142,7 @@ io.on('connection', socket => {
 		if( socket._game )
 			socket._game.onPlayerLeft(socket.id);
 
+		debug("Socket creating a game", socket.id);
 		let game = Game.create(socket);
 		callback(game.id);
 		
@@ -136,6 +156,7 @@ io.on('connection', socket => {
 		if( typeof callback !== "function" )
 			return;
 
+		debug("Socket joined game: ", socket.id);
 		Game.onDisconnect(socket);		// Remove me from all games
 		callback(Game.join(socket, data));
 
@@ -143,12 +164,14 @@ io.on('connection', socket => {
 
 	// Leave a game
 	socket.on('leave', (data, callback) => {
+		debug("Leave command received", socket.id);
 		Game.onDisconnect(socket);
 		if( typeof callback === 'function' )
 			callback(true);
 	});
 
 	socket.on('disconnect', () => {
+		debug("Socket disconnected on its own", socket.id);
 		Game.onDisconnect(socket);
 		GroupFinder.onDisconnect(socket);
 	});

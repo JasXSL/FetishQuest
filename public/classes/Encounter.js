@@ -176,7 +176,7 @@ export default class Encounter extends Generic{
 
 		let cap = Calculator.run(this.maxNumPlayers, new GameEvent({sender:game.players[0],target:game.players[0]}), {});
 		if( cap > 0 && totalSlots > cap )
-			cap = totalSlots;
+			totalSlots = cap;
 			
 		
 		if( hasTemplates ){
