@@ -343,6 +343,7 @@ class Action extends Generic{
 	// Returns nr of targets we finished a cast on
 	onTurnStart(){
 
+		let targs = [];
 		let finished = false;
 		this._cache_cooldown = false;
 
@@ -353,7 +354,7 @@ class Action extends Generic{
 		// Handle charged spells
 		if( this._cast_time ){
 
-			let targs = this.getChargePlayers();
+			targs = this.getChargePlayers();
 			if( !targs.length )
 				this.interrupt();
 
@@ -363,6 +364,7 @@ class Action extends Generic{
 				this.useOn(targs, true);
 				this._cast_targets = [];
 				finished = true;
+				game.ui.flushMessages();
 
 			}
 
@@ -1214,7 +1216,7 @@ class Action extends Generic{
 
 		const pp = this.getPlayerParent();
 		if( parseInt(this.detrimental) === Action.Detrimental.team && pp )
-			return pp.team !== player.team;
+			return pp.getTeam() !== player.getTeam();
 
 		return ( parseInt(this.detrimental) === Action.Detrimental.yes );
 

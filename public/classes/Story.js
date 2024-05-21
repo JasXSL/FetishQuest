@@ -44,6 +44,7 @@ export default class Story extends Generic{
 		this.death_actions = [];			// Game actions to run on death.
 		this.death_action_override = false;	// Prevents the default revive
 		this.no_kinks = false;				// Don't auto generate kinks
+		this.no_dmg_type_secondary = false;	// Disables secondary effects of the 3 damage types
 
 		this.no_std_actions = false;		// Prevents actions marked as "standard" from being automatically added.
 
@@ -82,6 +83,7 @@ export default class Story extends Generic{
 			battle_won_hp_regen: this.battle_won_hp_regen,
 			players_always_go_first : this.players_always_go_first,
 			no_std_actions : this.no_std_actions,
+			disable_awareness : this.disable_awareness,
 		};
 
 		if( full ){
@@ -90,6 +92,7 @@ export default class Story extends Generic{
 			out.limit_random_encounters = Encounter.saveThese(this.limit_random_encounters, full);
 			out.player_options = PlayerGalleryTemplate.saveThese(this.player_options, full);
 			out.npcs = Player.saveThese(this.npcs, full);
+			out.no_dmg_type_secondary = this.no_dmg_type_secondary; 
 		}
 		if( full !== "mod" ){
 

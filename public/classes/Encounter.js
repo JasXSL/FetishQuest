@@ -371,7 +371,7 @@ export default class Encounter extends Generic{
 
 
 	getEnemies(){
-		return this.players.filter(pl => pl.team !== 0);
+		return this.players.filter(pl => pl.getTeam() !== 0);
 	}
 
 	getDungeon(){

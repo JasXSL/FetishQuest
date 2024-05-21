@@ -509,7 +509,7 @@ class Dungeon extends Generic{
 			return;
 		}
 
-		if( player.team !== 0 ){
+		if( player.getTeam() !== 0 ){
 			game.ui.modal.addError("Enemy characters can't interact with items.");
 			return;
 		}

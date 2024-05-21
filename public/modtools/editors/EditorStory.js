@@ -46,6 +46,7 @@ export function asset(){
 		html += '<label>Prevent default death action: <input type="checkbox" name="death_action_override" class="saveable" value=1 '+(dummy.death_action_override ? 'checked' : '')+' /></label>';
 		html += '<label>Disable experience: <input type="checkbox" name="no_exp" class="saveable" value=1 '+(dummy.no_exp ? 'checked' : '')+' /></label>';
 		html += '<label>Disable kinks: <input type="checkbox" name="no_kinks" class="saveable" value=1 '+(dummy.no_kinks ? 'checked' : '')+' /></label>';
+		html += '<label>Disable damage type secondary effects: <input type="checkbox" name="no_dmg_type_secondary" class="saveable" value=1 '+(dummy.no_dmg_type_secondary ? 'checked' : '')+' /></label>';
 		html += '<label>No std actions: <input type="checkbox" name="no_std_actions" class="saveable" value=1 '+(dummy.no_std_actions ? 'checked' : '')+' /></label>';
 		html += '<label>Disable Awareness: <input type="checkbox" name="disable_awareness" class="saveable" value=1 '+(dummy.disable_awareness ? 'checked' : '')+' /></label>';
 		html += '<label>Players always go first: <input type="checkbox" name="players_always_go_first" class="saveable" value=1 '+(dummy.players_always_go_first ? 'checked' : '')+' /></label>';

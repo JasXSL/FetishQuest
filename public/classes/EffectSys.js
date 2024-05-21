@@ -1041,10 +1041,10 @@ class Effect extends Generic{
 				tout = tout.concat(game.getEnabledPlayers());
 			}
 			else if( ta === Wrapper.TARGET_AOE_WPTEAM && wrapper.getPlayerParent() ){
-				tout = tout.concat(game.getTeamPlayers(wrapper.getPlayerParent()?.team) );
+				tout = tout.concat(game.getTeamPlayers(wrapper.getPlayerParent()?.getTeam()) );
 			}
 			else if( ta === Wrapper.TARGET_AOE_NOT_WPTEAM && wrapper.getPlayerParent() ){
-				tout = tout.concat(game.getPlayersNotOnTeam(wrapper.getPlayerParent()?.team) );
+				tout = tout.concat(game.getPlayersNotOnTeam(wrapper.getPlayerParent()?.getTeam()) );
 			}
 			
 			else if( ta === Wrapper.TARGET_RP_TP ){
@@ -1151,7 +1151,7 @@ class Effect extends Generic{
 					}
 
 					if( heal_aggro > 0 ){
-						game.getPlayersNotOnTeam(s.team).map(pl => {
+						game.getPlayersNotOnTeam(s.getTeam()).map(pl => {
 							pl.addThreat(s.id, amt*heal_aggro*s.getHealAggroMultiplier(false)*pl.getHealAggroMultiplier(true));
 						});
 					}
@@ -1209,7 +1209,7 @@ class Effect extends Generic{
 
 					// Each point of damage has a based on your target's missing HP to do 1 extra damage.
 					// This is done AFTER multipliers since arcane works the same way
-					if( type === Action.Types.physical ){
+					if( game.isSecondaryEffectsEnabled() && type === Action.Types.physical ){
 
 						let ratio = 1.0-t.getHP()/t.getMaxHP();
 						ratio *= 50; // Up to 50% chance to do 1 extra damage, it's slightly less with 25% efficiency vs arcane, but arcane only does well against block.
@@ -1230,7 +1230,7 @@ class Effect extends Generic{
 						amt = 0;
 
 					// 30% chance per point of damage to remove 1 block 
-					if( type === Action.Types.arcane ){
+					if( game.isSecondaryEffectsEnabled() && type === Action.Types.arcane ){
 
 						let chance = 30*s.getStatProcMultiplier(Action.Types.arcane, false)*t.getStatProcMultiplier(Action.Types.arcane, true)
 						let ch = amt*chance;
@@ -1247,7 +1247,7 @@ class Effect extends Generic{
 					}
 
 					// Calculate arousal (allowed for both healing and damaging)
-					if( type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
+					if( game.isSecondaryEffectsEnabled() && type === Action.Types.corruption && t.arousal < t.getMaxArousal() ){
 
 						// 30% chance per point of damage
 						let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
@@ -2238,9 +2238,9 @@ class Effect extends Generic{
 		if( type === Wrapper.Targets.aoe )
 			return game.getEnabledPlayers();
 		if( type === Wrapper.Targets.target_aoe_not_wp_team )
-			return game.getEnabledPlayers().filter(el => ot && el.team !== ot.team);
+			return game.getEnabledPlayers().filter(el => ot && el.getTeam() !== ot.getTeam());
 		if( type == Wrapper.Targets.target_aoe_not_wp_team )
-			return ot ? game.getTeamPlayers(ot?.team) : [];
+			return ot ? game.getTeamPlayers(ot?.getTeam()) : [];
 		if( type === Wrapper.Targets.caster )
 			return [game.getPlayerById(this.parent.caster)];
 		if( type === Wrapper.Targets.event_raiser )

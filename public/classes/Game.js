@@ -85,6 +85,7 @@ export default class Game extends Generic{
 		this.modRepo = new ModRepo();
 		this.followers = [];							// Player objects. Followers in stasis.
 		this._completedExpEvts = [];					// Labels for encounters with evtOnce set to true. Prevents them from recurring in the same game when triggered through an exploration event.
+		this.active_followers = [];						// IDs of followers that are currently active
 
 		// Library of custom items
 		this.libAsset = {};
@@ -255,6 +256,7 @@ export default class Game extends Generic{
 			genders : this.genders,
 			story : this.story.save(full),
 			game_over_action : this.game_over_action.save(full),
+			active_followers : this.active_followers.slice(),
 		};
 	
 		if( full ){
@@ -691,6 +693,10 @@ export default class Game extends Generic{
 	isKinkGenEnabled(){
 		return !this.story.no_kinks;
 	}
+	// Checks if secondary effects are enabled
+	isSecondaryEffectsEnabled(){
+		return !this.story.no_dmg_type_secondary;
+	}
 
 
 	/* Custom "events" */
@@ -702,7 +708,7 @@ export default class Game extends Generic{
 		let expReward = 0;
 		for( let p of this.encounter.players ){
 
-			if( p.team !== Player.TEAM_PLAYER ){ 
+			if( p.getTeam() !== Player.TEAM_PLAYER ){ 
 				
 				new GameEvent({
 					type : GameEvent.Types.encounterEnemyDefeated,
@@ -801,7 +807,7 @@ export default class Game extends Generic{
 
 		for( let player of this.players ){
 			
-			if( player.team === team ){
+			if( player.getTeam() === team ){
 
 				player.fullRegen();
 				player.arousal = 0;
@@ -1289,13 +1295,15 @@ export default class Game extends Generic{
 		let maxTeam = 0;
 		const players = this.getEnabledPlayers();
 		for( let player of players ){
-			const t = 't_'+player.team;
+			const pTeam = player.getTeam();
+			const t = 't_'+pTeam;
+			
 			if( !teams[t] )
 				teams[t] = 1;
 			else
 				++teams[t];
-			if( player.team > maxTeam )
-				maxTeam = player.team;
+			if( player.pTeam > maxTeam )
+				maxTeam = player.pTeam;
 		}
 		for( let i=0; i<maxTeam+1 || i<2; ++i )
 			out['g_team_'+i] = teams['t_'+i] || 0;
@@ -1617,7 +1625,7 @@ export default class Game extends Generic{
 			uuid, 
 			undefined, 
 			"playerChat sided "+
-				(player && player.team !== 0 ? ' enemy' : ' friend' )+
+				(player && player.getTeam() !== 0 ? ' enemy' : ' friend' )+
 				(pl==="DM" ? ' dmChat' : '')+
 				(isEmote ? ' emote' : '')+
 				(isOOC ? ' ooc' : '')
@@ -1971,7 +1979,7 @@ export default class Game extends Generic{
 
 		}
 
-		const team = p.team;
+		const team = p.getTeam();
 		if( this.battle_active && !this.initiative.includes(team) ){
 
 			// Insert at next turn
@@ -2019,7 +2027,7 @@ export default class Game extends Generic{
 		
 		let active = this.getEnabledPlayers();
 		for( let pl of active ){
-			if( pl.team === team && !pl.isDead() )
+			if( pl.getTeam() === team && !pl.isDead() )
 				return true;
 		}
 		return false;
@@ -2091,7 +2099,7 @@ export default class Game extends Generic{
 	verifyLeader(){
 		let leaders = 0;
 		for( let player of this.players ){
-			if( player.leader && player.team === 0 )
+			if( player.leader && player.getTeam() === 0 )
 				++leaders;
 		}
 		if( leaders )
@@ -2108,12 +2116,12 @@ export default class Game extends Generic{
 	// Gets all enabled players on a team
 	getTeamPlayers( team = 0 ){
 
-		return this.getEnabledPlayers().filter(pl => pl.team === team);
+		return this.getEnabledPlayers().filter(pl => pl.getTeam() === team);
 
 	}
 
 	getPlayersNotOnTeam( team = 0 ){
-		return this.getEnabledPlayers().filter(pl => pl.team !== team);
+		return this.getEnabledPlayers().filter(pl => pl.getTeam() !== team);
 	}
 
 	// Gets the highest level player on a team, or if team is NaN, everyone
@@ -2121,7 +2129,7 @@ export default class Game extends Generic{
 		let out = 1;
 		const players = this.getEnabledPlayers();
 		for( let player of players ){
-			if( player.team === team || isNaN(team) )
+			if( player.getTeam() === team || isNaN(team) )
 				out = Math.max(out, player.level);
 		}
 		return out;
@@ -2132,7 +2140,7 @@ export default class Game extends Generic{
 		let out = 0, divisor = 0;
 		const players = this.getEnabledPlayers();
 		for( let player of players ){
-			if( player.team === team || isNaN(team) ){
+			if( player.getTeam() === team || isNaN(team) ){
 				out+=player.level;
 				++divisor;
 			}
@@ -2149,7 +2157,7 @@ export default class Game extends Generic{
 		const players = this.getEnabledPlayers();
 		for( let p of players ){
 
-			if( player.team === p.team )
+			if( player.getTeam() === p.getTeam() )
 				out.push(p);
 
 		}
@@ -2203,7 +2211,7 @@ export default class Game extends Generic{
 		const ap = this.getMyActivePlayer();
 		if( !ap )
 			return false;
-		return this.initiative[this.turn] === ap.team && !ap.endedTurn;
+		return this.initiative[this.turn] === ap.getTeam() && !ap.endedTurn;
 	}
 	
 	// Gets the index of a Player object in this.players
@@ -2383,7 +2391,7 @@ export default class Game extends Generic{
 			throw("Player not found");
 		if( !this.playerIsMe(fromPlayer) && !force )
 			throw("Not your player");
-		if( fromPlayer.team !== toPlayer.team && !force )
+		if( fromPlayer.getTeam() !== toPlayer.getTeam() && !force )
 			throw("Invalid target");
 		if( fromPlayer.id === toPlayer.id )
 			throw("Can't trade with yourself");
@@ -2551,14 +2559,25 @@ export default class Game extends Generic{
 			this.removeStashedFollower(stashed);
 		}
 		// add to game players
-		this.addPlayer(player);
-		player.onPlacedInWorld();
+		let label = 'fo_'+player.label;
+		const existing = this.getPlayerByLabel(label);
+		if( !existing ){
+			this.addPlayer(player);
+			player.onPlacedInWorld();
+		}
+		else{
+			player = existing;
+		}
+
 		player.team = 0; // Join player team 
-		player.label = 'fo_'+player.label; // fo is prepended to label. Player label conditions will check both with fo_ and non fo_
+		player.label = label; // fo is prepended to label. Player label conditions will check both with fo_ and non fo_
 
 		// Stash it immediately
-		if( !addImmediate )
+		if( addImmediate )
+			this.active_followers.push(player.id);
+		else
 			this.stashFollower(player.id);
+
 		this.ui.draw();
 
 	}
@@ -2569,6 +2588,9 @@ export default class Game extends Generic{
 		if( !player )
 			return false;
 
+		let pos = this.active_followers.indexOf(id);
+		if( ~pos )
+			this.active_followers.splice(pos, 1);
 		this.followers.push(player);
 		this.removePlayer(player.id); // Note: Async, but shouldn't cause an issue
 
@@ -2582,6 +2604,14 @@ export default class Game extends Generic{
 				return f;
 
 		}
+
+	}
+
+	isActiveFollower( player ){
+
+		if( player instanceof Player )
+			player = player.id;
+		return this.active_followers.includes(player);
 
 	}
 
@@ -2807,8 +2837,8 @@ export default class Game extends Generic{
 			this.initiative = [];
 			for( let player of this.players ){
 
-				if( !this.initiative.includes(player.team) )
-					this.initiative.push(player.team);
+				if( !this.initiative.includes(player.getTeam()) )
+					this.initiative.push(player.getTeam());
 				player.onBattleStart();
 
 			}
@@ -2869,7 +2899,7 @@ export default class Game extends Generic{
 		if( !this.battle_active || !player )
 			return false;
 
-		return !player.endedTurn && player.team === this.initiative[this.turn];
+		return !player.endedTurn && player.getTeam() === this.initiative[this.turn];
 
 	}
 	isTeamTurn( team ){
@@ -2887,8 +2917,8 @@ export default class Game extends Generic{
 		const players = this.getEnabledPlayers();
 		for( let p of players ){
 			
-			if( !p.isDead() && !p.isNonRequiredForVictory() && standing.indexOf(p.team) === -1 )
-				standing.push(p.team);
+			if( !p.isDead() && !p.isNonRequiredForVictory() && standing.indexOf(p.getTeam()) === -1 )
+				standing.push(p.getTeam());
 
 		}
 		return standing;
@@ -3047,6 +3077,8 @@ export default class Game extends Generic{
 				this.ui.captureActionMessage = true;
 				
 				await pl.onTurnStart(); // May be async if the player was charging an action
+				this.ui.flushMessages();
+
 				// pl._turns are added on turn end
 				if( !pl._turns ){
 

@@ -1556,7 +1556,7 @@ class WebGL{
 		for( let player of players ){
 			
 			// Draw only enemies that are generated. Friendly NPCs are technically enemies.
-			if( !player.generated || player.team === Player.TEAM_PLAYER )
+			if( !player.generated || player.getTeam() === Player.TEAM_PLAYER )
 				continue;
 
 			// First try to see if we've stored a marker for this player by id

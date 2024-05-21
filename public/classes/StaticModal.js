@@ -4721,11 +4721,10 @@ export default class StaticModal{
 							
 
 							if( 
-								game.getTeamPlayers( player.team ).filter(el => el.id !== player.id).length && 
+								game.getTeamPlayers( player.getTeam() ).filter(el => el.id !== player.id).length && 
 								!game.battle_active &&
 								!asset.soulbound
-							)
-								modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
+							)modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
 
 							modal.addSelectionBoxItem( 'Link', false, 'link' );
 

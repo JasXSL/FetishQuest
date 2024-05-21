@@ -346,7 +346,7 @@ export default class Condition extends Generic{
 			else if( this.type === T.targetIsChatPlayer )
 				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
 			else if( this.type === T.targetIsChatPlayerTeam ){
-				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.team === t.team );
+				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.getTeam() === t.getTeam() );
 			}
 			else if( this.type === T.targetIsWrapperSenderTeam ){
 
@@ -354,7 +354,7 @@ export default class Condition extends Generic{
 					console.error("Trying to run targetIsWrapperSenderTeam without wrapper in event", event);
 
 				const caster = wrapper.getCaster();
-				success = (wrapper && parseInt(caster?.team) === parseInt(t.team));
+				success = (wrapper && parseInt(caster?.getTeam()) === parseInt(t.getTeam()));
 
 			}
 			else if( this.type === T.wrapperTag ){
@@ -410,7 +410,7 @@ export default class Condition extends Generic{
 				success = event.action && event.action._crit;
 			}
 			else if( this.type === T.sameTeam )
-				success = s && t && s.team === t.team;
+				success = s && t && s.getTeam() === t.getTeam();
 			else if( this.type === T.turnNumber ){
 				success = t && t._turns === (parseInt(this.data.turns) || 0);
 			}
@@ -853,7 +853,7 @@ export default class Condition extends Generic{
 					teams = [teams];
 				teams = teams.map(el => parseInt(el));
 
-				success = teams.indexOf(t.team) !== -1; 
+				success = teams.indexOf(t.getTeam()) !== -1; 
 			}
 
 			else if( this.type === T.notInCombat )
@@ -959,7 +959,7 @@ export default class Condition extends Generic{
 			}
 			else if( this.type === T.firstOnTeam ){
 
-				const players = game.getTeamPlayers(t.team);
+				const players = game.getTeamPlayers(t.getTeam());
 				const conds = toArray(this.data.conditions);
 				const evt = new GameEvent({sender:s, target:t});
 				for( let player of players ){
@@ -1283,9 +1283,9 @@ export default class Condition extends Generic{
 						return false;
 
 					return (
-						(team === -1 && t.team === player.team) ||
-						(team === -2 && t.team !== player.team) ||
-						(player.team === team)
+						(team === -1 && t.getTeam() === player.getTeam()) ||
+						(team === -2 && t.getTeam() !== player.getTeam()) ||
+						(player.getTeam() === team)
 					);
 
 				});

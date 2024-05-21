@@ -1174,9 +1174,10 @@ export default class UI{
 			if( !(p instanceof Player) )
 				console.error("Player #"+i+" is not a player:", p);
 			++i;
+			const team = p.getTeam();
 			let el = $("div.player[data-id='"+esc(p.id)+"']", this.players);
 			let tag = $('div.left', this.players);
-			if( p.team !== 0 )
+			if( team !== 0 )
 				tag = $("div.right", this.players);
 
 			if( !el.length ){
@@ -1197,7 +1198,7 @@ export default class UI{
 
 			}
 			// Team has changed
-			else if( p.team === 0 !== el.parent().hasClass('left') )
+			else if( team === 0 !== el.parent().hasClass('left') )
 				el.appendTo(tag);
 
 			ids.push(p.id);
@@ -1229,7 +1230,7 @@ export default class UI{
 			);
 			if( !invis ){
 
-				if( p.team === 0 )
+				if( p.getTeam() === 0 )
 					++nr_friendly;
 				else
 					++nr_hostile;
@@ -1385,7 +1386,7 @@ export default class UI{
 			rps = [];
 
 		return {
-			talk : rps.length || p.isFollower(),
+			talk : rps.length || p.isActiveFollower(),
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p, true, encounter).length,
@@ -1459,7 +1460,7 @@ export default class UI{
 		else if( type === 'talk' ){
 
 			let rp = game.getRoleplaysForPlayer(p).shift();
-			if( !rp && p.isFollower() )
+			if( !rp && p.isActiveFollower() )
 				rp = p.follower;
 
 			if( rp )
@@ -1480,7 +1481,7 @@ export default class UI{
 
 			const el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
 				grapples = p.getActiveEffectsByType(Effect.Types.grapple),		// We are the victim
-				taunts = p.getActiveEffectsByType(Effect.Types.taunt).filter(fx => !fx.data.grapple),
+				taunts = p.getTauntEffects(undefined, true),
 				charges = p.isCasting() || []
 			;
 			grapples.push(...taunts);
@@ -1573,11 +1574,11 @@ export default class UI{
 				else{
 
 					start = new THREE.Vector2(
-						p.team === Player.TEAM_PLAYER ? rectA.right : rectA.left, 
+						p.getTeam() === Player.TEAM_PLAYER ? rectA.right : rectA.left, 
 						rectA.top+rectA.height/2
 					);
 					end = new THREE.Vector2(
-						sender.team === Player.TEAM_PLAYER ? rectB.right : rectB.left, 
+						sender.getTeam() === Player.TEAM_PLAYER ? rectB.right : rectB.left, 
 						rectB.top+rectB.height/2
 					);
 
@@ -1617,7 +1618,7 @@ export default class UI{
 		const myTurn = game.isTurnPlayer(p),
 			el = $("div.player[data-id='"+esc(p.id)+"']", this.players),
 			myActive = game.getMyActivePlayer(),
-			friendly = p.team === 0,
+			friendly = p.getTeam() === 0,
 			// Map up needed sub divs
 			contentEl = $("> div.content", el),
 			statsEl = $('> div.stats', contentEl),
@@ -1698,7 +1699,7 @@ export default class UI{
 			const reverse = (i,li) => li.parentNode.prepend(li);
 			nameEl.children().each(reverse);
 			resourcesEl.children().each(reverse);
-			el.attr('data-team', p.team);
+			el.attr('data-team', p.getTeam());
 
 		}
 
@@ -1758,7 +1759,7 @@ export default class UI{
 		ownerEl.toggleClass('hidden', !game.is_host);
 		ownEl.toggleClass('hidden', Boolean(game.getMyPlayers().length < 2 || isMyActive || !isMine));
 		leaderEl.toggleClass('hidden', Boolean(
-			p.team !== 0 || !Game.net.id ||
+			p.getTeam() !== 0 || !Game.net.id ||
 			(!p.leader && !game.is_host)
 		)).toggleClass('host', game.is_host).toggleClass("active", Boolean(p.leader));
 
@@ -1952,8 +1953,8 @@ export default class UI{
 				let da, db;
 				
 				// Enemy effects are first since they're the most important
-				da = ca?.team !== myActive.team;
-				db = cb?.team !== myActive.team;
+				da = ca?.getTeam() !== myActive.getTeam();
+				db = cb?.getTeam() !== myActive.getTeam();
 				if( da !== db )
 					return da ? -1 : 1;
 
@@ -1969,7 +1970,7 @@ export default class UI{
 
 		});
 
-		if( p.team !== Player.TEAM_PLAYER )
+		if( p.getTeam() !== Player.TEAM_PLAYER )
 			wrappers.reverse();
 
 		for( let i =0; i<wrappers.length; ++i ){
@@ -2557,14 +2558,14 @@ export default class UI{
 			acn.push('center', 'battleStarted');
 		// RP texts (the big ones) have teams swapped 
 		else if( ~acn.indexOf('rpText') && sender && evtType !== GameEvent.Types.turnChanged ){
-			if( sender.team !== 0 )
+			if( sender.getTeam() !== 0 )
 				acn.push('enemy');
 			else
 				acn.push('friend');
 			acn.push('sided');
 		}
 		else if( target ){
-			if( target.team !== 0 )
+			if( target.getTeam() !== 0 )
 				acn.push('enemy');
 			else
 				acn.push('friend');
@@ -2632,7 +2633,7 @@ export default class UI{
 
 		const player = asset.parent;
 		// Draw a list of acceptable targets
-		const targets = game.getTeamPlayers( player.team ).filter(el => el.id !== player.id);
+		const targets = game.getTeamPlayers( player.getTeam() ).filter(el => el.id !== player.id);
 		const modal = this.modal;
 		modal.prepareSelectionBox( true );
 		for( let target of targets )
@@ -2656,7 +2657,7 @@ export default class UI{
 	// Draws a selector box with my players. If keepPosition is falsy, it uses the mouse position
 	drawMyPlayerSelector( callback, keepPosition ){
 
-		let players = game.getMyPlayers().filter(p => p.team === 0);
+		let players = game.getMyPlayers().filter(p => p.getTeam() === 0);
 		this.modal.prepareSelectionBox(keepPosition);
 		for( let pl of players )
 			this.modal.addSelectionBoxItem(pl.name, false, pl.id);
@@ -2785,7 +2786,7 @@ export default class UI{
 			html = '';
 			let sel = false;
 
-			if( player && player.team === 0 ){
+			if( player && player.getTeam() === 0 ){
 
 				const options = stage.getOptions(player, this.selected_rp);
 				for( let response of options ){
@@ -3642,7 +3643,7 @@ export default class UI{
 		const myActive = game.getMyActivePlayer();
 		el.toggleClass('detrimental beneficial hidden', false)
 			.toggleClass(wrapper.detrimental ? 'detrimental' : 'beneficial', true)
-			.toggleClass('small', myActive && caster && caster !== myActive && caster?.team === myActive.team )
+			.toggleClass('small', myActive && caster && caster !== myActive && caster?.getTeam() === myActive.getTeam() )
 			.attr('data-id', wrapper.id);
 
 		const elIcon = $('> div.background', el),

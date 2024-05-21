@@ -584,7 +584,8 @@ class NetworkManager{
 	// This is also used internally for modal updates
 	sendGameUpdate(){
 		
-		if( !this.isInNetgameHost() )
+		// Host still needs to run a comparer, regardless of if connected
+		if( !game.is_host )
 			return;
 
 		// Auto
@@ -605,7 +606,7 @@ class NetworkManager{
 
 		this._last_push = current;
 		game.onGameUpdate(changes);
-		if( this.isConnected() && game.is_host ){
+		if( this.isInNetgameHost() ){
 			const now = Date.now();
 			this.io.emit('gameUpdate', {ch:changes,ts:this._pre_push_time,now:now});
 			this._pre_push_time = now;

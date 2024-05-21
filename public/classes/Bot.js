@@ -19,7 +19,7 @@ class Bot{
 
 	// Is an experimental follower AI
 	isAI(){
-		return !this.player.generated && this.player.isNPC() && this.player.team === Player.TEAM_PLAYER;
+		return !this.player.generated && this.player.isNPC() && this.player.getTeam() === Player.TEAM_PLAYER;
 	}
 
 	onTurnStart(){
@@ -135,7 +135,7 @@ class Bot{
 	}
 
 	hasHealable(){
-		const pl = game.getTeamPlayers(this.player.team);
+		const pl = game.getTeamPlayers(this.player.getTeam());
 		for( let p of pl ){
 			if( p.hp < p.getMaxHP()*0.7 )
 				return true;
@@ -288,7 +288,7 @@ class Bot{
 						}
 						// Don't use a detrimental spell on a friend
 						// Don't use a beneficial spell on an enemy
-						if( abil.isDetrimentalTo(el) === (el.team === this.player.team) )
+						if( abil.isDetrimentalTo(el) === (el.getTeam() === this.player.getTeam()) )
 							return false;
 						if( abil.hasTag(stdTag.acHeal) && el.hp/el.getMaxHP() > 0.7 )
 							return false;
@@ -315,7 +315,7 @@ class Bot{
 					// Game
 					let success = game.useActionOnTarget( abil, t, this.player );
 					let time = 2000+Math.random()*1000;
-					if( this.player.team === 0 )
+					if( this.player.getTeam() === 0 )
 						time = Math.floor(time*0.5);
 					if( !success )
 						time = 400;
@@ -396,7 +396,7 @@ class Bot{
 			}
 
 			// Loot if possible, but only consumables and gold
-			const lootable = game.getEnabledPlayers().filter(el => el.isLootableBy(this.player) && el.team !== this.player.team);
+			const lootable = game.getEnabledPlayers().filter(el => el.isLootableBy(this.player) && el.getTeam() !== this.player.getTeam());
 			let viableLoot = [];
 			for( let pl of lootable )
 				viableLoot.push(...pl.getLootableAssets());

@@ -704,9 +704,9 @@ export default class Player extends Generic{
 		vars[prefix+'tReroll'] = this.tReroll;
 		vars[prefix+'Mom'] = this.getMomentum();
 		vars[prefix+'Arousal'] = this.arousal;
-		vars[prefix+'Team'] = this.team;
+		vars[prefix+'Team'] = this.getTeam();
 		vars[prefix+'Size'] = this.size;
-		vars[prefix+'TeamPlayers'] = game.getTeamPlayers(this.team).length;
+		vars[prefix+'TeamPlayers'] = game.getTeamPlayers(this.getTeam()).length;
 		vars[prefix+'MaxHP'] = this.getMaxHP();
 		vars[prefix+'MaxArousal'] = this.getMaxArousal();
 		vars[prefix+'Money'] = this.getMoney();
@@ -873,6 +873,14 @@ export default class Player extends Generic{
 		return out;
 	}
 
+	getTeam(){
+		// Special case for followers that should draw as enemies while not following you. If their team is set to 0
+		if( this.team === 0 && this.isFollower() && !this.isActiveFollower() )
+			return Player.TEAM_ENEMY;
+
+		return this.team;
+	}
+
 	getColoredName(){
 		return '|c'+this.color+'|'+this.getName()+'|/c|';
 	}
@@ -888,7 +896,7 @@ export default class Player extends Generic{
 	}
 
 	isLootableBy( player ){
-		return Boolean(player) && !game.battle_active && this.isDead() && this.getLootableAssets().length && this.team !== player.team;
+		return Boolean(player) && !game.battle_active && this.isDead() && this.getLootableAssets().length && this.getTeam() !== player.getTeam();
 	}
 
 	isArousalDisabled(){
@@ -913,8 +921,13 @@ export default class Player extends Generic{
 	isLeader(){
 		return this.leader || !Game.net.isConnected();
 	}
+	// Do we have a follower RP?
 	isFollower(){
 		return this.follower && this.follower.label;
+	}
+	// Is this an ACTIVE follower?
+	isActiveFollower(){
+		return this.isFollower() && Boolean(game.isActiveFollower(this.id));
 	}
 	// Updates follower RP from DB
 	refetchFollower(){
@@ -946,30 +959,39 @@ export default class Player extends Generic{
 		return this._aware[player.id];
 	}
 
-	// ActionRange is from Action.Range
-	getTauntedBy( actionRange, returnAllIfNone = true, debug = false, ignoreGrapple = false ){
+	// Gets valid taunt effects
+	getTauntEffects( actionRange, ignoreGrapple = false ){
 
-		let tauntEffects = this.getActiveEffectsByType(Effect.Types.taunt);
+		return this.getActiveEffectsByType(Effect.Types.taunt).filter(effect => {
 
-		// Filter by range
-		tauntEffects = tauntEffects.filter(effect => {
-
+			// Grapple check
 			if( ignoreGrapple && effect.data.grapple )
 				return false;
 
-			// Either works
-			if( effect.data.melee === undefined || actionRange === undefined )
-				return true;
+			// Range check if the effect has it set
+			if( effect.data.melee !== undefined && actionRange !== undefined ){
 
-			if( effect.data.melee && actionRange !== Action.Range.Melee )
-				return false;
+				if( effect.data.melee && actionRange !== Action.Range.Melee )
+					return false;
 
-			if( !effect.data.melee && actionRange !== Action.Range.Ranged )
-				return false;
+				if( !effect.data.melee && actionRange !== Action.Range.Ranged )
+					return false;
+			}
 			
+			// Ignore dead casters
+			if( effect.parent.getCaster().isDead() )
+				return false;
+
 			return true;
 
 		});
+
+	}
+
+	// ActionRange is from Action.Range
+	getTauntedBy( actionRange, returnAllIfNone = true, debug = false, ignoreGrapple = false ){
+
+		let tauntEffects = this.getTauntEffects( actionRange, ignoreGrapple );
 
 		if( debug )
 			console.debug("Taunt effects", tauntEffects);
@@ -980,13 +1002,10 @@ export default class Player extends Generic{
 		for( let effect of tauntEffects ){
 			// Pick the sender
 			let sender = effect.parent.getCaster();
-			if( sender.isDead() ) // Skip dead taunters
-				continue;
-
 			if( effect.data && effect.data.victim )
 				sender = effect.parent.parent;
 
-			if( sender && out.indexOf(sender) === -1 )
+			if( sender && !sender.isDead() && out.indexOf(sender) === -1 )
 				out.push(sender);
 
 		}
@@ -1261,7 +1280,7 @@ export default class Player extends Generic{
 
 	// Downed protection
 	canDownedProtect(){
-		return this.team === Player.TEAM_PLAYER;
+		return this.getTeam() === Player.TEAM_PLAYER;
 	}
 
 	isDownedProtected(){
@@ -1662,9 +1681,9 @@ export default class Player extends Generic{
 			
 			// Returns nr of players hit by a charged action
 			let nrPlayersHit = action.onTurnStart();
-			if( nrPlayersHit )
+			if( nrPlayersHit ){
 				await delay(500*nrPlayersHit);
-			
+			}
 
 		}
 
@@ -3146,7 +3165,7 @@ export default class Player extends Generic{
 			amount *= this.getGenericAmountStatMultiplier(Effect.Types.globalBlockMod);
 			amount += this.getGenericAmountStatPoints(Effect.Types.globalBlockMod);
 
-			if( game.isTeamTurn(this.team) ) // Have to check the team here, since it may bork if we've ended our personal turn, but it still being our team's turn
+			if( game.isTeamTurn(this.getTeam()) ) // Have to check the team here, since it may bork if we've ended our personal turn, but it still being our team's turn
 				this.block += amount;
 			else
 				this.iBlock += amount;
@@ -3263,7 +3282,7 @@ export default class Player extends Generic{
 			post += this.getBlock();
 
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
-		if( !game.battle_active && this.hp <= 0 && this.team === Player.TEAM_PLAYER )
+		if( !game.battle_active && this.hp <= 0 && this.getTeam() === Player.TEAM_PLAYER )
 			this.hp = 1;
 
 		out.hp = this.hp-prehp;
@@ -4798,7 +4817,7 @@ export default class Player extends Generic{
 
 		// Add 25% bonus damage per additional player
 		let add = 1;
-		if( attacker.team !== 0 ){
+		if( attacker.getTeam() !== 0 ){
 
 			const tp = game.getTeamPlayers().filter(pl => !pl.isNPC());
 			add = 1+(tp.length-1)*0.2;
