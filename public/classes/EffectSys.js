@@ -1443,9 +1443,28 @@ class Effect extends Generic{
 					amt *= wrapper.getStacks();
 				amt = Math.floor(amt)
 				if( amt < 0 )
-					t.consumeMoney(-amt);
+					amt = t.consumeMoney(-amt, false, true);
 				else
 					t.addCopperAsMoney(amt);
+
+				if( this.data.alert ){
+
+					let text = t.getColoredName() + ' ' + (amt > 0 ? 'gained' : 'lost') + ' ';
+					text += Player.copperToReadable(Math.abs(copper));
+					if( wrapper.name )
+						text += ' from '+wrapper.name;
+					text += '!';
+
+					game.ui.addText( 
+						text, 
+						undefined, 
+						player.id,  
+						player.id, 
+						'statMessage important'
+					);
+					
+				}
+						
 
 			}
 			else if( this.type === Effect.Types.setEvtActionCrit ){
@@ -2751,7 +2770,7 @@ Effect.TypeDescs = {
 	[Effect.Types.luck] : '{amount:(int/str)amount} - Adds or subtracts from chances at rolling the dice during RP.',
 
 	[Effect.Types.colorizeItems] : '{color:(str)webhex, slots:(str/arr)item_slots} - Overrides colors of worn inventory items.',
-	[Effect.Types.addCopper] : '{amount:(int/str)amount} - Adds or subtracts money.',
+	[Effect.Types.addCopper] : '{amount:(int/str)amount, alert:(bool)notify} - Adds or subtracts money.',
 	[Effect.Types.randomizeMomentum] : 'void - Randomizes held momentum',
 
 	[Effect.Types.ignoreKnockdown] : '{} - Can still use melee actions while knocked down',

@@ -177,7 +177,7 @@ export default class Asset extends Generic{
 			
 	}
 
-	clone(parent){
+	clone( parent ){
 
 		let out = new this.constructor(Asset.saveThis(this, true), parent);
 		return out;
@@ -517,8 +517,9 @@ export default class Asset extends Generic{
 		const isConsumable = this.isConsumable();
 		let html = '';
 		// Usable items shows the action tooltip instead
-		if( isConsumable && !this.iuad )
+		if( isConsumable && !this.iuad ){
 			return this.use_action.getTooltipText(true, this.rarity, actionTarget);
+		}
 
 		html += '<strong class="'+(Asset.RarityNames[this.rarity])+'">'+esc(this.name)+'</strong><br />';
 		// Low level indicator (only affects upper/lowerbody since they're the only ones that give protection

@@ -189,6 +189,10 @@ class Action extends Generic{
 
 	load(data){
 
+		if( data ){
+			delete data._descBuffer; // never allow a new descBuffer
+		}
+		
 		this.g_autoload(data);
 		if( !Action.typeExists(this.type) )
 			this.type = Action.Types.physical;
@@ -1124,8 +1128,10 @@ class Action extends Generic{
 				html += '<span style="color:'+(this.ranged ? '#AAD' : '#CCC')+';">'+(this.ranged ? 'Ranged' : 'Melee')+'</span>';
 			if( this.getCooldown() && this.charges > 1 )
 				html += '<span style="color:#FDF">'+this.charges+' Charges</span>';
-			if( this.getCooldown() )
+			if( this.getCooldown() && !this.charges_perm )
 				html += '<span style="color:#FFD">'+this.getCooldown()+' Round Cooldown</span>';
+			else if( this.charges_perm )
+				html += '<span style="color:#FFD">∞ Cooldown</span>';
 			if( this.isAssetAction() )
 				html += '<span style="color:#FFF">'+this.parent.getWeightReadable()+'</span>';
 			if( ct )
@@ -1157,7 +1163,6 @@ class Action extends Generic{
 		html += '</div>';
 
 		
-
 		html += this._descBuffer.compile(desc, this.getPlayerParent(), target, this);
 
 		return html;

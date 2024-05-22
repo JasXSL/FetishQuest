@@ -2633,11 +2633,16 @@ export default class Player extends Generic{
 
 	}
 
-	consumeMoney( copper = 0, bank = false ){
+	// By default, return false if it fails to consume. But with allowOverdraft it allows to bring you to 0
+	// Returns the amount of copper consumed
+	consumeMoney( copper = 0, bank = false, allowOverdraft = false ){ 
 
 		let total = this.getMoney(bank);
-		if( total < copper )
-			return false;
+		if( total < copper ){
+			if( !allowOverdraft )
+				return false;
+			copper = total;
+		}
 
 		let costRemaining = copper;		// Remaining cost in copper we need to pay
 		let consumeCopper = 0,			// Copper assets we need to remove
@@ -2718,7 +2723,8 @@ export default class Player extends Generic{
 		else if( consumePlatinum > 0 ){
 			this.destroyAsset(this.getAssetByLabel('platinum').id, consumePlatinum, bank);
 		}
-		return true;
+
+		return copper;
 
 	}
 
@@ -2763,7 +2769,7 @@ export default class Player extends Generic{
 			const asset = glib.get(Player.currencyWeights[i], 'Asset');
 			asset._stacks = exch[i];
 			this.addAsset(asset, undefined, undefined, undefined, undefined, bank);
-			
+
 		}
 
 	}

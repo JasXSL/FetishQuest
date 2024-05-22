@@ -918,7 +918,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER},500)
+								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER*0.5},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1022,7 +1022,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER},500)
+								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER*0.5},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1124,7 +1124,7 @@ function build(){
 						.start();
 						mesh.userData.tweens.tween_mid = a;
 
-						let light = new THREE.SpotLight(0xCC00FF, 1*INTENSITY_MULTIPLIER, 5000, .75, 0.5);
+						let light = new THREE.SpotLight(0xCC00FF, INTENSITY_MULTIPLIER, 5000, .75, 0.5);
 						let helper = new THREE.SpotLightHelper(light);
 						light.position.y = 1300;
 						mesh.add(light, light.target);
@@ -1711,7 +1711,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER},500)
+								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER*0.5},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1749,7 +1749,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER},500)
+								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER*0.5},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},

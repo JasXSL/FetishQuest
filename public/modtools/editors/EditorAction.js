@@ -87,8 +87,8 @@ export function asset(){
 
 	html += '</div>';
 
-	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description)+'</textarea><br />';
-	html += 'Target Description: <br /><textarea name="targ_desc" class="saveable">'+esc(dummy.targ_desc)+'</textarea><br />';
+	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description, true)+'</textarea><br />';
+	html += 'Target Description: <br /><textarea name="targ_desc" class="saveable">'+esc(dummy.targ_desc, true)+'</textarea><br />';
 
 	html += 'Wrappers: <br /><div class="wrappers"></div>';
 	html += 'Riposte Wrappers: <br /><div class="riposte"></div>';
