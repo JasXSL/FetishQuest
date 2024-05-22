@@ -393,7 +393,7 @@ export default class GameLib{
 	}
 
 	// Gets by asset constructor name
-	get( label, constructorName ){
+	get( label, constructorName, clone = true ){
 
 		let lib = this.getFull(constructorName);
 		if( !lib )
@@ -413,6 +413,8 @@ export default class GameLib{
 		let obj = lib[label];
 		if( !obj._rebased && obj.rebase )
 			obj.rebase();
+		if( !clone )
+			return obj;
 		return obj.clone();
 
 	}

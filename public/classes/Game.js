@@ -1104,7 +1104,7 @@ export default class Game extends Generic{
 		return this.getDayPercentage()*24;
 	}
 	// Sleep players, duration is in hours
-	sleep( player, dungeonAsset, duration, force = false, silent = false ){
+	sleep( player, dungeonAsset, duration, force = false, silent = false, ignore_rested = true ){
 
 		if( !player.isLeader() )
 			return false;
@@ -1173,31 +1173,33 @@ export default class Game extends Generic{
 				custom:{duration:duration}
 			}).raise();
 
-			// Handle rested bonus
-			const baseDur = duration*3600;
-			
-			
-			for( let p of pl ){
-
-				// Reset turn tags
-				p.resetTurnTags();
+			if( !ignore_rested ){
 
 				// Handle rested bonus
-				let existing = p.getWrapperByLabel('_RESTED_');
-				if( existing )
-					existing.remove();
-				
-				const lib = glib.get('_RESTED_', 'Wrapper').clone();
-				if( lib ){
+				const baseDur = duration*3600;
+				for( let p of pl ){
 
-					lib.useAgainst(p, p, false);
+					// Reset turn tags
+					p.resetTurnTags();
 
-					let time = Math.min(36000, baseDur + (existing ? existing._duration : 0));
-					existing = p.getWrapperByLabel('_RESTED_');
-					existing._duration = existing.duration = time;
+					// Handle rested bonus
+					let existing = p.getWrapperByLabel('_RESTED_');
+					if( existing )
+						existing.remove();
+					
+					const lib = glib.get('_RESTED_', 'Wrapper');
+					if( lib ){
+
+						lib.useAgainst(p, p, false);
+
+						let time = Math.min(36000, baseDur + (existing ? existing._duration : 0));
+						existing = p.getWrapperByLabel('_RESTED_');
+						existing._duration = existing.duration = time;
+
+					}
 
 				}
-
+				
 			}
 
 			this.ui.draw();
@@ -1237,7 +1239,7 @@ export default class Game extends Generic{
 	// Useful for console debugging, returns current dungeon math vars. 
 	getDungeonMathVars( dungeon ){
 		if( typeof dungeon === "string" )
-			dungeon = glib.get(dungeon, 'Dungeon');
+			dungeon = glib.get(dungeon, 'Dungeon', false);
 		if( !dungeon )
 			dungeon = this.dungeon;
 		if( !(dungeon instanceof Dungeon) )
@@ -1258,22 +1260,12 @@ export default class Game extends Generic{
 		if( dungeon !== this.dungeon.label ){
 
 			// Get default vars
-			base = glib.get(dungeon, 'Dungeon');
-			if( !base )
-				base = {};
-			else{
-				base.loadState(); // Needed to get dvars modified by the game
-				base = base.vars;
-			}
+			base = {};
+			glib.dungeons[dungeon].loadDvars(base); // Note: this has significant speed gains over loading the entire dungeons. Since dungeon cloading is HEAVY.
 
 		}
 
-		// Shallow clone
-		let sd = {};
-		for( let i in base )
-			sd[i] = base[i];
-
-		return sd;
+		return structuredClone(base); // Might not be needed, but we'll see
 
 	}
 
@@ -2009,7 +2001,7 @@ export default class Game extends Generic{
 	addPlayerFromTemplate( template, nextTurn = false ){
 
 		if( typeof template === "string" )
-			template = glib.get(template, 'PlayerTemplate');
+			template = glib.get(template, 'PlayerTemplate', false);
 		if( !(template instanceof PlayerTemplate) )
 			return;
 		const player = template.generate();
@@ -3503,7 +3495,7 @@ export default class Game extends Generic{
 			return;
 
 		if( !(book instanceof Book) )
-			book = glib.get(book, 'Book');
+			book = glib.get(book, 'Book', false);
 
 		if( !(player instanceof Player) )
 			throw 'Invalid player';
@@ -4153,7 +4145,7 @@ export default class Game extends Generic{
 			return false;
 
 		if( !(shop instanceof Shop) )
-			shop = glib.get(shop, 'Shop');
+			shop = glib.get(shop, 'Shop', false);
 		if( typeof player !== "object" )
 			player = this.getPlayerById(player);
 

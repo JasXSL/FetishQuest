@@ -664,22 +664,20 @@ export default class StaticModal{
 					html += '<h1>'+esc(selectedQuest.name)+'</h1>';
 					
 					html += '<p>'+stylizeText(selectedQuest.description)+'</p>';
-
+					
 					for( let objective of selectedQuest.objectives ){
 						
 						if( objective.isCompleted() ){
-							
+
 							const desc = objective.getCompletionDesc();
 							if( desc )
 								html += '<p>'+desc.run(evt, true)+'</p>';
-
+							
 						}
 
 					}
-					
 
 					const objectives = selectedQuest.getVisibleObjectives();
-
 					for( let objective of objectives ){
 
 						const completed = objective.isCompleted();
@@ -691,7 +689,6 @@ export default class StaticModal{
 						html += '</div>';
 
 					}
-					
 					
 					html += '<div class="assets inventory inv"></div>';
 					html += '<div class="assets inventory actions"></div>';
@@ -785,6 +782,7 @@ export default class StaticModal{
 
 
 				}
+
 
 
 			});
@@ -4007,10 +4005,10 @@ export default class StaticModal{
 			.setDraw(async function( story ){
 
 				if( typeof story === 'string' )
-					story = glib.get(story, 'Story');
+					story = glib.get(story, 'Story', true);
 				// Fallback to main
 				if( !story )
-					story = glib.get('_MAIN_','Story');
+					story = glib.get('_MAIN_','Story', true);
 
 				
 

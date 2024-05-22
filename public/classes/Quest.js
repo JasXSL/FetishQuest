@@ -508,7 +508,7 @@ class QuestObjective extends Generic{
 
 			if( text.validate(evt, false, myPlayer) )
 				return text;
-
+ 
 		}
 		return new Text({
 			text : this.completion_desc

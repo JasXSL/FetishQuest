@@ -1051,7 +1051,7 @@ Asset.convertDummy = function( asset, parent ){
 
 	if( l === Asset.Dummies.label ){
 
-		const converted = glib.get(asset.name, 'Asset').clone(parent);
+		const converted = glib.get(asset.name, 'Asset', false).clone(parent);
 		if( !converted ){
 			console.error("Asset conversion failed for dummy asset", asset);
 			return;

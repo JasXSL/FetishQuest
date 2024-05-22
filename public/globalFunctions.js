@@ -387,6 +387,15 @@ function numberToText( nr = 0 ){
 
 }
 
+// Returns a string that prepends + if it's positive
+function addPlus( nr, round = true ){
+	if( round )
+		nr = Math.round(nr);
+	if( nr > 0 )
+		nr = "+"+nr;
+	return nr;
+}
+
 // Gracefully copy pasted from stack overflow
 Base64 = {
 
@@ -450,6 +459,12 @@ Base64 = {
     }
 }
 
+let timeLog = 0;
+function logTime( message ){
+	if( message )
+		console.log(message, Date.now()-timeLog);
+	timeLog = Date.now();
+}
 
 
 async function copyTextToClipboard( text ) {

@@ -83,6 +83,7 @@ export default class Generic{
 			}
 
 		}
+		return this;
 
 	}
 
@@ -349,7 +350,7 @@ export default class Generic{
 				return entry;
 			}
 
-			let n = glib.get(entry, this.name);
+			let n = glib.get(entry, this.name, false); // Note: Remove false here if things start misbehaving when loading DB assets. It SHOULDN'T need to be cloned, because it'll be rebased.
 			if( typeof n !== "object" )
 				console.error("Found a none-object asset in library", this.name, ":", n, "entry was", entry, "parent was", parent, "field was", field);
 

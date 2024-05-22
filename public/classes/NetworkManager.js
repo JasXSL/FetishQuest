@@ -54,11 +54,11 @@ class NetworkManager{
 			return true;
 		
 		this.io = io(this.host);
-
+		/*
 		this.io.onAny((evt, ...args) => {
 			console.log("Socket received", evt, args);
 		});
-
+		*/
 		// Connection event
 		this.io.on('connect', () => {
 
@@ -1086,7 +1086,7 @@ class NetworkManager{
 					if( !game.books_read[label] )
 						throw 'Invalid book';
 
-					let bookOut = glib.get(label, 'Book');
+					let bookOut = glib.get(label, 'Book', false);
 					if( !bookOut )
 						throw 'Book not found';
 

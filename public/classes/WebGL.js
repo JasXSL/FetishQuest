@@ -150,6 +150,11 @@ class WebGL{
 		this.stats = new Stats();
 		this.stats.showPanel(0);
 		document.body.appendChild(this.stats.dom);
+
+		this.statsFx = new Stats();
+		this.statsFx.showPanel(0);
+		document.body.appendChild(this.statsFx.dom);
+
 		this.toggleFPS(conf.fps);
 
 
@@ -392,6 +397,8 @@ class WebGL{
 		// Player markers
 		this.playerMarkers = [];	// Holds playermarker objects, these are added on the fly and not removed. Opting instead to overwrite them on a room change
 
+		this.arrowRaycaster = new THREE.Raycaster();
+
 		this.render();
 
 		// Needs to load this or fx particles will break for some reason
@@ -529,6 +536,8 @@ class WebGL{
 
 	toggleFPS( on ){
 		this.stats.dom.classList.toggle('hidden', !on);
+		this.statsFx.dom.classList.toggle('hidden', !on);
+		this.statsFx.dom.style.left = '100px';
 	}
 
 	
@@ -768,9 +777,24 @@ class WebGL{
 		
 		requestAnimationFrame( () => this.render() );
 
+		this.statsFx.begin();
+		this.execFxRender();
+		this.statsFx.end();
+
 		this.stats.begin();
 		this.execRender();
 		this.stats.end();
+
+		
+
+	}
+
+	execFxRender(){
+
+		this.fx_proton.update();
+		if( this.arrowVisible )
+			this.updateArrow();
+		this.fxRenderer.render( this.fxScene, this.fxCam );
 
 	}
 
@@ -784,12 +808,7 @@ class WebGL{
 			this.stage.render(delta);
 
 		this.proton.update();
-		this.fx_proton.update();
-		if( this.arrowVisible )
-			this.updateArrow();
-		this.fxRenderer.render( this.fxScene, this.fxCam );
 
-		
 		// RC runs at 30 FPS
 		if( time-this._last_rc > 33 && (!window.game || game === true || !game.ui.visible) && this.stage && this.stage.group ){
 			this.runRaycast();
@@ -1614,13 +1633,15 @@ class WebGL{
 	/* EVENTS */
 	onMouseMove( event, debug ){
 
+		/*
 		const now = Date.now();
 		if( this.__lastMove && now - this.__lastMove < 33 )
 			return;
-
+		
 		this.__lastMove = now;
+		*/
 
-		const offset = $(this.renderer.domElement).offset();
+		const offset = this.renderer.domElement.getBoundingClientRect();
 		if( event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove' )
 			event = event.changedTouches[0];
 
@@ -1701,10 +1722,6 @@ class WebGL{
 			}
 
 		}
-
-		// No auto rebase in editor, so disable cloning
-		if( window.game )
-			visObj = visObj.clone(this);
 
 		if( !Array.isArray(recipients) )
 			recipients = [recipients];
@@ -1831,7 +1848,7 @@ class WebGL{
 		if( !coords )
 			return;
 
-		const ray = new THREE.Raycaster();
+		const ray = this.arrowRaycaster;
 		ray.setFromCamera( coords, this.fxCam );
 		return ray.intersectObjects( [this.fxRaycastPlane], true )[0];
 
@@ -1916,11 +1933,13 @@ class WebGL{
 
 		}
 
-		if( !intersects )
+		if( !intersects ){
 			return;
+		}
 
-		if( this.fxArrow.children.length < 2 )
+		if( this.fxArrow.children.length < 2 ){
 			return;
+		}
 
 		const point = new THREE.Vector2(intersects.x, intersects.y);
 		this.fxArrow.position.x = origin.x;

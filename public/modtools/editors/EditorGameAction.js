@@ -909,11 +909,13 @@ export function asset(){
 			asset.data = {
 				duration:0,
 				no_text:false,
+				ignore_rested: false,
 			};
 
 		html += '<div class="labelFlex">';
 			html += '<label>Hours: <input type="number" step=1 name="data::duration" class="saveable" value="'+esc(asset.data.duration || 0)+'" /></label>';
 			html += '<label>No text: <input type="checkbox" value=1 name="data::no_text" class="saveable" value="1" '+(asset.data.no_text ? 'checked' :'' )+' /></label>';
+			html += '<label>Ignore rested bonus: <input type="checkbox" value=1 name="data::ignore_rested" class="saveable" value="1" '+(asset.data.ignore_rested ? 'checked' :'' )+' /></label>';
 		html += '</div>';	
 		
 

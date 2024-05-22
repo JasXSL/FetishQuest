@@ -2394,13 +2394,21 @@ export default class UI{
 
 				
 			const hit = Math.min(Math.max(Player.getHitChance(pl, t, action), 0), 100);
-			//let dmgbon = Math.round(Math.max(0, Player.getBonusDamageMultiplier(pl, t, action.type, action.isDetrimentalTo(t))*100-100));
-			const advantage = Player.getAdvantage( pl, t, action.type, action.isDetrimentalTo(t) );
+			
+			// Calculate damage done to this target
+			let perc = Math.round(pl.calculateDamageMultiplierAgainst(t, action) * 100) - 100, flat = Math.round(pl.calculateDamageNumberAgainst(t, action));
+			const isDetrimental = action.isDetrimentalTo(t);
+			if( !isDetrimental )
+				perc = flat = 0;
+			
+
 			$("div.player[data-id='"+esc(t.id)+"'] div.targetingStats", this.players).html(
 				!action.isDetrimentalTo(t) ?
 					'Pick Target' :
 					hit+'% Hit'+
-					'<br />Advantage: '+(advantage > 0 ? '+': '')+Math.round(advantage)
+					(flat ? '<br />'+addPlus(perc)+" Dmg" : '') +
+					(perc ? '<br />'+addPlus(perc)+"% Dmg" : '')
+
 			);
 			
 		}

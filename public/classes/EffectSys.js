@@ -61,6 +61,7 @@ class Wrapper extends Generic{
 		this.victim = "";				// Player UUID
 		this.caster = "";				// Player UUID
 		this.action = "";				// action UUID (not always applicable)
+		this.actionType = ''; 			// Cache parent as action type, since parent is changed when we apply this to a player. Note: Only saved if parent isn't an action.
 		this.original_target = "";		// Set on targeted actions, this is the one the action targeted. Usually the same as victim
 		this._duration = 0;
 		this._self_cast = false;		// This effect was placed on the caster by the caster
@@ -91,7 +92,7 @@ class Wrapper extends Generic{
 			duration : this.duration,
 			ext : this.ext,
 			rarity : this.rarity,
-			unique : this.unique
+			unique : this.unique,
 		};
 		
 
@@ -114,6 +115,7 @@ class Wrapper extends Generic{
 
 		if( full !== "mod" ){
 			
+			out.actionType = this.actionType;
 			out.asset = this.asset;
 			out.id = this.id;
 			out._duration = this._duration;
@@ -141,6 +143,9 @@ class Wrapper extends Generic{
 	// Automatically invoked after g_autoload
 	rebase(){
 		this.g_rebase();	// Super
+
+		if( this.parent instanceof Action )
+			this.actionType = this.parent.type;
 
 		if( !isNaN(this.stacks) )
 			this.stacks = parseInt(this.stacks);
@@ -212,11 +217,11 @@ class Wrapper extends Generic{
 
 	getAction(){
 
-		let target = this.getVictim();
-		if( !target )
+		// Changed this to sender, which it should be? I don't know why it was target
+		let sender = this.getCaster();
+		if( !sender )
 			return false;
-
-		return target.getActionById(this.action);
+		return sender.getActionById(this.action);
 
 	}
 
@@ -1075,6 +1080,8 @@ class Effect extends Generic{
 
 		// Automatically get type from this.data.type first
 		let attackType = this.data.type;
+		if( !attackType )
+			attackType = wrapper.attackType;
 		let action = wrapper.getAction();
 		if( !attackType && action )
 			attackType = action.type;
@@ -1128,17 +1135,14 @@ class Effect extends Generic{
 				if( amt > 0 ){
 
 					amt = randRound(amt);
-					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalHealingDoneMod, t );
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalHealingTakenMod, s );
-					// Major mending = +50% for sender
-					if( sMajor & Effect.Major.Mending )
-						amt *= 1.5;
-					// Major blessing = +50% for target
-					if( tMajor & Effect.Major.Blessing )
-						amt *= 1.5;
-					// Major defile = -50% for target
-					if( tMajor & Effect.Major.Defile )
-						amt *= 0.5;
+
+					const flatAmount = s.calculateHealingNumberAgainst(t, action);
+					const multiplier = s.calculateHealingMultiplierAgainst(t, action);
+
+					amt += flatAmount;
+					amt *= multiplier;
+					if( amt < 0 )
+						amt = 0;
 
 					// Set event types
 					e = GameEvent.Types.healingDone;
@@ -1175,35 +1179,16 @@ class Effect extends Generic{
 					
 					// Get target global damage point taken modifier
 
-					// Amt is negative
-					amt -= t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s, action );
-					if( t.getMajorEffects() & Effect.Major.Damage )
-						amt -= 1;
+					// Negative if we should do LESS damage
+					const flatAmount = s.calculateDamageNumberAgainst( t, action );
+					const multiplier = s.calculateDamageMultiplierAgainst( t, action, wrapper, this, attackType );
 					
-					// amt is negative when attacking, that's why we use - here
-					amt -= s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t, action );
-					
-					// Multipliers last
-					amt *= Player.getBonusDamageMultiplier( s,t,type,wrapper.detrimental ); // Negative because it's damage
-					amt *= s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t, action );
+					amt -= flatAmount;
+					amt *= multiplier;
+					if( amt > 0 )
+						amt = 0;
 
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s, action );
-					amt *= t.getArmorDamageMultiplier( s, this );
-
-					// Major aggression: +30% for sender
-					if( sMajor & Effect.Major.Aggression )
-						amt *= 1.3;
-					// Major weakness: -30% for sender
-					if( sMajor & Effect.Major.Weakness )
-						amt *= 0.7;
-					// Major defense: -30% for target 
-					if( tMajor & Effect.Major.Defense )
-						amt *= 0.7;
-					// Major vulnerability: +30% for target 
-					if( tMajor & Effect.Major.Vulnerability )
-						amt *= 1.3;
-					
-					
+					//console.log("Amt", amt, "flat", flatAmount, "mutli", multiplier, t, action, wrapper, this, "atkType", attackType);
 
 					//console.debug("amt", amt);
 

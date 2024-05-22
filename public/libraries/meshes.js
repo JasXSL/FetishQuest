@@ -5711,7 +5711,7 @@ function build(){
 						}
 					},
 					onInteract : function( mesh, room, asset ){
-						LibMesh.playSound( mesh, asset, 'media/audio/mech_door.ogg', 0.5);
+						LibMesh.playSound( mesh, asset, 'media/audio/mech_door.ogg', 0.25);
 					},
 					tags : [stdTag.mDoor],
 					door : LibMesh.DoorTypes.DOOR_AUTO_XY,

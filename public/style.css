@@ -3294,6 +3294,7 @@ div.scroll{
 	}
 	#ui > div.players div.player > div.content > div.bg > canvas{
 		object-fit: cover;
+		object-position: 50% 20%;
 		width: 100%;
 		height: 100%;
 	}

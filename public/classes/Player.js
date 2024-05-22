@@ -1085,7 +1085,7 @@ export default class Player extends Generic{
 		if( label instanceof Player )
 			pl = label;
 		else
-			pl = glib.get(label, "Player");
+			pl = glib.get(label, "Player", false);
 		
 		if( !(pl instanceof Player) )
 			throw 'Player not found in glib';
@@ -3328,7 +3328,7 @@ export default class Player extends Generic{
 
 		if( this.arousal >= max && pre < max ){
 
-			const fx = glib.get("overWhelmingOrgasm", "Wrapper").clone();
+			const fx = glib.get("overWhelmingOrgasm", "Wrapper");
 			fx.duration = Math.max(1, fx.duration+this.getGenericAmountStatPoints(Effect.Types.orgasmDuration, sender, undefined));			
 			fx.useAgainst(sender, this, false);
 			
@@ -3701,8 +3701,75 @@ export default class Player extends Generic{
 
 	}
 
+	// Multiplier against target. attackType can be inferred if action is valid
+	calculateDamageMultiplierAgainst( target, action, wrapper, effect, attackType ){
+		
+		const sMajor = this.getMajorEffects(), tMajor = target.getMajorEffects();
+		if( action && !attackType )
+			attackType = action.type;
 
+		let amt = 1.0;
+		// Multipliers last
+		amt *= Player.getBonusDamageMultiplier( this, target, attackType, wrapper ? wrapper.detrimental : true ); // Negative because it's damage
+		amt *= this.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, target, action );
+		amt *= target.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, this, action );
+		amt *= target.getArmorDamageMultiplier( this, effect );
+		// Major aggression: +30% for sender
+		if( sMajor & Effect.Major.Aggression )
+			amt *= 1.3;
+		// Major weakness: -30% for sender
+		if( sMajor & Effect.Major.Weakness )
+			amt *= 0.7;
+		// Major defense: -30% for target 
+		if( tMajor & Effect.Major.Defense )
+			amt *= 0.7;
+		// Major vulnerability: +30% for target 
+		if( tMajor & Effect.Major.Vulnerability )
+			amt *= 1.3;
 
+		return Math.max(0,amt);
+
+	}
+	// Fixed amount of damage vs target
+	calculateDamageNumberAgainst( target, action ){
+
+		let amt = 0;
+		amt += target.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, this, action );
+		if( this.getMajorEffects() & Effect.Major.Damage )
+			amt += 1;
+		amt += this.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, target, action );
+		return amt;
+
+	}
+
+	calculateHealingMultiplierAgainst( target, action ){
+
+		const sMajor = this.getMajorEffects(), tMajor = target.getMajorEffects();
+
+		let amt = 1.0;
+		amt *= this.getGenericAmountStatMultiplier( Effect.Types.globalHealingDoneMod, target );
+		amt *= target.getGenericAmountStatMultiplier( Effect.Types.globalHealingTakenMod, this );
+		// Major mending = +50% for sender
+		if( sMajor & Effect.Major.Mending )
+			amt *= 1.5;
+		// Major blessing = +50% for target
+		if( tMajor & Effect.Major.Blessing )
+			amt *= 1.5;
+		// Major defile = -50% for target
+		if( tMajor & Effect.Major.Defile )
+			amt *= 0.5;
+		return Math.max(0, amt);
+
+	}
+
+	calculateHealingNumberAgainst( target, action ){
+
+		let amt = 0;
+		amt += target.getGenericAmountStatPoints( Effect.Types.globalHealingTakenMod, this );
+		amt += this.getGenericAmountStatPoints( Effect.Types.globalHealingDoneMod, target );
+		return amt;
+
+	}
 
 	/* Actions */
 	addDefaultActions(){
@@ -4609,7 +4676,7 @@ export default class Player extends Generic{
 			throw 'Trying to add non-wrapper';
 		}
 
-		this.passives.push(wrapper.clone());
+		this.passives.push(wrapper);
 		this.updatePassives();
 
 	}

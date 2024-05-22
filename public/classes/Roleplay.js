@@ -381,7 +381,7 @@ export default class Roleplay extends Generic{
 		let att = game.getPlayerByLabel(this.player);
 		if( att )
 			return att;
-		return glib.get(this.player, 'Player');
+		return glib.get(this.player, 'Player', false); // Not that we're not cloning player here. We should never run game actions against a player that's not in the game.
 
 	}
 

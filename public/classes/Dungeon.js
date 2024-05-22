@@ -181,19 +181,27 @@ class Dungeon extends Generic{
 
 	}
 
+	// onto can be used to load onto a different object
+	loadDvars( onto ){
+
+		const state = this.getState();
+		if( state === null )
+			return;
+			
+		if( !onto )
+			onto = this.vars;
+
+		for( let v in state.vars )
+			onto[v] = structuredClone(state.vars[v]);
+
+	}
 
 	loadState(){
 
 		if( typeof window.game !== "object" || !game.is_host )
 			return;
 
-		const state = this.getState();
-		
-		if( state === null )
-			return;
-			
-		for( let v in state.vars )
-			this.vars[v] = state.vars[v];
+		this.loadDvars();
 
 		for( let room of this.rooms )
 			room.loadState();
