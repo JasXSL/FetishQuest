@@ -9,6 +9,7 @@ import Asset from './Asset.js';
 import GameAction from './GameAction.js';
 import Encounter from './Encounter.js';
 import Game from './Game.js';
+import DescBuffer from './helpers/DescBuffer.js';
 
 /*
 	A wrapper is a container for multiple effects
@@ -67,6 +68,7 @@ class Wrapper extends Generic{
 		this._self_cast = false;		// This effect was placed on the caster by the caster
 		this._crit = false;
 		this._added = 0;				// Time in game seconds when this effect was added. Only for ext wrappers.
+		this._descBuffer = new DescBuffer(); 
 
 		this.load(data);
 	}
@@ -615,7 +617,8 @@ class Wrapper extends Generic{
 	*/
 	getDescription(){
 
-		let out = this.description;
+		let out = this._descBuffer.compile(this.description, this.getCaster(), this.getPlayerParent(), this.getAction(), this);
+
 		let knockdown = 'stomach';
 		for( let effect of this.effects ){
 			if( effect.type === Effect.Types.knockdown ){
@@ -1181,7 +1184,7 @@ class Effect extends Generic{
 
 					// Negative if we should do LESS damage
 					const flatAmount = s.calculateDamageNumberAgainst( t, action );
-					const multiplier = s.calculateDamageMultiplierAgainst( t, action, wrapper, this, attackType );
+					const multiplier = s.calculateDamageMultiplierAgainst( t, action, wrapper, this );
 					
 					amt -= flatAmount;
 					amt *= multiplier;

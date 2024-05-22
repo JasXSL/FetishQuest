@@ -6,6 +6,7 @@ import stdTag from '../libraries/stdTag.js';
 import Condition from './Condition.js';
 import Asset from './Asset.js';
 import Calculator from './Calculator.js';
+import DescBuffer from './helpers/DescBuffer.js';
 
 class Action extends Generic{
 
@@ -96,6 +97,8 @@ class Action extends Generic{
 		this._crit = false;
 		this._slot = -1;						// Action slot. -1 if deactivated. If autolearn is enabled on the player, this is ignored.
 		
+		this._descBuffer = new DescBuffer();	// 
+
 		// Auto generated if loaded from a player library
 		this._custom = false;
 		
@@ -1095,11 +1098,13 @@ class Action extends Generic{
 
 	// Gets tooltip text for the UI
 	// ignoreMomentum = Don't show momentum. Used mostly on potions.
-	getTooltipText( ignoreMomentum, rarity=0 ){
+	getTooltipText( ignoreMomentum, rarity, target ){
 
 		const name = this.getName(),
 			desc = this.getDesc()
 		;
+		if( isNaN(rarity) )
+			rarity = 0;
 
 		let html = '<strong class="'+(Asset.RarityNames[rarity])+'">'+esc(name)+'</strong><br />';
 
@@ -1144,7 +1149,7 @@ class Action extends Generic{
 				html += '<span style="color:#FFF">'+(this.hit_chance < 100 ? this.hit_chance+' Base Hit Chance' : 'Always hits')+'</span>';
 		html += '</div>';
 
-		html += esc(desc);
+		html += this._descBuffer.compile(desc, this.getPlayerParent(), target, this);
 
 		return html;
 

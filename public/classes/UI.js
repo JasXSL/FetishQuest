@@ -1303,9 +1303,11 @@ export default class UI{
 		$("div.player", this.players).off('mouseover mouseout').on('mouseover mouseout', function( event ){
 
 			const el = $(this);
-
+			let id;
 			if( event.type === 'mouseover' ){
+
 				if( el.hasClass('castTarget') ){
+
 					const pos = el.offset();
 					const left = pos.left + el.outerWidth()/2;
 					const top = pos.top+el.outerHeight()/2;
@@ -1314,14 +1316,20 @@ export default class UI{
 						game.renderer.setArrowTarget(left, top);
 					
 					el.toggleClass("highlighted", true);
+					id = el.attr('data-id');
+
 				}
+
 			}
 			else{
+
 				el.toggleClass("highlighted", false);
 				if( th.action_selected )
 					game.renderer.setArrowTarget();
+
 			}
 			
+			th.redrawSelectedActionTooltip(id);
 
 		});
 
@@ -1370,6 +1378,7 @@ export default class UI{
 		
 
 	}
+
 
 	// Returns interaction types
 	// Encounter can be used to check a specific encounter instead of the current one
@@ -1784,6 +1793,7 @@ export default class UI{
 			for( let i = 0; i < chargedActions.length; ++i ){
 
 				const a = chargedActions[i];
+				const targs = a.getChargePlayers();
 				let el = chargedActionButtons[i];
 				if( !el ){
 					el = actionButtonTemplate.clone();
@@ -1791,7 +1801,16 @@ export default class UI{
 				}
 				el = $(el);
 
-				const tooltip = '<h3 style="margin:0">Charged Action Completing in ' + a._cast_time + ' turn'+(a._cast_time > 1 ? 's' : '')+':</h3>' + a.getTooltipText(),
+				const chargingAtMe = myActive && targs.includes(myActive);
+
+				const tooltip = 
+					'<h3 style="margin:0">Charged Action Completing in ' + a._cast_time + ' turn'+(a._cast_time > 1 ? 's' : '')+':</h3>' + 
+						a.getTooltipText(
+							undefined, 
+							undefined, 
+							chargingAtMe ? myActive : undefined
+						)
+					,
 					durEl = $('> div.duration', el),
 					tooltipEl = $('> div.tooltip', el),
 					bgEl = $('> div.bg', el),
@@ -1803,10 +1822,8 @@ export default class UI{
 				bgEl.toggleClass('corr phys arc', false);
 				bgEl.toggleClass(Action.TypesCSS[a.type], true);
 				
-				let myActive = game.getMyActivePlayer();
 				let hc = '';
-				const targs = a.getChargePlayers();
-				const chargingAtMe = myActive && targs.includes(myActive);
+				
 				if( targs.length === 1 || chargingAtMe ) // Draw hit chance if only 1 target or if targeting me
 					hc = Math.round(a.getHitChance( chargingAtMe ? myActive : targs[0] ))+'%';
 				
@@ -2406,8 +2423,8 @@ export default class UI{
 				!action.isDetrimentalTo(t) ?
 					'Pick Target' :
 					hit+'% Hit'+
-					(flat ? '<br />'+addPlus(perc)+" Dmg" : '') +
-					(perc ? '<br />'+addPlus(perc)+"% Dmg" : '')
+					(flat ? '<br />'+addPlus(flat)+" Dmg" : '') +
+					(perc ? '<br />'+addPlus(perc)+"%" : '')
 
 			);
 			
@@ -2957,7 +2974,14 @@ export default class UI{
 			.html(text)
 			.toggleClass("hidden", !text)
 		;
-		
+
+		if( isNaN(left) )
+			left = this.__ttLeft || 0;
+		if( isNaN(top) )
+			top = this.__ttTop || 0;
+		this.__ttLeft = left;
+		this.__ttTop = top;
+
 		const width = this.tooltip.outerWidth(),
 			height = this.tooltip.outerHeight()
 		;
@@ -2975,6 +2999,7 @@ export default class UI{
 		if( top < 0 )
 			top = 0;
 
+		
 		this.tooltip.css({
 			left : left+"px",
 			top : top+"px",
@@ -3010,8 +3035,6 @@ export default class UI{
 			el.mo = mo;
 			el.mu = mu;
 		});
-			
-		;
 
 	}
 
@@ -3555,6 +3578,20 @@ export default class UI{
 	}
 
 
+	redrawSelectedActionTooltip( targId ){
+		
+		if( !this.action_selected )
+			return;
+
+		let text = this.action_selected.getTooltipText(
+			undefined, 
+			undefined,
+			targId ? game.getPlayerById(targId) : undefined
+		);
+		// Note: the div must match the tooltip in the action button definition
+		this.setTooltipAtPoint('<div class="actionTooltip">'+text+'</div>');
+
+	}
 
 	// TEMPLATES
 	// Sets the content of the button based on an action
@@ -3640,11 +3677,12 @@ export default class UI{
 		// Tooltip
 		const ttEl = $('> div.tooltip', button);
 		ttEl.toggleClass('enabled disabled', false); // .toggleClass(castableClass, true);
-		if( ttEl.html() !== action.getTooltipText() )
-			ttEl.html(action.getTooltipText());
+		ttEl.html(action.getTooltipText());
 
 	}
 
+
+	// Todo: This could be moved to EffectSys
 	static setWrapperIconContent( wrapperElement, wrapper, target, caster ){
 
 		let el = $(wrapperElement);
@@ -3707,7 +3745,8 @@ export default class UI{
 		}
 
 		tooltip += '</em><br />'+
-			stylizeText(wrapper.getDescription());	// Stylize escapes
+			wrapper.getDescription() // Escapes
+		;
 		if( elTooltip.html() !== tooltip )
 			elTooltip.html(tooltip);
 
