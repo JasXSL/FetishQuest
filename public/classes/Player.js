@@ -3141,13 +3141,13 @@ export default class Player extends Generic{
 		
 		let pre = this.getBlock();
 		
-		amount = parseInt(amount);
 		if( isNaN(amount) )
 			throw 'Invalid value passed to block: '+amt;
 
 		// Damage
 		if( amount < 0 ){
 
+			amount = randRound(amount);
 			let n = this.block+amount;
 			if( n < 0 ){	// We went below 0, and have to remove from incoming block too
 				this.block = 0;
@@ -3160,10 +3160,8 @@ export default class Player extends Generic{
 		// ADD
 		else{
 
-			if( this.getMajorEffects() & Effect.Major.Dexterity )
-				amount *= 2;
-			amount *= this.getGenericAmountStatMultiplier(Effect.Types.globalBlockMod);
-			amount += this.getGenericAmountStatPoints(Effect.Types.globalBlockMod);
+			amount = this.calculateBlockFrom(amount);
+			amount = randRound(amount);			
 
 			if( game.isTeamTurn(this.getTeam()) ) // Have to check the team here, since it may bork if we've ended our personal turn, but it still being our team's turn
 				this.block += amount;
@@ -3750,7 +3748,8 @@ export default class Player extends Generic{
 
 	}
 
-	// Todo: May want to move the EffectSys stuff to use this. Note that EffectSys expects dmg to be negative, whereas here it's positive
+	// Note that EffectSys expects dmg to be negative, whereas here it's positive
+	// Also note that it doesn't take stacks into consideration
 	calculateDamageAgainst( dmg, target, action, wrapper, effect ){
 
 		dmg += this.calculateDamageNumberAgainst(target, action);
@@ -3761,7 +3760,7 @@ export default class Player extends Generic{
 
 	calculateHealingMultiplierAgainst( target ){
 
-		const sMajor = this.getMajorEffects(), tMajor = target.getMajorEffects();
+		const sMajor = this.getMajorEffects(), tMajor = target ? target.getMajorEffects() : 0;
 
 		let amt = 1.0;
 		amt *= this.getGenericAmountStatMultiplier( Effect.Types.globalHealingDoneMod, target );
@@ -3778,7 +3777,6 @@ export default class Player extends Generic{
 		return Math.max(0, amt);
 
 	}
-
 	calculateHealingNumberAgainst( target ){
 
 		let amt = 0;
@@ -3787,13 +3785,40 @@ export default class Player extends Generic{
 		return amt;
 
 	}
-
-	// Todo: May want to move the EffectSys stuff to use this.
+	// Note: this doesn't take stacks into consideration
 	calculateHealingAgainst( amt, target ){
 		
 		amt += this.calculateHealingNumberAgainst(target);
 		amt *= this.calculateHealingMultiplierAgainst(target);
 		return amt;
+
+	}
+
+	// Note: Doesn't take stacks into consideration
+	calculateArousalFrom( amt, sender ){
+
+		const sMajor = sender ? sender.getMajorEffects() : 0, tMajor =this.getMajorEffects();
+		amt *= this.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, sender );
+		// Major focus: -50% for target
+		if( tMajor & Effect.Major.Focus )
+			amt *= 0.5;
+		// Major touch: +50% for sender
+		if( sMajor & Effect.Major.Touch )
+			amt *= 1.5;
+
+		return amt;
+
+	}
+
+	// Note: doesn't take stacks into consideration
+	calculateBlockFrom( amount ){
+
+		if( this.getMajorEffects() & Effect.Major.Dexterity )
+			amount *= 2;
+		amount *= this.getGenericAmountStatMultiplier(Effect.Types.globalBlockMod);
+		amount += this.getGenericAmountStatPoints(Effect.Types.globalBlockMod);
+
+		return amount;
 
 	}
 

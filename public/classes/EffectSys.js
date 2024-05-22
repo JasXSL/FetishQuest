@@ -1137,15 +1137,10 @@ class Effect extends Generic{
 				// Healing
 				if( amt > 0 ){
 
-					amt = randRound(amt);
-
-					const flatAmount = s.calculateHealingNumberAgainst(t, action);
-					const multiplier = s.calculateHealingMultiplierAgainst(t, action);
-
-					amt += flatAmount;
-					amt *= multiplier;
+					amt = randRound(s.calculateHealingAgainst(amt, t));
 					if( amt < 0 )
 						amt = 0;
+					
 
 					// Set event types
 					e = GameEvent.Types.healingDone;
@@ -1183,11 +1178,8 @@ class Effect extends Generic{
 					// Get target global damage point taken modifier
 
 					// Negative if we should do LESS damage
-					const flatAmount = s.calculateDamageNumberAgainst( t, action );
-					const multiplier = s.calculateDamageMultiplierAgainst( t, action, wrapper, this );
-					
-					amt -= flatAmount;
-					amt *= multiplier;
+
+					amt = -s.calculateDamageAgainst(Math.abs(amt), t, action, wrapper, this);
 					if( amt > 0 )
 						amt = 0;
 
@@ -1240,13 +1232,7 @@ class Effect extends Generic{
 						// 30% chance per point of damage
 						let procChance = 30*s.getStatProcMultiplier(Action.Types.corruption, false)*t.getStatProcMultiplier(Action.Types.corruption, true);
 						let ch = Math.abs(amt*procChance);
-						ch *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
-						// Major focus: -50% for target
-						if( tMajor & Effect.Major.Focus )
-							ch *= 0.5;
-						// Major touch: +50% for sender
-						if( sMajor & Effect.Major.Touch )
-							ch *= 1.5;
+						ch = s.calculateArousalFrom(ch, s);
 						
 						let tot = Math.floor(ch/100)+(Math.random()*100 < (ch%100));
 						const start = t.arousal;
@@ -1507,20 +1493,11 @@ class Effect extends Generic{
 					}).mergeUnset(event)
 				);
 
-				if( amt > 0 ){
+				if( amt > 0 )
+					amt = t.calculateArousalFrom(amt, s);
 
-					amt *= t.getGenericAmountStatMultiplier( Effect.Types.globalArousalTakenMod, s );
-					// Major focus: -50% for target
-					if( tMajor & Effect.Major.Focus )
-						ch *= 0.5;
-					// Major touch: +50% for sender
-					if( sMajor & Effect.Major.Touch )
-						ch *= 1.5;
-
-				}
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
-
 
 				let pre = t.arousal;
 				t.addArousal(amt, true, undefined, s);

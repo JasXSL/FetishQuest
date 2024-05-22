@@ -34,6 +34,7 @@ class Action extends Generic{
 		this.std = false;			// Standard action that all players should know
 		this.name = "";				// can be %P% to use parent name
 		this.description = "";		// Can be %P% to use parent description
+		this.targ_desc = "";		// Separate description that draws only on the tooltip when we have a target. Can be %P% to use parent description.
 		this.icon = '';				// Can be %P% to use parent icon
 		this.ranged = Action.Range.Melee;			// This is a ranged attack
 		this.wrappers = [];				// Effect wrappers needed to cast the spell
@@ -125,6 +126,7 @@ class Action extends Generic{
 			cast_time : this.cast_time,
 			charges : this.charges,
 			icon : this.icon,
+			targ_desc : this.targ_desc,
 		};
 
 		if( full !== 'netgame_libcache' ){
@@ -1098,10 +1100,15 @@ class Action extends Generic{
 
 	// Gets tooltip text for the UI
 	// ignoreMomentum = Don't show momentum. Used mostly on potions.
+	// You can set target to false if you don't want the tooltip to show the targeting desc
 	getTooltipText( ignoreMomentum, rarity, target ){
 
+		// Dumb workaround on AoE/Self, target self
+		if( target === undefined && (this.target_type === Action.TargetTypes.aoe || this.target_type === Action.TargetTypes.self) )
+			target = this.getPlayerParent();
+
 		const name = this.getName(),
-			desc = this.getDesc()
+			desc = this.getDesc(target)
 		;
 		if( isNaN(rarity) )
 			rarity = 0;
@@ -1149,6 +1156,8 @@ class Action extends Generic{
 				html += '<span style="color:#FFF">'+(this.hit_chance < 100 ? this.hit_chance+' Base Hit Chance' : 'Always hits')+'</span>';
 		html += '</div>';
 
+		
+
 		html += this._descBuffer.compile(desc, this.getPlayerParent(), target, this);
 
 		return html;
@@ -1159,8 +1168,11 @@ class Action extends Generic{
 		return this.name.split('%P%').join(this.parent ? this.parent.name : 'Unknown');
 	}
 
-	getDesc(){
-		return this.description.split('%P%').join(this.parent ? this.parent.description : 'Unknown');
+	getDesc( hasTarget = false ){
+
+		let desc = hasTarget && this.targ_desc ? this.targ_desc : this.description;
+		return desc.split('%P%').join(this.parent ? this.parent.description : 'Unknown');
+
 	}
 
 	getIcon(){

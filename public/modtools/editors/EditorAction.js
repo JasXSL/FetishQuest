@@ -88,6 +88,7 @@ export function asset(){
 	html += '</div>';
 
 	html += 'Description: <br /><textarea name="description" class="saveable">'+esc(dummy.description)+'</textarea><br />';
+	html += 'Target Description: <br /><textarea name="targ_desc" class="saveable">'+esc(dummy.targ_desc)+'</textarea><br />';
 
 	html += 'Wrappers: <br /><div class="wrappers"></div>';
 	html += 'Riposte Wrappers: <br /><div class="riposte"></div>';
@@ -360,7 +361,11 @@ export function help(){
 		'</tr>'+
 		'<tr>'+
 			'<td>Description</td>'+
-			'<td>Describe your action.</td>'+
+			'<td>Describe your action. You can use $nr to multiply by stacks. Use $Dnr to multiply by damage, $Hnr to multiply by healing, $Bnr to multiply by block, $Anr to multiply by arousal. You can combine them, ex $AH1 to multiply by stacks, arousal, and healing done. To ignore stacks, use $N. See DescBuffer.js for more info. You can also use a formula wrapped between brackets, ex $B{se_Mom}</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Target Desc</td>'+
+			'<td>Works the same as Description, but only shows up when you\'re hovering the target arrow over a player. Leave empty to use description.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Wrappers</td>'+

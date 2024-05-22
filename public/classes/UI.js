@@ -3596,7 +3596,7 @@ export default class UI{
 	// TEMPLATES
 	// Sets the content of the button based on an action
 	// ignoreStats will hide cd/charges 
-	static setActionButtonContent( buttonElement, action, player, hotkey, ignoreStats ){
+	static setActionButtonContent( buttonElement, action, player, hotkey, ignoreStats, forceNoTarget ){
 
 		let aType = Action.TypesCSS[action.type]+' ';
 
@@ -3677,7 +3677,7 @@ export default class UI{
 		// Tooltip
 		const ttEl = $('> div.tooltip', button);
 		ttEl.toggleClass('enabled disabled', false); // .toggleClass(castableClass, true);
-		ttEl.html(action.getTooltipText());
+		ttEl.html(action.getTooltipText(undefined, undefined, forceNoTarget ? false : undefined));
 
 	}
 

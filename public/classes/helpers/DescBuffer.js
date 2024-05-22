@@ -1,11 +1,15 @@
+import Calculator from "../Calculator.js";
 import { Wrapper } from "../EffectSys.js";
+import GameEvent from "../GameEvent.js";
 import Player from "../Player.js";
 
 export default class DescBuffer{
 
 	static LABEL_DAMAGE = 'D';
 	static LABEL_HEAL = 'H';
-	static LBAEL_NO_STACK_MULTI = 'N';
+	static LABEL_NO_STACK_MULTI = 'N';
+	static LABEL_BLOCK = 'B';	// Block multiplier
+	static LABEL_AROUSAL = 'A';	// Arousal multiplier
 
 	rawText = '';
 	buffer = [];
@@ -18,7 +22,7 @@ export default class DescBuffer{
 		if( desc !== this.rawText ){
 
 			this.rawText = desc;
-			let buffer = desc.split(/(\$.*?\d+)/g);
+			let buffer = desc.split(/(\$[^{\d]*(?:{[^}]*}|[\d]+)?)/g);
 			this.buffer = buffer.map(el => {
 				if( el.charAt(0) === '$' )
 					return new BufferStruct(el.substring(1));
@@ -26,8 +30,12 @@ export default class DescBuffer{
 			});
 
 		}
+		
 		const senderIsPlayer = sender instanceof Player;
 		const targetIsPlayer = target instanceof Player;
+		const evt = new GameEvent({
+			sender, target, action, wrapper, effect,
+		});
 		
 		let output = [];
 		for( let el of this.buffer ){
@@ -36,13 +44,20 @@ export default class DescBuffer{
 			if( el instanceof BufferStruct ){
 				
 				let num = el.num;
+				if( typeof num === "string" ){
+					num = Calculator.run(num, evt);
+				}
+
 				if( senderIsPlayer ){
 
 					if( el.damage )
 						num = sender.calculateDamageAgainst(num, target, action, wrapper, effect);
 					if( el.heal )
 						num = sender.calculateHealingAgainst(num, target, action, wrapper, effect);
-
+					if( el.block && targetIsPlayer )
+						num = target.calculateBlockFrom(num);
+					if( el.arousal && targetIsPlayer )
+						num = target.calculateArousalFrom(num, sender);
 					if( el.stackMulti && wrapper instanceof Wrapper )
 						num *= wrapper.stacks;
 
@@ -71,17 +86,24 @@ class BufferStruct{
 	heal = false;		// Add healing
 	damage = false;		// Add damage
 	stackMulti = true;
+	block = false;
+	arousal = false;
 
-	constructor( data ){
+	constructor( str ){
 
-		data = data.split(/(\d+)/);
+
+		let data = str.split(/((?<!{.+)\d.*|{+.*)/); // Splits on number if it's not preceded by { or splits by {
 		const tags = data[0];
 		this.num = +data[1] || 0;
+		if( data[1].charAt(0) === '{' )
+			this.num = data[1].substring(1, data[1].length-1);
+
 		this.heal = tags.includes(DescBuffer.LABEL_HEAL);
 		this.damage = tags.includes(DescBuffer.LABEL_DAMAGE);
-		this.stackMulti = !tags.includes(DescBuffer.LBAEL_NO_STACK_MULTI);
+		this.block = tags.includes(DescBuffer.LABEL_BLOCK);
+		this.arousal = tags.includes(DescBuffer.LABEL_AROUSAL);
+		this.stackMulti = !tags.includes(DescBuffer.LABEL_NO_STACK_MULTI);
 		
 	}
 
 }
-

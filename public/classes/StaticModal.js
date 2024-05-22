@@ -543,7 +543,7 @@ export default class StaticModal{
 
 					const el = inactiveEls[i],
 						abil = inactive[i];
-					UI.setActionButtonContent(el, abil, player, undefined, true);
+					UI.setActionButtonContent(el, abil, player, undefined, true, true);
 					
 
 				}
@@ -554,7 +554,7 @@ export default class StaticModal{
 						abil = learnable[i].getAction(),
 						parent = $(el).parent();
 						
-					UI.setActionButtonContent(el, abil, player, undefined, true);
+					UI.setActionButtonContent(el, abil, player, undefined, true, true);
 
 					let html = esc(abil.getName());
 					const coins = Player.calculateMoneyExhange(learnable[i].getCost());
@@ -724,7 +724,7 @@ export default class StaticModal{
 						let div = tmp.content.firstChild;
 						div.classList.toggle('action', true);
 						act.appendChild(div);
-						UI.setActionButtonContent(div, asset, me || game.players[0]);
+						UI.setActionButtonContent(div, asset, me || game.players[0], undefined, undefined, true);
 
 					}
 
@@ -1394,7 +1394,7 @@ export default class StaticModal{
 						const sub = document.createElement('div');
 						div.append(sub);
 						sub.classList.add('tooltip', 'actionTooltip');
-						sub.innerHTML = asset.getTooltipText();
+						sub.innerHTML = asset.getTooltipText(undefined, undefined, false);
 							
 					}
 					
@@ -1505,7 +1505,7 @@ export default class StaticModal{
 							let div = tmp.content.firstChild;
 							div.classList.toggle('action', true);
 							adiv.appendChild(div);
-							UI.setActionButtonContent(div, action, player);
+							UI.setActionButtonContent(div, action, player, undefined, undefined, true);
 
 						}
 
@@ -1721,7 +1721,7 @@ export default class StaticModal{
 						html+= '<div class="action tooltipParent'+(ability.label.substr(0,3) === 'std' ? ' noDelete' : '')+'" data-id="'+esc(ability.id)+'">';
 							html+= esc(ability.name);
 							html+= '<div class="tooltip actionTooltip">';
-								html += ability.getTooltipText();
+								html += ability.getTooltipText(undefined, undefined, false);
 							html += '</div>';
 						html+= '</div>';
 
@@ -4596,7 +4596,7 @@ export default class StaticModal{
 
 						// We have an action in this slot
 						if( action )
-							UI.setActionButtonContent(el, action, player, i+2, true);
+							UI.setActionButtonContent(el, action, player, i+2, true, true);
 						else{
 							
 							$("> div", el).html("");
@@ -4636,7 +4636,7 @@ export default class StaticModal{
 
 						const el = inactiveEls[i],
 							abil = inactive[i];
-						UI.setActionButtonContent(el, abil, player, undefined, true);
+						UI.setActionButtonContent(el, abil, player, undefined, true, true);
 
 					}
 
@@ -4706,7 +4706,7 @@ export default class StaticModal{
 								modal.addSelectionBoxItem( 'Equip'+(game.battle_active ? '['+asset.getEquipCost()+' Momentum]' : ''), '', 'equip' );
 
 							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) ){
-								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(), 'use' );
+								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(false), 'use' );
 							}
 
 							const game_actions = asset.game_actions.filter(el => el.validate(player));
@@ -4895,7 +4895,7 @@ export default class StaticModal{
 							const tooltip = document.createElement('div');
 							div.append(tooltip);
 							tooltip.classList.add('tooltip');
-							tooltip.innerHTML = asset.getTooltipText();
+							tooltip.innerHTML = asset.getTooltipText(false);
 
 						}
 						else{
@@ -5732,7 +5732,7 @@ export default class StaticModal{
 
 		sub = document.createElement('div');
 		sub.classList.toggle('tooltip');
-		sub.innerHTML = item.getTooltipText();
+		sub.innerHTML = item.getTooltipText(false);
 		div.append(sub);
 
 		return div;
