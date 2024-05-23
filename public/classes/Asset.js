@@ -546,7 +546,7 @@ export default class Asset extends Generic{
 
 			let lv = this.getLevel() || 0;
 			if( lv < 0 )
-				lv = game.getAveragePlayerLevel()+Math.abs(lv)-1;
+				lv = game.getAveragePlayerLevel() + Math.abs(lv)-1;
 			
 			html += 'Lv '+lv+' | ';
 

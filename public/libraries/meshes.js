@@ -908,7 +908,7 @@ function build(){
 					want_actions : [gameActionDoors],
 					tags : [stdTag.mLadder],
 					onFlatten : function(mesh){
-						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 1);
 						lamp.intensity = 0;
 						lamp.position.y = 500;
 						lamp.position.z = -50;
@@ -1013,7 +1013,7 @@ function build(){
 					want_actions : [gameActionDoors],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
-						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 1);
 						lamp.intensity = 0;
 						lamp.position.y = 1000;
 						lamp.castShadow = true;
@@ -1022,7 +1022,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER*0.5},500)
+								.to({angle:0.2, intensity:INTENSITY_MULTIPLIER*0.25},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1124,7 +1124,7 @@ function build(){
 						.start();
 						mesh.userData.tweens.tween_mid = a;
 
-						let light = new THREE.SpotLight(0xCC00FF, INTENSITY_MULTIPLIER, 5000, .75, 0.5);
+						let light = new THREE.SpotLight(0xCC00FF, INTENSITY_MULTIPLIER, 5000, .5, 1);
 						let helper = new THREE.SpotLightHelper(light);
 						light.position.y = 1300;
 						mesh.add(light, light.target);
@@ -1701,7 +1701,7 @@ function build(){
 					want_actions : [gameActionDoors],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
-						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 1);
 						lamp.intensity = 0;
 						lamp.position.y = 500;
 						lamp.position.z = -50;
@@ -1711,7 +1711,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER*0.5},500)
+								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER*0.2},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},
@@ -1739,7 +1739,7 @@ function build(){
 					want_actions : [gameActionDoors],
 					tags : [stdTag.mStair],
 					onFlatten : function(mesh){
-						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 0);
+						let lamp = new THREE.SpotLight(0xFFFFFF, 0, 1200, 0.01, 0.5, 1);
 						lamp.intensity = 0;
 						lamp.position.y = 500;
 						lamp.position.z = -50;
@@ -1749,7 +1749,7 @@ function build(){
 						// Setting a tween like this allows the room to turn it off when the room changes
 						mesh.userData.tweens = {
 							interact : new TWEEN.Tween(lamp)
-								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER*0.5},500)
+								.to({angle:0.25, intensity:INTENSITY_MULTIPLIER*0.2},500)
 								.easing(TWEEN.Easing.Sinusoidal.Out)
 						};
 					},

@@ -1391,7 +1391,7 @@ export default class UI{
 		}catch(err){}
 
 		let rps = game.getRoleplaysForPlayer( p );
-		if( game.isInPersistentRoleplay() || game.battle_active )
+		if( game.isInRoleplay() || game.battle_active )
 			rps = [];
 
 		return {
@@ -1484,6 +1484,7 @@ export default class UI{
 		let preR = this.grappleLines.filter('.r');
 		this.grappleLines.toggleClass('r', false);	// Turns off reserved
 		const players = game.getEnabledPlayers();
+		const myActive = game.getMyActivePlayer();
 
 		let n = 0;
 		for( let p of players ){
@@ -1510,7 +1511,8 @@ export default class UI{
 					grapples.push({
 						isChargedAction : true,
 						startDiv,
-						endDiv
+						endDiv,
+						target : target.id
 					});
 
 				}
@@ -1522,12 +1524,13 @@ export default class UI{
 				const effect = grapples[i];
 				const isCharged = Boolean(effect.isChargedAction);
 				const isTaunt = effect.type === Effect.Types.taunt;
-				let startDiv, endDiv, sender;
+				let startDiv, endDiv, sender, target;
 
 				if( isCharged ){
 
 					startDiv = effect.startDiv;
 					endDiv = effect.endDiv;
+					target = effect.target;
 
 				}
 				else{
@@ -1564,6 +1567,7 @@ export default class UI{
 	
 				div.classList.toggle('taunt', isTaunt);
 				div.classList.toggle('charged', isCharged);
+				div.classList.toggle('atme', myActive?.id === target);
 				div.classList.toggle('r', true);	// Reserve the div
 				div.classList.toggle('hidden', false);	// Reserve the div
 				const rectA = startDiv[0].getBoundingClientRect();

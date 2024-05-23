@@ -187,13 +187,11 @@ class Action extends Generic{
 		return out;
 	}
 
-	load(data){
+	load( data ){
 
-		if( data ){
-			delete data._descBuffer; // never allow a new descBuffer
-		}
-		
-		this.g_autoload(data);
+		this.g_autoload(data, false, {
+			_descBuffer : true,
+		});
 		if( !Action.typeExists(this.type) )
 			this.type = Action.Types.physical;
 
@@ -792,8 +790,11 @@ class Action extends Generic{
 			)
 		)return err("Not enough momentum for action");
 
-		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets )
+		if( this.getViableTargets(isChargeFinish, debug).length < this.min_targets ){
+			if( isChargeFinish )
+				return false;
 			return err("No viable targets for "+this.name);
+		}
 
 		if( pl && !pl.isActionEnabled(this) )
 			return err("Can't use this action right now");
@@ -820,10 +821,10 @@ class Action extends Generic{
 				return err("Can't use that right now");
 
 			// Charge finish are unaffected by knockdowns or daze
-			if( this.ranged === Action.Range.Melee  && pl.hasTag(stdTag.wrKnockdown) && !pl.getActiveEffectsByType(Effect.Types.ignoreKnockdown) )
+			if( this.ranged === Action.Range.Melee  && pl.hasTag(stdTag.wrKnockdown) && !pl.getActiveEffectsByType(Effect.Types.ignoreKnockdown).length )
 				return err("Can't use while knocked down");
 
-			if( this.ranged === Action.Range.Ranged && pl.hasTag(stdTag.wrDazed) && !isChargeFinish && !pl.getActiveEffectsByType(Effect.Types.ignoreSilence) )
+			if( this.ranged === Action.Range.Ranged && pl.hasTag(stdTag.wrDazed) && !isChargeFinish && !pl.getActiveEffectsByType(Effect.Types.ignoreSilence).length )
 				return err("Can't use while dazed");
 
 			if( pl && pl.isIncapacitated() )

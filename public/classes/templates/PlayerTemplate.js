@@ -252,7 +252,6 @@ class PlayerTemplate extends Generic{
 			if( !this.no_equip && added ){
 				added.map(el => el.equipped = el.equippable());
 			}
-			console.log(this, item);
 
 		}
 

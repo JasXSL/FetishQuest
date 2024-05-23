@@ -1823,7 +1823,7 @@ export default class Game extends Generic{
 
 	canTransport( addError = true ){
 
-		if( this.isInPersistentRoleplay() ){
+		if( this.isInRoleplay() ){
 			if( addError )
 				throw("Can't transport right now");
 			return false;
@@ -2574,13 +2574,13 @@ export default class Game extends Generic{
 
 	}
 
-	stashFollower( id ){
+	stashFollower( label ){
 
-		let player = this.getPlayerById(id);
+		let player = this.getPlayerByLabel('fo_'+label);
 		if( !player )
 			return false;
 
-		let pos = this.active_followers.indexOf(id);
+		let pos = this.active_followers.indexOf(player.id);
 		if( ~pos )
 			this.active_followers.splice(pos, 1);
 		this.followers.push(player);
@@ -3257,6 +3257,7 @@ export default class Game extends Generic{
 		if( !this.is_host )
 			return Game.net.playerRerollMomentum(player, type, to);
 
+		console.log("Rolling", type, to);
 		// Only host below this point
 		const rolledTo = player.rerollMomentum(type, to);
 		if( rolledTo === false ) // Note: May be 0, type check is a must
@@ -3320,7 +3321,7 @@ export default class Game extends Generic{
 
 	setRoleplay( rp, force = false, player = undefined ){
 
-		if( this.isInPersistentRoleplay() && !rp.persistent && !force )
+		if( this.isInRoleplay() && !rp.persistent && !force )
 			return;
 
 		if( !this.is_host ){

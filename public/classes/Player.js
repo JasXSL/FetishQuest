@@ -3005,7 +3005,7 @@ export default class Player extends Generic{
 			let types = [];
 			for( let t in Player.MOMENTUM ){
 				const ty = Player.MOMENTUM[t];
-				if( ty === type )
+				if( ty === type || ty == Player.MOMENTUM.All )
 					continue;
 				types.push(ty);
 			}
@@ -3042,6 +3042,7 @@ export default class Player extends Generic{
 		this.addMomentum(to, 1);
 		new GameEvent({
 			type : GameEvent.Types.reroll,
+			sender : this,
 			target : this,
 		}).raise();
 		return to;
@@ -3712,10 +3713,14 @@ export default class Player extends Generic{
 			tMajor = target ? target.getMajorEffects() : 0
 		;
 		let attackType = effect?.data?.type;
+		if( !attackType )
+			attackType = effect?.parent?.actionType;
 		if( !attackType && wrapper )
 			attackType = wrapper.actionType;
 		if( !attackType && action )
 			attackType = action.type;
+		if( !attackType ) // Useful for wrappers run through GameAction, where damage type defaults to physical if not specified in the effect.
+			attackType = Action.Types.physical;
 
 		let amt = 1.0;
 		// Multipliers last
@@ -3786,7 +3791,8 @@ export default class Player extends Generic{
 	calculateHealingNumberAgainst( target ){
 
 		let amt = 0;
-		amt += target.getGenericAmountStatPoints( Effect.Types.globalHealingTakenMod, this );
+		if( target )		
+			amt += target.getGenericAmountStatPoints( Effect.Types.globalHealingTakenMod, this );
 		amt += this.getGenericAmountStatPoints( Effect.Types.globalHealingDoneMod, target );
 		return amt;
 
@@ -3794,6 +3800,8 @@ export default class Player extends Generic{
 	// Note: this doesn't take stacks into consideration
 	calculateHealingAgainst( amt, target ){
 		
+		if( !target )
+			return amt;
 		amt += this.calculateHealingNumberAgainst(target);
 		amt *= this.calculateHealingMultiplierAgainst(target);
 		return amt;

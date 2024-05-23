@@ -388,7 +388,7 @@ class Bot{
 
 				if( !asset.equipped && !this.player.getEquippedAssetsBySlots(asset.slots).length ){
 
-					game.equipPlayerItem(this.player, asset.id);
+					game.equipPlayerItem(this.player, asset.id, true);
 					await delay(500);
 
 				}

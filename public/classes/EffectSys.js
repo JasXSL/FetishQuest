@@ -139,7 +139,10 @@ class Wrapper extends Generic{
 	}
 
 	load( data ){
-		this.g_autoload(data);
+
+		this.g_autoload(data, false, {
+			_descBuffer : true, // Block loading descBuffer
+		});
 	}
 
 	// Automatically invoked after g_autoload
@@ -1260,7 +1263,7 @@ class Effect extends Generic{
 					noBlock = true;
 
 				if( isNaN(amt) )
-					console.error("NaN damage amount found in", this);
+					console.error("NaN damage amount found in", this, "sender was", s, "target was", t, "action was", action);
 
 				let preHP = t.hp/t.getMaxHP();
 				let exec = t.addHP(amt, s, this, type, noBlock, true);

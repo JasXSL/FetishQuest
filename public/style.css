@@ -3034,6 +3034,10 @@ div.scroll{
 		height:0.5vmax;
 		background: linear-gradient(to left, rgba(255,128,50,0) 2%, rgba(255,128,50,0.5) 5%,rgba(255,128,50,0.0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 		mask-image: repeating-linear-gradient(270deg, transparent, #999 0 0.5vmax, transparent 0.5vmax 1vmax);
+		opacity: 0.25;
+	}
+	#ui > div.grapples > div.charged.atme{
+		opacity: 1;
 	}
 	@keyframes grappleFadeOut{
 		0%{opacity: 1.0; }

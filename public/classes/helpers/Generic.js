@@ -11,7 +11,7 @@ export default class Generic{
 
 	// Auto loads and typecasts
 	// If accept_all_nulls is true, all target nulls are set to the supplied value and not typecast or cloned
-	g_autoload( data, debug = false ){
+	g_autoload( data, debug = false, skip = {} ){
 
 		if( debug )
 			console.log("Autoload", data, !data);
@@ -24,6 +24,9 @@ export default class Generic{
 		// Game can't use NULL types in the netcode, because creating a new game object does a whole heap of stuff you don't want
 		const n = this.constructor.name === "Game" ? this : new this.constructor();
 		for( let i in data ){
+
+			if( skip[i] )
+				continue;
 
 			if( this.hasOwnProperty(i) && typeof n[i] !== "function" && i !== "parent" ){
 				// Special tag to delete an object property

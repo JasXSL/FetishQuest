@@ -555,7 +555,7 @@ export default class GameAction extends Generic{
 
 			}
 			// Lever does animation automatically
-			else{
+			else if( mesh ){
 				if( val )
 					playAnim("open");
 				else
