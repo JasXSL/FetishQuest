@@ -1115,7 +1115,7 @@ export default class Condition extends Generic{
 
 			else if( this.type === T.defeated ){
 				if( !t || !t.isDead )
-					console.error(t, "doesn't have an isDead function in event", event, "(condition)", this);
+					console.debug(t, "doesn't have an isDead function in event", event, "(condition)", this, "this is normal if the player is not in the game, such as from a dialog");
 				success = !t || t.isDead();
 			}
 

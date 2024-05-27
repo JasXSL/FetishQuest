@@ -18,7 +18,9 @@ export default class GameEvent extends Generic{
 
 		// These are values that can be set
 		this.sender = null;
-		this.target = null;		// Can be an array
+		this.target = null;						// Can be an array
+		this.parentWrapperTarget = null;		// Exists in: Event trigger. Target of the parent wrapper. Useful when using an effect target other than auto.
+		this.parentWrapperSender = null;		// Exists in: Event trigger. Sender of parent wrapper. Useful when using an effect target other than auto.
 		this.action = null;
 		this.wrapper = null;			// Note that this is overridden by the active wrapper when validating Effect triggers. 
 		this.originalWrapper = null;	// Set during validation of Effect.trigger when the original event has a wrapper attached to it.

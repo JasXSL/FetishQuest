@@ -23,7 +23,7 @@ const playerTemplate = $(
 				'<canvas></canvas>'+
 			'</div>'+
 			'<div class="stats">'+
-				'<span class="name" style="color:#DFD">'+
+				'<div class="name" style="color:#DFD">'+
 					'<div class="focus tooltipParent">'+
 						'<div class="tooltip center">Unaware of your active player, hit chance increased. Awareness is added when you use a directed action against a target, or they use one on you.</div>'+
 					'</div>'+
@@ -41,27 +41,31 @@ const playerTemplate = $(
 						'<span class="nameTag"></span>'+
 						'<span class="turnArrow"> &#9664;</span>'+
 					'</span>'+
-				'</span>'+
-				'<br />'+
-				'<span class="resources">'+
-					'<span class="armor resource thin" title="Damage reduction from armor." >'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
-					'</span>'+
-					'<span class="arousal resource" title="Arousal">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
-					'</span>'+
-					'<span class="AP resource tooltipParent" title="Momentum">'+
-						'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
-						'<div class="tooltip center">'+
-							'<span class="colorOffensive">0 Offensive</span> | '+
-							'<span class="colorDefensive">0 Defensive</span> | '+
-							'<span class="colorUtility">0 Utility</span>'+
-						'</div>'+
-					'</span>'+
-					'<span class="HP resource large" title="Hit Points" >'+
-						'<span></span>'+
-					'</span>'+
-				'</span>'+
+				'</div>'+
+				'<div class="resourceFlex">'+
+					'<div class="passives">'+
+						'<div class="icons"></div>'+
+					'</div>'+
+					'<div class="resources">'+
+						'<span class="armor resource thin" title="Damage reduction from armor." >'+
+							'<div class="bg" style="background-image:url(media/wrapper_icons/shield-echoes.svg)"></div><span></span>'+
+						'</span>'+
+						'<span class="arousal resource" title="Arousal">'+
+							'<div class="bg" style="background-image:url(media/wrapper_icons/pierced-heart.svg)"></div><span></span>'+
+						'</span>'+
+						'<span class="AP resource tooltipParent" title="Momentum">'+
+							'<div class="bg" style="background-image:url(media/wrapper_icons/jump-across.svg)"></div><span></span>'+
+							'<div class="tooltip center">'+
+								'<span class="colorOffensive">0 Offensive</span> | '+
+								'<span class="colorDefensive">0 Defensive</span> | '+
+								'<span class="colorUtility">0 Utility</span>'+
+							'</div>'+
+						'</span>'+
+						'<span class="HP resource large" title="Hit Points" >'+
+							'<span></span>'+
+						'</span>'+
+					'</div>'+
+				'</div>'+
 			'</div>'+
 		'</div>'+
 		'<div class="charging"></div>'+
@@ -84,6 +88,7 @@ const playerTemplate = $(
 
 		'<div class="shields">'+
 			'<div class="shield" title="Blocking incoming damage">'+
+				'<div class="bolster"></div>'+
 				'<div class="bg" style="background-image:url(media/wrapper_icons/bordered-shield.svg)"></div>'+
 				'<span class="val">10</span>'+
 			'</div>'+
@@ -1243,7 +1248,7 @@ export default class UI{
 		$("div.left", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_friendly > 10 ? 10 : nr_friendly));
 		$("div.right", this.players).toggleClass('p1 p2 p3 p4 p5 p6 p7 p8 p9 p10', false).toggleClass('p'+(nr_hostile > 10 ? 10 : nr_hostile));
 
-		$("div.player span.name div.owner", this.players).on('click', event => {
+		$("div.player div.name div.owner", this.players).on('click', event => {
 
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -1276,7 +1281,7 @@ export default class UI{
 
 		});
 
-		$("div.player span.name div.own", this.players).on('click', event => {
+		$("div.player div.name div.own", this.players).on('click', event => {
 
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -1285,7 +1290,7 @@ export default class UI{
 
 		});
 
-		$("div.player span.name div.leader", this.players).on('click', event => {
+		$("div.player div.name div.leader", this.players).on('click', event => {
 
 			event.preventDefault();
 			event.stopImmediatePropagation();
@@ -1635,13 +1640,15 @@ export default class UI{
 			// Map up needed sub divs
 			contentEl = $("> div.content", el),
 			statsEl = $('> div.stats', contentEl),
-				nameEl = $('> span.name', statsEl),
+				nameEl = $('> div.name', statsEl),
 					ownerEl = $('> div.owner', nameEl),
 					ownEl = $('> div.own', nameEl),
 					leaderEl = $('> div.leader', nameEl),
 					nameDisplayEl = $('span.nameTag', nameEl),
 					focusEl = $('div.focus', nameEl),
-				resourcesEl = $('> span.resources', statsEl),
+				passivesEl = $('div.resourceFlex > div.passives', statsEl),
+					passivesIconsEl = $('> div.icons', passivesEl),
+				resourcesEl = $('div.resourceFlex > div.resources', statsEl),
 					arousalEl = $('> span.arousal', resourcesEl),
 					arousalElSpan = $('> span', arousalEl),
 					apEl = $('> span.AP', resourcesEl),
@@ -1854,9 +1861,11 @@ export default class UI{
 		if( !blocking && shieldEl.hasClass("spawn") )
 			shieldEl.toggleClass('die', true);
 		
-		if( blocking )
+		if( blocking ){
 			shieldEl.toggleClass('die', false);
-			
+			shieldEl.toggleClass('bolster', p.blockFadeLocked());
+		}
+
 		$("> span", shieldEl).text(blocking);
 
 		setTimeout(() => {
@@ -1943,7 +1952,9 @@ export default class UI{
 
 		// Effect wrappers
 		const wrappers = p.getWrappers().filter(el => !el.hidden && el.name.length && el.icon && el.parent instanceof Player),
-			wrapperButtons = $('> div', wrappersEl);
+			wrapperButtons = $('> div', wrappersEl),
+			passivesButtons = $("> div", passivesIconsEl)
+		;
 		
 			
 		const vic = p.id;
@@ -1965,6 +1976,8 @@ export default class UI{
 			}));
 		
 		wrapperButtons.toggleClass('hidden', true);
+		passivesButtons.toggleClass('hidden', true);
+
 
 		wrappers.sort((a, b) => {
 
@@ -1994,16 +2007,27 @@ export default class UI{
 		if( p.getTeam() !== Player.TEAM_PLAYER )
 			wrappers.reverse();
 
+		let nPassives = 0, nWrappers = 0; // Tracks the index within each array
 		for( let i =0; i<wrappers.length; ++i ){
 
-			let wrapper = wrappers[i],
-				el = wrapperButtons[i],
-				caster = wrapper.getCaster()
+			const 
+				wrapper = wrappers[i], 
+				caster = wrapper.getCaster(),
+				passive = wrapper.usesPassivesSlot()
 			;
-			
+			let el;
+			if( passive ){
+				el = passivesButtons[nPassives];
+				++nPassives;
+			}
+			else{
+				el = wrapperButtons[nWrappers];
+				++nWrappers;
+			}
+
 			if( !el ){
 				el = $(UI.Templates.wrapper);
-				wrappersEl.append(el);
+				passive ? passivesIconsEl.append(el) : wrappersEl.append(el);
 			}
 			UI.setWrapperIconContent(el, wrapper, p, caster);
 			
@@ -2470,7 +2494,7 @@ export default class UI{
 		if( currentTargets < spell.min_targets )
 			ht += 'Need '+(spell.min_targets-currentTargets)+' more';
 		else
-			ht += '<input type="button" value="[Q] Done" id="execMultiCast" />';
+			ht += '<input type="button" '+(currentTargets >= spell.max_targets ? 'class="highlighted"' : '')+' value="[Q] Done" id="execMultiCast" />';
 
 		this.multiCastPicker.html(ht).toggleClass('hidden', false);
 

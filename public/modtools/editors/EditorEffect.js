@@ -180,7 +180,8 @@ export function help(){
 			'<td>Conditions for the effect to trigger or for a passive effect to be considered as enabled.</td>'+
 		'</tr>'+
 		'<h3>A note about Effects</h3>'+
-		'<p>If the target of the event that triggered the effect is the holder of the wrapper this effect is attached to, then it flips target/sender. So generally you want to flip so ta_ vars target the owner of the effect, whereas se_ will target the target of the effect. I don\'t remember why I made it this way, but I think it was important.</p>'
+		'<p>If the target of the event that triggered the effect is the holder of the wrapper this effect is attached to, then it flips target/sender. So generally you want to flip so ta_ vars target the owner of the effect, whereas se_ will target the target of the effect. I don\'t remember why I made it this way, but I think it was important.</p>'+
+		'<p>By default, mathVar targets will be the target(s) set in the targets section. If you want to access the parent wrapper\'s sender or target, you have access to pws_ and pwt_. These stand for parentWrapperSender and parentWrapperTarget, and contain data about the effect parent wrapper\'s send and target.</p>'
 	;
 		
 

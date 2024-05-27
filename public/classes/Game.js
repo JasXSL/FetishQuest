@@ -56,7 +56,7 @@ export default class Game extends Generic{
 		this.initialized = false;			// might happen multiple times from the load function
 		this.full_initialized = false;		// Only happens once
 		this.chat_log = [];					// Chat log
-		this.dungeon = new Dungeon({}, this);					// if this is inside a quest, they'll share the same object
+		this.dungeon = new Dungeon({"id":"_INI_"}, this);					// if this is inside a quest, they'll share the same object
 		this.encounter = new Encounter({completed:true}, this);		// if this is inside a dungeon, they'll be the same objects
 		this.roleplay = new Roleplay({completed:true}, this);
 		this.quests = [];								// Quest Objects of quests the party is on. 
@@ -208,16 +208,40 @@ export default class Game extends Generic{
 			pl.addDefaultActions();
 		});
 
+		this.setupAudio();
+		
+		if( this.dungeon.id === '_INI_' ){
+
+			let cell = this.story.start_cell || 0;
+			this.setDungeon( this.story.start_dungeon, cell );
+			this.ui.onNewGame();
+
+		}
+
 		// Run story game actions
 		for( let ga of this.story.game_actions )
 			ga.trigger( game.players[0], undefined, false, game.players[0], true );
 		this.story.onGameStart();
+
+		
 		/*
 		Todo: Uncomment when chrome unfucks their console
 		window.onerror = error => {
 			this.onError(error);
 		};
 		*/
+	}
+
+	setupAudio(){
+
+		if( this.audio_fx )
+			return;
+		this.audio_fx = new Audio("fx");
+		this.audio_ambient = new Audio('ambient', false);
+		this.audio_music = new Audio('music', false, 0.15);
+		this.audio_ui = new Audio('ui', true);
+		this.audio_voice = new Audio('voice', true);
+	
 	}
 
 	onError(error){
@@ -399,13 +423,7 @@ export default class Game extends Generic{
 
 		this.initialized = false;		// prevents text sounds from being played when a netgame loads
 
-		if( !this.audio_fx ){
-			this.audio_fx = new Audio("fx");
-			this.audio_ambient = new Audio('ambient', false);
-			this.audio_music = new Audio('music', false, 0.15);
-			this.audio_ui = new Audio('ui', true);
-			this.audio_voice = new Audio('voice', true);
-		}
+		this.setupAudio();
 		
 
 		this.g_autoload(data);
@@ -688,6 +706,10 @@ export default class Game extends Generic{
 
 	isAwarenessEnabled(){
 		return !this.story.disable_awareness;
+	}
+
+	isMultiplayerDamageModEnabled(){
+		return !this.story.no_multiplayer_dmg_increase;
 	}
 
 	isKinkGenEnabled(){
@@ -3257,7 +3279,6 @@ export default class Game extends Generic{
 		if( !this.is_host )
 			return Game.net.playerRerollMomentum(player, type, to);
 
-		console.log("Rolling", type, to);
 		// Only host below this point
 		const rolledTo = player.rerollMomentum(type, to);
 		if( rolledTo === false ) // Note: May be 0, type check is a must
@@ -4145,8 +4166,10 @@ export default class Game extends Generic{
 		if( this.isGameOver() )
 			return false;
 
-		if( !(shop instanceof Shop) )
+		// Only host can check glib.
+		if( !(shop instanceof Shop) && this.is_host )
 			shop = glib.get(shop, 'Shop', false);
+
 		if( typeof player !== "object" )
 			player = this.getPlayerById(player);
 
@@ -4670,9 +4693,7 @@ Game.new = async function( name, players, story ){
 	}
 	
 	await game.execSave( true );
-	let cell = story.start_cell || 0;
-	game.setDungeon( story.start_dungeon, cell );
-	game.ui.onNewGame();
+	
 
 };
 

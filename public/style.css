@@ -2151,11 +2151,11 @@ div.scroll{
 		font-size:1vmax;
 		font-weight: normal;
 	}
-	#ui > div.players div.player div.stats span.name div.leader:not(.host){
+	#ui > div.players div.player div.stats div.name div.leader:not(.host){
 		background:none;
 		border:none;
 	}
-	#ui > div.players div.player div.stats span.name div.leader.host.active{
+	#ui > div.players div.player div.stats div.name div.leader.host.active{
 		background-color: #484;
 	}
 	#ui > div.players div.player img.leader{
@@ -2484,6 +2484,7 @@ div.scroll{
 		padding:1vmax;
 		pointer-events: all;
 		margin:1vmax;
+		height:auto;
 	}
 	#multiCastPicker.hidden > input{
 		display:none;
@@ -3123,7 +3124,7 @@ div.scroll{
 			45deg, #888888 0%,#adadad 48%,#797979 51%,#838383 100%) border-box;
 
 	}
-	div.players div.player span.name{
+	div.players div.player div.name{
 		font-size: 1.4vmax;
 		padding: 0.25vmax;
 		position: absolute;
@@ -3135,23 +3136,23 @@ div.scroll{
 		text-shadow: 1px 1px #000, -1px 1px #000, 1px -1px #000, -1px -1px #000;
 	}
 
-	div.players div.player span.name span.nameTag.mine,
-	div.players div.player span.name.active span.nameTag.mine{
+	div.players div.player div.name span.nameTag.mine,
+	div.players div.player div.name.active span.nameTag.mine{
 		font-weight: bold;		
 	}
-	div.players div.player span.name span.nameTag.npc{
+	div.players div.player div.name span.nameTag.npc{
 		font-style: italic;
 	}
-	div.players div.player span.name span.turnArrow{
+	div.players div.player div.name span.turnArrow{
 		display:none;
 	}
-	div.players div.player span.name.active span.turnArrow{
+	div.players div.player div.name.active span.turnArrow{
 		display:inline;
 	}
-	div.players div.left div.player span.name > span{
+	div.players div.left div.player div.name > span{
 		margin-left:0.5vmax;
 	}
-	div.players div.right div.player span.name > span{
+	div.players div.right div.player div.name > span{
 		margin-right:0.5vmax;
 	}
 
@@ -3192,10 +3193,10 @@ div.scroll{
 	}
 	
 	
-	#ui > div.players div.player:hover span.name > div.button{
+	#ui > div.players div.player:hover div.name > div.button{
 		display:inline-block;
 	}
-	#ui > div.players div.player span.name > div.button{
+	#ui > div.players div.player div.name > div.button{
 		width:1.6vmax; height:1.6vmax;
 		padding:0;
 		vertical-align: middle;
@@ -3203,7 +3204,7 @@ div.scroll{
 		display:none;
 		pointer-events: all;
 	}
-	#ui > div.players div.player span.name > div.button.selected{
+	#ui > div.players div.player div.name > div.button.selected{
 		border-color:#AFA;
 		background-color: #363;
 	}
@@ -3303,17 +3304,17 @@ div.scroll{
 		height: 100%;
 	}
 	
-	#ui > div.players div.player > div.content > div.stats > span.name > div.focus{
+	#ui > div.players div.player > div.content > div.stats > div.name div.focus{
 		width:3vmax;
 		height:3vmax;
 		opacity: 0.75;
 		position: absolute;
 		background:fixed url(media/wrapper_icons/eye-target.svg) center;
-		left:1vw;
-		top:50%;
+		right:0.5vmax;
+		top:-2vh;
 		transform:translateY(-50%);
 	}
-	#ui > div.players > div.right > div.player > div.content > div.stats > span.name > div.focus{
+	#ui > div.players > div.right > div.player > div.content > div.stats > div.name div.focus{
 		right:1vw;
 		left:auto;
 	}
@@ -3325,7 +3326,6 @@ div.scroll{
 		left:0;
 		text-align: right;
 		border-top-left-radius: 1vmax;
-		/*backdrop-filter: blur(2px);*/
 	}
 	#ui > div.players div.right div.player > div.content > div.stats{
 		left:0; right:0; top:0; bottom:0;
@@ -3333,13 +3333,39 @@ div.scroll{
 		border-top-right-radius: 1vmax;
 		text-align: left;
 	}
-	#ui > div.players div.player > div.content > div.stats span.resources{
-		position:absolute;
-		left:0;
+
+	#ui > div.players div.player > div.content > div.stats div.resourceFlex{
+		display:flex;
+		width:100%;
+		justify-content: space-between;
+		position: absolute;
 		bottom:0;
-		right:0;
+		height:3.8vmax;
 	}
-	
+	#ui > div.players > div.right div.player > div.content > div.stats div.resourceFlex{
+		flex-direction: row-reverse;
+	}
+	#ui > div.players div.player > div.content > div.stats div.resources{
+		margin-top:auto;
+		flex-shrink: 0;
+	}
+	#ui > div.players div.player > div.content > div.stats div.passives{
+		flex:1;
+		padding-bottom:0.1vmax;
+		margin-top:auto;
+	}
+	#ui > div.players div.player > div.content > div.stats div.passives > div.icons{
+		flex-wrap: wrap-reverse;
+		text-align: left;
+		display:flex;
+		height:100%;
+	}
+	#ui > div.players div.player > div.content > div.stats div.passives > div.icons > div{
+		width:1.5vmax; height:1.5vmax;
+		border-width:0.1vmax;
+		overflow:visible;
+		margin:1px;
+	}
 
 
 
@@ -3467,6 +3493,17 @@ div.scroll{
 		background-size:contain;
 		filter: drop-shadow(.25vmax .25vmax 0.1vmax #000) brightness(0.7) sepia(1) saturate(3) hue-rotate(130deg);
 	}
+	#ui > div.players div.player > div.shields > div.shield > div.bolster{
+		display: none;
+	}
+	#ui > div.players div.player > div.shields > div.shield.bolster > div.bolster{
+		position: absolute;
+		display:block;
+		top:-.5vmax; left:-.2vmax; right:-.2vmax; bottom:0;
+		background:url(media/wrapper_icons/winged-shield.svg) center top;
+		background-size:contain;
+	}
+
 /**/
 
 /* Action bar */
@@ -3636,7 +3673,9 @@ div.scroll{
 	}
 		
 	
-	#ui > div.actionbar > div.actions > div.action[data-id=end-turn]{
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn],
+	#execMultiCast
+	{
 		width: auto;
 		padding-top: 1.5vh;
 		color: #DFD;
@@ -3666,7 +3705,8 @@ div.scroll{
 		from{transform: scale(1.05,1.05);}
 		to{transform: scale(1.1,1.1);}
 	}
-	#ui > div.actionbar > div.actions > div.action[data-id=end-turn].highlighted{
+	#ui > div.actionbar > div.actions > div.action[data-id=end-turn].highlighted,
+	#multiCastPicker > #execMultiCast.highlighted{
 		color:#DFD;
 		border-color:#DFD;
 		animation: endTurnPulse 0.5s ease-in-out alternate infinite;

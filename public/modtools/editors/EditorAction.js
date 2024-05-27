@@ -106,6 +106,8 @@ export function asset(){
 
 	html += 'Conditions: <br /><div class="conditions"></div>';
 	html += '<span title="Conditions needed to be met for this to show in the ability bar">Show Conditions: </span><br /><div class="show_conditions"></div>';
+	html += '<span title="Conditions only checked on cast start">Cast Conditions: </span><br /><div class="cast_conditions"></div>';
+	html += '<span title="Conditions only checked on cast finish">Finish Conditions: </span><br /><div class="finish_conditions"></div>';
 	html += '<div class="stdConditions '+(dummy.std ? '' : 'hidden')+'"><span title="Conditions to add this to a player">STD Conditions: </span><br /><div class="std_conds"></div></div>';
 	
 	
@@ -128,6 +130,8 @@ export function asset(){
 
 	// conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.cast_conditions").appendChild(EditorCondition.assetTable(this, asset, "cast_conditions"));
+	this.dom.querySelector("div.finish_conditions").appendChild(EditorCondition.assetTable(this, asset, "finish_conditions"));
 	this.dom.querySelector("div.show_conditions").appendChild(EditorCondition.assetTable(this, asset, "show_conditions"));
 	this.dom.querySelector("div.std_conds").appendChild(EditorCondition.assetTable(this, asset, "std_conds"));
 	

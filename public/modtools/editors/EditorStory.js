@@ -49,6 +49,7 @@ export function asset(){
 		html += '<label>Disable damage type secondary effects: <input type="checkbox" name="no_dmg_type_secondary" class="saveable" value=1 '+(dummy.no_dmg_type_secondary ? 'checked' : '')+' /></label>';
 		html += '<label>No std actions: <input type="checkbox" name="no_std_actions" class="saveable" value=1 '+(dummy.no_std_actions ? 'checked' : '')+' /></label>';
 		html += '<label>Disable Awareness: <input type="checkbox" name="disable_awareness" class="saveable" value=1 '+(dummy.disable_awareness ? 'checked' : '')+' /></label>';
+		html += '<label>No multiplayer dmg increase: <input type="checkbox" name="no_multiplayer_dmg_increase" class="saveable" value=1 '+(dummy.no_multiplayer_dmg_increase ? 'checked' : '')+' /></label>';
 		html += '<label>Players always go first: <input type="checkbox" name="players_always_go_first" class="saveable" value=1 '+(dummy.players_always_go_first ? 'checked' : '')+' /></label>';
 	html += '</div>';
 

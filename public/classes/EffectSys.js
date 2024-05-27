@@ -54,7 +54,7 @@ class Wrapper extends Generic{
 		this.tick_on_turn_start = true;			// Tick on turn start
 		this.tick_on_turn_end = false;			// Tick on turn end
 
-		this.global = false;				// Host only: Applied to all players as passives whenever they're added to the game, provided conditions are matched
+		this.global = false;					// Host only: Applied to all players as passives whenever they're added to the game, provided conditions are matched
 
 		this.netPlayer = "";					// This should only be relied upon from instant effects
 
@@ -174,7 +174,7 @@ class Wrapper extends Generic{
 	getCaster( allowParent = true ){
 
 		const out = game.getPlayerById(this.caster);
-		if( out || !allowParent )
+		if( out instanceof Player || !allowParent )
 			return out;
 		return this.getPlayerParent();	// Used in traps since they don't add the "trap player" to the game
 
@@ -190,7 +190,10 @@ class Wrapper extends Generic{
 
 	}
 	
-
+	// Should use a small icon since this is a passive
+	usesPassivesSlot(){
+		return this.ext;
+	}
 	
 	/* MAIN FUNCTIONALITY */
 	// Tests if the wrapper can be used against a single target
@@ -222,8 +225,15 @@ class Wrapper extends Generic{
 
 	getAction(){
 
+		if( this.parent instanceof Asset )
+			return false;
+
+		if( this.parent instanceof Action )
+			return this.parent;
+
 		// Changed this to sender, which it should be? I don't know why it was target
 		let sender = this.getCaster();
+		
 		if( !sender )
 			return false;
 		return sender.getActionById(this.action);
@@ -557,6 +567,8 @@ class Wrapper extends Generic{
 		while( p && p.parent && !(p instanceof Player))
 			p = p.parent;
 		
+		if( !(p instanceof Player) )
+			return false;
 		return p;
 
 	}
@@ -631,7 +643,7 @@ class Wrapper extends Generic{
 		}
 
 		const caster = this.getCaster() || new Player();
-		const parent = this.parent || new Player();
+		const parent = this.parent instanceof Player ? this.parent : new Player();
 
 		if( !caster.getColoredName )
 			console.error("Caster colored name missing", caster);
@@ -1023,9 +1035,10 @@ class Effect extends Generic{
 		if( !this.validateConditions(evt, this.label === 'tmp_debug' || debug) )
 			return false;
 
-		let sender = game.getPlayerById(this.parent.caster),
-			target = game.getPlayerById(this.parent.victim)
-		;
+		let pws, pwt, sender, target;
+		sender = pws = game.getPlayerById(this.parent.caster);
+		target = pwt = game.getPlayerById(this.parent.victim);
+		
 		if( !sender )
 			sender = event.sender;
 		if( !target && event.target ){
@@ -1082,6 +1095,8 @@ class Effect extends Generic{
 			target : tout,
 			wrapper : wrapper,
 			effect : this,
+			parentWrapperTarget : pwt,
+			parentWrapperSender : pws
 		}).raise();
 
 		// Automatically get type from this.data.type first
@@ -1115,7 +1130,7 @@ class Effect extends Generic{
 				let type = attackType;
 
 				let e = GameEvent.Types.damageDone, e2 = GameEvent.Types.damageTaken;
-				const calcEvt = new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this});
+				const calcEvt = new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this, parentWrapperTarget : pwt, parentWrapperSender : pws});
 
 				let amt = -Calculator.run(
 					this.data.amount, 
@@ -1183,8 +1198,11 @@ class Effect extends Generic{
 					// Negative if we should do LESS damage
 
 					amt = -s.calculateDamageAgainst(Math.abs(amt), t, action, wrapper, this);
+					const cap = t.getDamageTakenCap(s);
 					if( amt > 0 )
 						amt = 0;
+					if( cap > -1 && Math.abs(amt) > cap )
+						amt = -cap;
 
 					//console.log("Amt", amt, "flat", flatAmount, "mutli", multiplier, t, action, wrapper, this, "atkType", attackType);
 
@@ -1284,8 +1302,11 @@ class Effect extends Generic{
 					s.onDamageDone(t, type, Math.abs(amt));
 
 					let threat = amt * (!isNaN(this.data.threatMod) ? this.data.threatMod : 1);
-					let leech = !isNaN(this.data.leech) ? Math.abs(Math.round(amt*this.data.leech)) : 0;
-					
+					let leech = !isNaN(this.data.leech) ? Math.abs(amt*this.data.leech) : 0;
+					if( changehp && !isNaN(this.data.leech_unblocked) )
+						leech += (this.data.leech_unblocked * Math.abs(changehp)) || 0;
+
+					leech = randRound(leech);
 
 					t.addThreat( s.id, -threat );
 
@@ -1294,6 +1315,7 @@ class Effect extends Generic{
 					
 					if( leech ){
 						s.addHP(leech, s, this, type, false, true);
+						
 						game.ui.addText( s.getColoredName()+" leeched "+leech+" HP.", undefined, s.id, t.id, 'statMessage healing' );
 						new GameEvent({
 							type : GameEvent.Types.lifeSteal,
@@ -1303,7 +1325,8 @@ class Effect extends Generic{
 							effect : this,
 							custom : {
 								amount : leech
-							}
+							}, 
+							parentWrapperTarget : pwt, parentWrapperSender : pws
 						});
 					}
 
@@ -1327,7 +1350,8 @@ class Effect extends Generic{
 						amount : actualAmount,
 						overAmount : overAmount,
 						hpPre : preHP
-					}
+					},
+					parentWrapperTarget : pwt, parentWrapperSender : pws
 				});
 				doneEvt.raise();
 				
@@ -1358,7 +1382,8 @@ class Effect extends Generic{
 						sender : s,
 						target : t,
 						wrapper : wrapper,
-						effect : this
+						effect : this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).raise();
 			}
 
@@ -1372,8 +1397,8 @@ class Effect extends Generic{
 
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
-				}));
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this, parentWrapperTarget : pwt, parentWrapperSender : pws})
+				);
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
 				t.addIncomingMomentum(this.data.type, amt);
@@ -1384,8 +1409,7 @@ class Effect extends Generic{
 
 				let amt = Calculator.run(
 					this.data.amount, 
-					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this
-				}));
+					new GameEvent({sender:s, target:t, wrapper:this.parent, effect:this, parentWrapperTarget : pwt, parentWrapperSender : pws}));
 				if( !this.no_stack_multi )
 					amt *= this.parent.getStacks();
 
@@ -1426,7 +1450,8 @@ class Effect extends Generic{
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
 				if( !this.no_stack_multi )
@@ -1439,21 +1464,23 @@ class Effect extends Generic{
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
+
 				if( !this.no_stack_multi )
 					amt *= wrapper.getStacks();
-				amt = Math.floor(amt)
+				amt = Math.trunc(amt)
 				if( amt < 0 )
-					amt = t.consumeMoney(-amt, false, true);
+					amt = -t.consumeMoney(Math.abs(amt), false, true);
 				else
 					t.addCopperAsMoney(amt);
 
 				if( this.data.alert ){
 
 					let text = t.getColoredName() + ' ' + (amt > 0 ? 'gained' : 'lost') + ' ';
-					text += Player.copperToReadable(Math.abs(copper));
+					text += Player.copperToReadable(Math.abs(amt));
 					if( wrapper.name )
 						text += ' from '+wrapper.name;
 					text += '!';
@@ -1485,7 +1512,8 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addBlock ){
 
 				const merged = new GameEvent({
-					sender:s, target:t, wrapper:wrapper, effect:this
+					sender:s, target:t, wrapper:wrapper, effect:this,
+					parentWrapperTarget : pwt, parentWrapperSender : pws
 				}).mergeUnset(event);
 				let amt = Calculator.run(
 					this.data.amount, 
@@ -1511,7 +1539,8 @@ class Effect extends Generic{
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({
-						sender:s, target:t, wrapper:this.parent, effect:this
+						sender:s, target:t, wrapper:this.parent, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
 
@@ -1551,7 +1580,8 @@ class Effect extends Generic{
 				let amt = Math.floor(Calculator.run(
 					this.data.amount, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				));
 				if( !isNaN(amt) ){
@@ -1580,7 +1610,8 @@ class Effect extends Generic{
 				let amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
 				if( !this.no_stack_multi )
@@ -1636,7 +1667,8 @@ class Effect extends Generic{
 								sender:s, 
 								target:t, 
 								wrapper:wrapper, 
-								effect:this
+								effect:this,
+								parentWrapperTarget : pwt, parentWrapperSender : pws
 							}).mergeUnset(event)
 						);
 						if( Math.random() < stacks-Math.floor(stacks) )
@@ -1671,7 +1703,7 @@ class Effect extends Generic{
 				}
 
 				const conds = this.data.conditions || [];
-				const tmpEvt = new GameEvent({sender:s, target:t, dungeon:game.dungeon, room:game.dungeon.getActiveRoom()});
+				const tmpEvt = new GameEvent({sender:s, target:t, dungeon:game.dungeon, room:game.dungeon.getActiveRoom(), parentWrapperTarget : pwt, parentWrapperSender : pws});
 
 				// Check for viable assets
 				let assets = t.assets.filter(el => {
@@ -1724,7 +1756,8 @@ class Effect extends Generic{
 				const amt = Calculator.run(
 					this.data.amount,
 					new GameEvent({
-						sender:s, target:t, wrapper:this.parent, effect:this
+						sender:s, target:t, wrapper:this.parent, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					})
 				);
 				t.consumeReroll( -amt );
@@ -1773,7 +1806,7 @@ class Effect extends Generic{
 					viable = [],
 					assets = t.getAssets()
 				;
-				const evt = new GameEvent({wrapper:wrapper, effect:this, sender:s, target:t});
+				const evt = new GameEvent({wrapper:wrapper, effect:this, sender:s, target:t, parentWrapperTarget : pwt, parentWrapperSender : pws});
 				for( let asset of assets ){
 					
 					evt.asset = asset;
@@ -1854,7 +1887,7 @@ class Effect extends Generic{
 					for( let wr of w ){
 						if( this.data.casterOnly && wr.caster !== s.id )
 							continue;
-						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr})) )
+						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr, parentWrapperTarget : pwt, parentWrapperSender : pws})) )
 							wrappers.push(wr);
 					}
 				}
@@ -1874,7 +1907,8 @@ class Effect extends Generic{
 				}
 				time = Calculator.run(time, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
 
@@ -1890,7 +1924,7 @@ class Effect extends Generic{
 					for( let wr of w ){
 						if( this.data.casterOnly && wr.caster !== s.id )
 							continue;
-						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr})) )
+						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr, parentWrapperTarget : pwt, parentWrapperSender : pws})) )
 							wrappers.push(wr);
 					}
 				}
@@ -1911,7 +1945,8 @@ class Effect extends Generic{
 				const amt = Calculator.run(
 					this.data.amount, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
 				t.addActionCharges(
@@ -1935,7 +1970,7 @@ class Effect extends Generic{
 					let text = "knocked down on their "+(this.data.type === Effect.KnockdownTypes.Forward ? 'stomach' : 'back');
 					game.ui.addText( t.getColoredName()+" was "+text+".", undefined, t.id, t.id, 'statMessage' );
 					this.data.ini = true;
-					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this, type:GameEvent.Types.knockdown}).raise();
+					new GameEvent({sender:s, target:t, wrapper:wrapper, effect:this, type:GameEvent.Types.knockdown, parentWrapperTarget : pwt, parentWrapperSender : pws}).raise();
 
 				}
 			}
@@ -1953,7 +1988,8 @@ class Effect extends Generic{
 				let amt = Calculator.run(
 					this.data.amount || 1, 
 					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this
+						sender:s, target:t, wrapper:wrapper, effect:this,
+						parentWrapperTarget : pwt, parentWrapperSender : pws
 					}).mergeUnset(event)
 				);
 				if( !this.no_stack_multi )
@@ -2036,7 +2072,8 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.addExposedOrificeTag ){
 
 				const tEvent = new GameEvent({
-					target : t
+					target : t,
+					parentWrapperTarget : pwt, parentWrapperSender : pws
 				});
 				const viable = [];
 				// These 2 should match each other
@@ -2082,7 +2119,7 @@ class Effect extends Generic{
 				}
 
 				let viable = [];
-				const tEvent = new GameEvent({target:t, sender:s});
+				const tEvent = new GameEvent({target:t, sender:s, parentWrapperTarget : pwt, parentWrapperSender : pws});
 
 				for( let tag of this.data.tags ){
 
@@ -2132,7 +2169,7 @@ class Effect extends Generic{
 					type : GameAction.types.addPlayer,
 					data : {player:label},
 				});
-				gameAction.exec(t, undefined, undefine, s);
+				gameAction.exec(t, undefined, undefined, s);
 
 			}
 
@@ -2562,8 +2599,12 @@ Effect.Types = {
 	preventEquip : 'preventEquip',
 	globalBlockMod : 'globalBlockMod',
 	setEvtActionCrit : 'setEvtActionCrit',
+	
+	persistReroll : 'persistReroll',
+	blockOvercapReroll : 'blockOvercapReroll',
 
 	summonMinion : 'summonMinion',
+	damageTakenCap : 'damageTakenCap',
 };
 
 // Effect types that can be passive. Helps prevent recursion. Effects that don't have this set won't have their tags checked.
@@ -2642,6 +2683,9 @@ Effect.Passive = {
 	[Effect.Types.rerollRandom] : true,
 	[Effect.Types.preventEquip] : true,
 	[Effect.Types.globalBlockMod] : true,
+	[Effect.Types.damageTakenCap] : true,
+	[Effect.Types.persistReroll] : true,
+	[Effect.Types.blockOvercapReroll] : true,
 };
 
 Effect.KnockdownTypes = {
@@ -2651,7 +2695,7 @@ Effect.KnockdownTypes = {
 
 
 Effect.TypeDescs = {
-	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5, armor_pen:(int)perc=0, no_block:(bool)=false} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro. Armor pen is a whole number. no_block ignores block",
+	[Effect.Types.damage] : "{amount:(str)formula, type:(str)Action.Types.x, leech:(float)leech_multiplier, leech_unblocked:(float)leech_unblocked_multiplier, dummy_sender:false, heal_aggro:(float)multiplier=0.5, armor_pen:(int)perc=0, no_block:(bool)=false} - If type is left out, it can be auto supplied by an asset. dummy_sender will generate a blank player with level set to the player average. heal_aggro only works on negative amounts, and generates threat on all enemies equal to amount healed times heal_aggro. Armor pen is a whole number. no_block ignores block. Leech heals the caster for leech*damage. leech_unblocked does the same, but only for HP damage",
 	[Effect.Types.endTurn] : "void - Ends turn",
 	[Effect.Types.fullRegen] : "void - Fully restores a player",
 	[Effect.Types.trace] : '{message:(str)message} - Creates a stack trace here',
@@ -2783,6 +2827,9 @@ Effect.TypeDescs = {
 	[Effect.Types.setEvtActionCrit] : '{crit:(bool)crit=true} - Requires action in event. Will set the action critical hit flag. Can be useful when an action adds arousal and should crit on orgasm, since action crit is calculated right before running the wrappers.',
 	[Effect.Types.preventEquip] : '{conditions:(arr)conditions} - Prevents equipping assets that match conditions',
 	[Effect.Types.summonMinion] : '{label:(str)playerLabel} - Creates a game action and executes it.',
+	[Effect.Types.damageTakenCap] : '{amount:(int/str)amount} - Sets the max amount of damage the player can take from a single hit.',
+	[Effect.Types.persistReroll] : 'void - Reroll doesn\'t drop off on turn start.',
+	[Effect.Types.blockOvercapReroll] : 'void - When gaining momentum past the cap, do not gain rerolls.',
 };
 
 

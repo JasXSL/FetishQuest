@@ -1161,7 +1161,6 @@ class WebGL{
 			}
 		});
 
-		console.log(dice.rotation);
 		let start = new THREE.Vector3();
 		start.setFromEuler(dice.rotation);
 		let dir = new THREE.Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);

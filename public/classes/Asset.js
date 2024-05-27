@@ -580,9 +580,9 @@ export default class Asset extends Generic{
 				let color = '#FAA';
 				if( wrapper.rarity > 0 )
 					color = Asset.RarityColors[wrapper.rarity];
-				let desc = wrapper.description;
+				let desc = wrapper.getDescription();
 
-				html += '<br /><span style="color:'+color+'">'+esc(desc)+'</span>';
+				html += '<br /><span style="color:'+color+'">'+desc+'</span>';
 
 			}
 		}

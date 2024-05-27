@@ -2152,7 +2152,7 @@ export default class StaticModal{
 								return;
 
 						}
-						game.sellAsset(th.shop.label, asset.id, amount, myPlayer.id);
+						game.sellAsset(th.shop, asset.id, amount, myPlayer.id); // use the shop object here directly or it won't work with the netcode
 
 					};
 
@@ -4702,10 +4702,10 @@ export default class StaticModal{
 							
 							if( isHotbar && !asset.no_unequip )
 								modal.addSelectionBoxItem( 'Unequip'+(game.battle_active ? ' ['+asset.getUnequipCost()+' Momentum]' : ''), '', 'unequip' );
-							else if( player.canEquip(asset) && !isHotbar )
+							else if( player.canEquip(asset) && !isHotbar && !game.isInRoleplay() )
 								modal.addSelectionBoxItem( 'Equip'+(game.battle_active ? '['+asset.getEquipCost()+' Momentum]' : ''), '', 'equip' );
 
-							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) ){
+							if( asset.isConsumable() && asset.isUsable() && (!game.battle_active || (game.isTurnPlayer(player) && isHotbar)) && !game.isInRoleplay() ){
 								modal.addSelectionBoxItem( 'Use', asset.use_action.getTooltipText(false), 'use' );
 							}
 
@@ -4721,7 +4721,8 @@ export default class StaticModal{
 							if( 
 								game.getTeamPlayers( player.getTeam() ).filter(el => el.id !== player.id).length && 
 								!game.battle_active &&
-								!asset.soulbound
+								!asset.soulbound &&
+								!game.isInRoleplay()
 							)modal.addSelectionBoxItem( 'Trade', game.battle_active ? '[3 AP]' : '', 'trade' );
 
 							modal.addSelectionBoxItem( 'Link', false, 'link' );

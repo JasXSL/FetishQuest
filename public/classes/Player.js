@@ -1633,10 +1633,14 @@ export default class Player extends Generic{
 	// Raised after effects
 	async onTurnStart(){
 
-		
 		this._last_arange = Action.Range.None;
 		this._last_atype = '';
-		this.reroll = 2;
+
+		if( this.isRerollPersistent() )
+			this.reroll += 2;
+		else
+			this.reroll = 2;
+		
 		this.tReroll = 0;
 		this.endedTurn = false;
 		this._aware = {};
@@ -2349,9 +2353,12 @@ export default class Player extends Generic{
 					return false;
 				}
 
+				// Unbind events, since we only unbind existing events in rebindWrappers
+				for( let wrapper of asset.wrappers )
+					wrapper.unbindEvents();
+
 				if( asset.rem_unequip )
 					this.destroyAsset(asset.id);
-
 				asset.equipped = false;
 				this.onItemChange();
 				if( game.battle_active && byPlayer === this && !noText )
@@ -2917,7 +2924,8 @@ export default class Player extends Generic{
 		if( amount+all > this.getMaxMomentum() ){
 
 			const offs = amount+all-this.getMaxMomentum();
-			this.reroll += offs;
+			if( this.isRerollOvercapEnabled() )
+				this.reroll += offs;
 			amount -= offs;
 
 			// Prevent momentum for going above cap out of combat
@@ -2993,6 +3001,14 @@ export default class Player extends Generic{
 			this.reroll = max;
 		return true;
 
+	}
+
+	isRerollPersistent(){
+		return this.getActiveEffectsByType(Effect.Types.persistReroll).length;
+	}
+
+	isRerollOvercapEnabled(){
+		return !this.getActiveEffectsByType(Effect.Types.blockOvercapReroll).length;
 	}
 
 	// Reroll a point of momentum from one type to another. Returns the type it was rolled into or boolean false on fail
@@ -3477,6 +3493,25 @@ export default class Player extends Generic{
 
 		return Math.trunc(out*this.getGenericAmountStatMultiplier('bon'+type, this));
 		
+	}
+
+	// returns max amount of damage the player can take in a single hit, or < 0 if uncapped
+	getDamageTakenCap( sender ){
+		let lowest = -1;
+		const effects = this.getActiveEffectsByType(Effect.Types.damageTakenCap);
+		const evt = new GameEvent({sender, target:this});
+		for( let effect of effects ){
+
+			evt.effect = effect;
+			let nr = Math.trunc(Calculator.run(effect.data.amount, evt));
+			if( nr < 0 || isNaN(nr) )
+				continue;
+			if( lowest === -1 || nr < lowest )
+				lowest = nr;
+
+		}
+
+		return lowest;
 	}
 
 	// event sender is always this, and event target is always the player sent to getGenericAmountStat,
@@ -4935,6 +4970,8 @@ export default class Player extends Generic{
 		let tot = attacker.getBon(stat);
 		if( detrimental )
 			tot -= victim.getSV(stat);
+		else
+			tot -= attacker.getLevel();
 		return tot;
 
 	};
@@ -4949,7 +4986,7 @@ export default class Player extends Generic{
 
 		// Add 25% bonus damage per additional player
 		let add = 1;
-		if( attacker.getTeam() !== 0 ){
+		if( attacker.getTeam() !== 0 && game.isMultiplayerDamageModEnabled() ){
 
 			const tp = game.getTeamPlayers().filter(pl => !pl.isNPC());
 			add = 1+(tp.length-1)*0.2;

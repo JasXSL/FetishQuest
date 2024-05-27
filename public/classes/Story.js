@@ -55,6 +55,7 @@ export default class Story extends Generic{
 
 		this.start_dungeon = '';			// label of dungeon to start in
 		this.start_cell = '';
+		this.no_multiplayer_dmg_increase = false;	// By default, damage is increased based on nr players to speed battles up. This lets you disable that.
 
 		this.game_actions = [];				// Game actions to run on game start
 		
@@ -84,6 +85,8 @@ export default class Story extends Generic{
 			players_always_go_first : this.players_always_go_first,
 			no_std_actions : this.no_std_actions,
 			disable_awareness : this.disable_awareness,
+			no_multiplayer_dmg_increase : this.no_multiplayer_dmg_increase,
+			no_exp : this.no_exp,
 		};
 
 		if( full ){

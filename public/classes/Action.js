@@ -20,7 +20,9 @@ class Action extends Generic{
 			show_conditions : Condition,
 			cpassives : Wrapper,
 			interrupt_wrappers : Wrapper,
-			std_conds : Condition
+			std_conds : Condition,
+			cast_conditions : Condition,
+			finish_conditions : Condition,
 		};
 	}
 	
@@ -63,7 +65,9 @@ class Action extends Generic{
 		this.hidden = false;					// Hidden action
 		this.semi_hidden = false;				// Only show in the action selector
 		this.tags = [];
-		this.conditions = [];					// Conditions run against all targets regardless of wrapper
+		this.cast_conditions = [];				// Conditions run against all targets on cast start, but not needed for cast end
+		this.finish_conditions = [];			// Opposite of cast_conditions
+		this.conditions = [];					// Conditions run against all targets on cast start and cast end regardless of wrapper
 		this.show_conditions = [];				// Same as above, but if these aren't met, the spell will not be visible in the spell selector
 												// This is checked against all enabled players, and at least one check has to be viable
 												// You generally want this to be "inCombat"
@@ -155,7 +159,8 @@ class Action extends Generic{
 			out.cpassives = Wrapper.saveThese(this.cpassives, full);
 			out.passives = Wrapper.saveThese(this.passives, full);
 			out.std = this.std;
-
+			out.cast_conditions = Condition.saveThese(this.cast_conditions, full);
+			out.finish_conditions = Condition.saveThese(this.finish_conditions, full);
 		}
 
 		// Everything but mod or netgame_libcache (cache of learnable actions)
@@ -252,8 +257,13 @@ class Action extends Generic{
 	}
 
 	/* Conditions */
-	getConditions(){
-		return [...this.conditions,...this.show_conditions];
+	getConditions( isCastStart ){
+		let out = [...this.conditions,...this.show_conditions];
+		if( isCastStart )
+			out.push(...this.cast_conditions);
+		else
+			out.push(...this.finish_conditions);
+		return out;
 	}
 
 	isVisible(){
@@ -630,7 +640,7 @@ class Action extends Generic{
 			return [];
 
 		const evt = this.getConditionEvent(player, isChargeFinish);
-		const conds = this.getConditions();
+		const conds = this.getConditions( !isChargeFinish );
 		const check = Condition.all(conds, evt, debug);
 		return check;
 		

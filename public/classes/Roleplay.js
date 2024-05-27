@@ -145,10 +145,12 @@ export default class Roleplay extends Generic{
 
 	loadState(){
 		
+		
 
 		// When loaded from a game, grab from state
 		if( window.game && window.game !== true && this.label && game.is_host && glib && !glib.loading ){
 
+			this._vars = this.vars.clone(); // Have to reset it first, since we only overwrite
 			
 			let state = game.state_roleplays[this.label];
 			// Reset to default
@@ -676,6 +678,7 @@ export class RoleplayStage extends Generic{
 
 		if( !this.options.length && window.game && !this.leave && !this.direct ){
 			this.options.push(new RoleplayStageOption({
+				id : '_done_',
 				text : '[Done]',
 				chat : RoleplayStageOption.ChatType.none,
 			}, this));
@@ -1293,13 +1296,15 @@ export class RoleplayStageOption extends Generic{
 
 		rp.setStage(goto.index, true, player);
 		
+		const evt = new GameEvent({sender:player, target:player});
 		// Do these last as they might force a UI draw, which might draw the wrong RP option
 		for( let act of this.game_actions ){
-			await act.trigger(player, undefined, false, pl);
+			// player, mesh, debug, sender, checkConditionsEvt
+			await act.trigger(player, undefined, false, pl, evt);
 		}
 
 		if( this.script )
-			await Calculator.run(this.script, new GameEvent({sender:player, target:player}));
+			await Calculator.run(this.script, evt);
 
 		return true;
 

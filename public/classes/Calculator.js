@@ -61,6 +61,9 @@ class Calculator{
 			if( Array.isArray(varVal) )
 				operation = "SET";
 
+			if( typeof varVal === "string" && !varVal.startsWith("$$") )
+				varVal = '$$'+varVal;
+
 			if( targets )	
 				targets = toArray(targets);
 			
@@ -439,6 +442,7 @@ class Calculator{
 			
 		if( event.sender )
 			event.sender.appendMathVars('se_', vars, event);
+
 		if( targ ){
 			if( !(targ instanceof Player) )
 				console.error("Invalid target supplied to mathvars", event.target);
@@ -446,6 +450,11 @@ class Calculator{
 		}
 		if( event.action )
 			event.action.appendMathVars('ac_', vars, event);
+
+		if( event.parentWrapperSender )
+			event.parentWrapperSender.appendMathVars('pws_', vars, event);
+		if( event.parentWrapperTarget )
+			event.parentWrapperTarget.appendMathVars('pwt_', vars, event);
 
 		// Let's replace keys
 		formula = formula.split('%rp').join('rp_'+game.roleplay.label);
