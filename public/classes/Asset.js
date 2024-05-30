@@ -581,7 +581,6 @@ export default class Asset extends Generic{
 				if( wrapper.rarity > 0 )
 					color = Asset.RarityColors[wrapper.rarity];
 				let desc = wrapper.getDescription();
-
 				html += '<br /><span style="color:'+color+'">'+desc+'</span>';
 
 			}

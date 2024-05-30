@@ -47,6 +47,10 @@ export default class Condition extends Generic{
 		this.anyPlayer = false;		// Check against any player
 		this.debug = false;
 		this.desc = '';				// A helpful description
+		this.ctype = Condition.cTypes.Auto; 
+
+		this._c = false;			// Cache response
+		this._cv = -1;				// Cache version
 
 		this.load(data);
 	}
@@ -64,7 +68,8 @@ export default class Condition extends Generic{
 			conditions : Condition.saveThese(this.conditions, full),
 			min : this.min,
 			max : this.max,
-			targs : Condition.saveThese(this.targs, full)
+			targs : Condition.saveThese(this.targs, full),
+			ctype : this.ctype
 		};
 
 		if( full ){
@@ -177,22 +182,37 @@ export default class Condition extends Generic{
 		}
 		return true;
 	}
+
+	isCacheable(){
+
+		return Condition.cacheActive() && ((this.ctype === Condition.cTypes.Auto && this.caster) || this.ctype === Condition.cTypes.Always);
+
+	}
 	
+	onCacheResult( val ){
+		
+		this._cv = Condition.cachev;
+		this._c = val;
+
+	}
+
 	// Tests the condition
 	test( event, debug, preventRecursion ){
+		if( !debug )
+			debug = this.debug;
+
+		// We've cached this result
+		if( this.isCacheable()  && Condition.cachev === this._cv )
+			return this._c;
+		
 
 		if( !(event instanceof GameEvent) ){
 			console.error("This was", this, "event was", event);
 			throw 'Invalid event';
 		}
 
-		
-
-		if( !debug )
-			debug = this.debug;
-
 		if( debug )
-			console.trace("Condition DEBUG :: Testing", this, "with event", event);
+			console.trace("Condition DEBUG :: Testing", this, "with event", event.clone());
 
 		// This is a collection, validate subs instead
 		if( this.conditions.length ){
@@ -200,9 +220,11 @@ export default class Condition extends Generic{
 			if( debug )
 				console.debug("Validating subconditions");
 
-			const out = this.validateSubs(event, debug);
+			let out = this.validateSubs(event, debug);
 			if( this.inverse )
-				return !out;
+				out = !out;
+			
+			this.onCacheResult(out);
 			return out;
 
 		}
@@ -343,8 +365,11 @@ export default class Condition extends Generic{
 					success = true;
 
 			}
-			else if( this.type === T.targetIsChatPlayer )
+			else if( this.type === T.targetIsChatPlayer ){
+				if( debug )
+					console.log("Comparing", event.text._chatPlayer, "to", t);
 				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.id === t.id );
+			}
 			else if( this.type === T.targetIsChatPlayerTeam ){
 				success = ( t && event.text && event.text._chatPlayer && event.text._chatPlayer.getTeam() === t.getTeam() );
 			}
@@ -1376,6 +1401,7 @@ export default class Condition extends Generic{
 
 		if(debug)
 			console.debug("Condition DEBUG :: loop ended, success:", !this.anyPlayer, "anyPlayer", this.anyPlayer);
+		this.onCacheResult(!this.anyPlayer);
 		return !this.anyPlayer;
 
 	}
@@ -1403,6 +1429,67 @@ export default class Condition extends Generic{
 		return successes >= this.min && successes <= this.max;
 
 	}
+
+}
+
+// This is an optimization. It returns an object:
+// {sender:(arr)sender_conditions, targ:(arr)all_other_conditions}
+// This allows us to check sender conditions only once
+/*
+Condition.getSenderMap = function( conditions = [] ){
+
+	let out = {
+		sender : [],
+		targ : []
+	};
+	for( let condition of conditions ){
+		
+		if( condition.caster )
+			out.sender.push(condition);
+		else
+			out.targ.push(condition);
+
+	}
+	return out;
+
+}
+*/
+Condition.cTypes = {
+	Auto : 0,		// caster conditions get cached by default
+	Always : 1,
+	Never : 2,
+};
+
+Condition.cachev = 0;		// Tracks the version of the cache
+Condition.cachelv = 0;		// Tracks whether we are caching
+Condition.addCacheLevel = function(){
+	if( Condition.cachelv === 0 )
+		++Condition.cachev;
+	++Condition.cachelv;
+};
+Condition.removeCacheLevel = function(){
+	--Condition.cachelv;
+	if( Condition.cachelv < 0 )
+		console.error("Unbalanced cachelv somewhere. addCachLevel must match removeCachLevel calls");
+};
+Condition.cacheActive = function(){
+	return Boolean(this.cachelv);
+};
+// Invalidate needs to be set if you invalidate cache. This should only be needed in situations where the target is expected to change during the cache run. Such as chat texts (checked against all players). 
+Condition.cacheAndRun = function( fn, invalidate = false ){
+
+	Condition.addCacheLevel();
+	if( invalidate )
+		++Condition.cachev;
+
+	let ret;
+	try{
+		ret = fn();
+	}catch(e){
+		console.error(e);
+	}
+	Condition.removeCacheLevel();
+	return ret;
 
 }
 
@@ -1634,7 +1721,7 @@ Condition.descriptions = {
 	[Condition.Types.wrapperTag] : '{tags:(arr)(str)tag, originalWrapper:(bool)=false} one or more tags searched in any attached wrapper.',
 	[Condition.Types.actionTag] : '{tags:(arr)(str)tag} one or more tags searched in any attached action',
 	[Condition.Types.roomTag] : '{tags:(arr)(str)tag} If no room is in event, the current dungeon room is used. Searches for a tag in the room. Use this instead of normal tag for furniture, even though both works. Since this one works in the procedural generator. Also use this for dungeon tags.',
-	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed',
+	[Condition.Types.event] : '{event:(arr)(str)event} one or many event types, many types are ORed. Note that parentless texts may ONLY have exactly ONE event.',
 	[Condition.Types.actionLabel] : '{label:(arr)(str)label, ignore_alias:(bool)=false} Attached action label is in this array. If ignore_alias is true, it ignores alias checking',
 	[Condition.Types.actionType] : '{type:(arr)(str)Action.Types.type} - Checks the type of an action tied to the event',
 	[Condition.Types.actionDetrimental] : 'Data is void',

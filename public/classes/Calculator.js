@@ -41,7 +41,7 @@ class Calculator{
 
 	}
 
-	static getParser(vars, event){
+	static getParser( vars, event ){
 
 		const parser = math.parser();
 		parser.set('debug', data => {
@@ -151,7 +151,23 @@ class Calculator{
 		return parser;
 	}
 	
+	static getParse( formula, vars = {} ){
+		
+		let parsed = math.parse(formula).transform(el => {
 
+			if( el.isSymbolNode && typeof vars[el.name] === "function" ){
+
+				// replace with a function node
+				return new math.FunctionNode(el, []);
+
+			}
+			return el;
+
+		});
+
+		return parsed;
+
+	}
 
 	static targetsToKeys(targArray, event, mathVar){
 
@@ -484,7 +500,7 @@ class Calculator{
 		let out = 0;
 		try{
 			const parser = this.getParser(vars, event);
-			out = parser.evaluate(formula);
+			out = this.getParse(formula, vars).evaluate(parser.scope);
 		}
 		catch(err){
 			console.error(err, "in", formula, event, customMathVars);

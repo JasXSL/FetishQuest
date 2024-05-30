@@ -3,6 +3,8 @@ import Mod from './Mod.js';
 import Generic from './helpers/Generic.js';
 import Game from './Game.js';
 import stdTag from '../libraries/stdTag.js';
+import GameEvent from './GameEvent.js';
+import Condition from './Condition.js';
 // Maps lib_types to caches used only in outputs
 const CACHE_MAP = {
 	'assets' : '_cache_assets'
@@ -139,7 +141,7 @@ export default class GameLib{
 		this.armorEnchants  = {};
 		this._cache_assets = {};
 		this.texts = {};				// The texts array gets throw into an object for easier fetching
-		this._texts = [];				// Cache of objects only, and only enabled ones
+		this._texts = new Map();		// Texts are mapped event, actionLabel. If Action isn't applicable, use ''. If the text is a chat, and no event is defined, it automatically goes into GameEvent.Types.textTrigger 
 		this.gallery = {};				// Player gallery
 		this.loadingTip = {};
 	}
@@ -316,8 +318,126 @@ export default class GameLib{
 		console.log("Connecting links took", Date.now()-t, "ms");
 
 
+		// These are conditions that are heavy and should be added from the back
+		const condsHeavy = {
+			'tag' : true,
+			'hasWrapper' : true,
+			'hasEffect' : true,
+			'hasEffectType' : true,
+			'genitalSizeValue' : true,
+			'hasInventory' : true,
+			'dungeonVarMath' : true,
+			'formula' : true,
+			'hasAsset' : true,
+
+		};
+
+		let failedTexts = [];
+
 		// Handle texts
-		this._texts = Object.values(this.texts).filter(el => el.en);
+		this._texts = new Map();
+		for( let i in this.texts ){
+			const text = this.texts[i];
+			if( !text.en )
+				continue;
+
+			let evtType = '', actionLabel = '', fail = false;
+			let newConditionsArray = [];
+			for( let condition of text.conditions ){
+			
+				if( condition.type === Condition.Types.event ){
+					
+					if( evtType != "" ){
+						console.error("Found double event conditions in text", text);
+						fail = true;
+						break;
+					}
+
+					// Legacy fix
+					if( Array.isArray(condition.data.event) && condition.data.event.length === 1 )
+						condition.data.event = condition.data.event[0];
+
+					if( Array.isArray(condition.data.event) ){
+						fail = true;
+						console.error("Multi event text conditions are no longer supported for speed reasons. Keep two copies of this text instead with different events: ", text);
+						break;
+					}
+
+					if( !GameEvent.Types[condition.data.event] ){
+						console.error("Unrecognized event found in text: ", text);
+						fail = true;
+						break;
+					}
+
+					evtType = condition.data.event;
+
+				}
+				else if( condition.type === Condition.Types.actionLabel && !condition.conditions.length ){
+
+					if( actionLabel ){
+						console.error("Found double action conditions in text", text);
+						fail = true;
+						break;
+					}
+					
+					// Legacy fix
+					if( Array.isArray(condition.data.label) && condition.data.label.length === 1 )
+						condition.data.label = condition.data.label[0];
+
+					if( Array.isArray(condition.data.label) ){
+						fail = true;
+						console.error("Multi action text conditions aren't supported. Use action aliases instead. Revise the following text: ", text, "condition", condition);
+						break;
+					}
+
+					if( typeof condition.data.label !== "string" ){
+						console.error("Non-string action label in", text);
+						fail = true;
+						break;
+					}
+
+					actionLabel = condition.data.label;
+					if( condition.data.ignore_alias )
+						newConditionsArray.unshift(condition); // This is an ugly workaround, because the new storage system allows all aliasing by default. But it always checks all conditions before allowing a text.
+	
+				}
+				else if( condsHeavy[condition.type] )
+					newConditionsArray.push(condition);
+				else
+					newConditionsArray.unshift(condition);
+	
+			}
+
+			if( !evtType && text.chat )
+				evtType = GameEvent.Types.textTrigger;
+
+			if( !text.chat && evtType === GameEvent.Types.textTrigger ){
+				console.error("textTrigger event type is reserved for chat");
+				fail = true;
+			}
+
+			if( fail || !evtType ){
+				failedTexts.push(text.id);
+				if( !evtType )
+					console.error("Texts not tied to a parent MUST have an event condition directly under it! Revise the following text: ", text);
+				continue;
+			}
+
+
+			text.conditions = newConditionsArray;
+			
+			if( !this._texts.has(evtType) )
+				this._texts.set(evtType, new Map());
+			let lib = this._texts.get(evtType);
+			if( !lib.has(actionLabel) )
+				lib.set(actionLabel, []);
+			lib = lib.get(actionLabel);
+			lib.push(text);
+
+
+		}
+
+		console.log("Failed texts:", JSON.stringify(failedTexts));
 
 		console.log(n, "assets prepared");
 		this._allow_clone = true;

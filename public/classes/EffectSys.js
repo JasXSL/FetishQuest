@@ -250,7 +250,7 @@ class Wrapper extends Generic{
 		netPlayer = netgame owner, used for wrappers that require additional netgame input, such as repair
 		crit = was critical hit
 	*/
-	useAgainst( caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false ){
+	_useAgainst( caster_player, player, isTick, isChargeFinish = false, netPlayer = undefined, crit = false ){
 		
 		const out = new WrapperReturn();
 
@@ -462,6 +462,10 @@ class Wrapper extends Generic{
 
 	}
 
+	useAgainst( ...args ){
+		return game.ui.runCaptureMessage( () => this._useAgainst(...args) );
+	}
+
 	addStacks( amount, refreshTime ){
 		if( isNaN(amount) )
 			return;
@@ -632,7 +636,7 @@ class Wrapper extends Generic{
 	*/
 	getDescription(){
 
-		let out = this._descBuffer.compile(this.description, this.getCaster(), this.getPlayerParent(), this.getAction(), this);
+		let out = this._descBuffer.compile(this.description, this.getCaster(), this.getPlayerParent(), this.getAction(), this); // This escapes
 
 		let knockdown = 'stomach';
 		for( let effect of this.effects ){
@@ -650,10 +654,10 @@ class Wrapper extends Generic{
 		if( !parent.getColoredName )
 			console.error("Parent getColoredName missing", parent);
 		out = out.split('%knockdown').join(knockdown);
-		out = out.split('%caster').join(caster.getColoredName());
-		out = out.split('%target').join(parent.getColoredName());
-		out = out.split('%S').join(caster.getColoredName());
-		out = out.split('%T').join(parent.getColoredName());
+		out = out.split('%caster').join(esc(caster.getColoredName()));
+		out = out.split('%target').join(esc(parent.getColoredName()));
+		out = out.split('%S').join(esc(caster.getColoredName()));
+		out = out.split('%T').join(esc(parent.getColoredName()));
 
 		return out;
 
@@ -887,6 +891,7 @@ class Effect extends Generic{
 	static getRelations(){ 
 		return {
 			conditions : Condition,
+			subconditions : Condition,
 		};
 	}
 
@@ -896,6 +901,10 @@ class Effect extends Generic{
 		this.parent = parent;
 		this.label = '';								// Optional, can be used for events
 		this.conditions = [];							// Conditions when ticking
+		// this.conditions are checked against the sender/target that raised the event that triggered this effect. 
+		// This is fine in most cases. However, sometimes when you're using targets such as AoE you may want to check against each target of the effect instead of the event. Then you can use subconditions.
+		// Sender for subconditions will be the effect's wrapper parent.
+		this.subconditions = [];
 		this.type = "";
 		this.data = {};									// Data has automatical type conversion for the following field IDs
 														// "conditions" (if array) : Converted to an array of Conditions
@@ -929,6 +938,7 @@ class Effect extends Generic{
 			out.events = this.events;
 			out.debug = this.debug;
 			out.desc = this.desc;
+			out.subconditions = Condition.saveThese(this.subconditions, full);
 		}
 
 		if( full !== "mod" ){
@@ -1014,7 +1024,7 @@ class Effect extends Generic{
 	// template is the original effect if it was just added
 	// otherwise it's parent
 	// WrapperReturn lets you put data into the wrapper trigger return object 
-	trigger( event, template, wrapperReturn, debug ){
+	_trigger( event, template, wrapperReturn, debug ){
 
 		debug = debug || this.debug;
 
@@ -1047,6 +1057,7 @@ class Effect extends Generic{
 		if( !target )
 			target = new Player();	// Create a dummy player if it's missing. This is useful for events like battle ended etc
 
+		
 
 		// Default to AoE
 		let tout = [];
@@ -1112,9 +1123,16 @@ class Effect extends Generic{
 		if( debug )
 			console.debug("Allowed ", this, "to trigger", event, "against", tout);
 
+		const subEvt = evt.clone();
+		subEvt.sender = this.parent.getPlayerParent();
+
 		for( let t of tout ){
 
-			// If the target is the sender, then it flipflops
+			subEvt.target = t;
+			if( !Condition.all(this.subconditions, subEvt, this.debug) )
+				continue;
+
+			// If the target is the sender, then it flipflops (I don't remember why)
 			// ApplyWrapper already supports custom logic for targets
 			let s = sender;
 			if( t === sender ){
@@ -1190,7 +1208,8 @@ class Effect extends Generic{
 							"global defensive mods", t.getGenericAmountStatPoints( Effect.Types.globalDamageTakenMod, s ), t.getGenericAmountStatMultiplier( Effect.Types.globalDamageTakenMod, s ),
 							"global attack mods", s.getGenericAmountStatPoints( Effect.Types.globalDamageDoneMod, t ), s.getGenericAmountStatMultiplier( Effect.Types.globalDamageDoneMod, t ),
 							"nudity multi", t.getArmorDamageMultiplier(s, this),
-							"sMajor", sMajor, "tMajor", tMajor
+							"sMajor", sMajor, "tMajor", tMajor,
+							"Effect", this
 						);
 					
 					// Get target global damage point taken modifier
@@ -1650,8 +1669,8 @@ class Effect extends Generic{
 				let wrappers = this.data.wrappers;
 
 				if( !Array.isArray(wrappers) ){
+					wrappers = [];
 					console.error("Effect data in wrapper ", wrapper, "tried to run wrappers, but wrappers are not defined in", this);
-					return false;
 				}
 
 
@@ -1698,7 +1717,7 @@ class Effect extends Generic{
 				if( !Array.isArray(wrappers) ){
 
 					console.error("Effect data in wrapper ", wrapper, "tried to run wrappers, but wrappers are not defined in", this);
-					return false;
+					wrappers = [];
 
 				}
 
@@ -1775,27 +1794,28 @@ class Effect extends Generic{
 				
 				let max = this.data.numSlots;
 				let equipped = t.getEquippedAssetsBySlots( slots, false ).filter(el => !el.no_unequip);
-				if( !equipped.length )
-					return false;
+				if( equipped.length ){
 
-				let remove = equipped;
-				if( !isNaN(max) ){
-					shuffle(equipped);
-					remove = equipped.slice(0, max);
-				}
+					let remove = equipped;
+					if( !isNaN(max) ){
+						shuffle(equipped);
+						remove = equipped.slice(0, max);
+					}
 
-				const stripData = {};	// data for wrapperReturn.addArmorStrips
-				for( let asset of remove ){
-					if(t.unequipAsset(asset.id, s, undefined, true)){
-						if( asset.loot_sound )
-							game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
-						game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(wrapper.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
-						for( let slot of asset.slots ){
-							stripData[slot] = asset;
+					const stripData = {};	// data for wrapperReturn.addArmorStrips
+					for( let asset of remove ){
+						if(t.unequipAsset(asset.id, s, undefined, true)){
+							if( asset.loot_sound )
+								game.playFxAudioKitById(asset.loot_sound, s, t, undefined, true );
+							game.ui.addText( t.getColoredName()+"'s "+asset.name+" was unequipped"+(wrapper.name ? ' by '+s.getColoredName() : '')+".", undefined, t.id, t.id, 'statMessage important' );
+							for( let slot of asset.slots ){
+								stripData[slot] = asset;
+							}
 						}
 					}
+					wrapperReturn.addArmorStrips(t, stripData);
+
 				}
-				wrapperReturn.addArmorStrips(t, stripData);
 
 			}
 
@@ -1903,34 +1923,37 @@ class Effect extends Generic{
 				let time = this.data.amount;
 				if( !time ){
 					console.error("Invalid time in", this);
-					return false;
 				}
-				time = Calculator.run(time, 
-					new GameEvent({
-						sender:s, target:t, wrapper:wrapper, effect:this,
-						parentWrapperTarget : pwt, parentWrapperSender : pws
-					}).mergeUnset(event)
-				);
+				else{
 
-				if( this.data.conditions ){
-					wrappers = [];
-					const conds = Condition.loadThese(this.data.conditions);
-					let w = t.getWrappers();
-					
-					let casterOnly = this.data.casterOnly;
-					if( casterOnly === undefined )
-						casterOnly = true;
+					time = Calculator.run(time, 
+						new GameEvent({
+							sender:s, target:t, wrapper:wrapper, effect:this,
+							parentWrapperTarget : pwt, parentWrapperSender : pws
+						}).mergeUnset(event)
+					);
 
-					for( let wr of w ){
-						if( this.data.casterOnly && wr.caster !== s.id )
-							continue;
-						if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr, parentWrapperTarget : pwt, parentWrapperSender : pws})) )
-							wrappers.push(wr);
+					if( this.data.conditions ){
+						wrappers = [];
+						const conds = Condition.loadThese(this.data.conditions);
+						let w = t.getWrappers();
+						
+						let casterOnly = this.data.casterOnly;
+						if( casterOnly === undefined )
+							casterOnly = true;
+
+						for( let wr of w ){
+							if( this.data.casterOnly && wr.caster !== s.id )
+								continue;
+							if( Condition.all(conds, new GameEvent({sender:s, target:t, wrapper:wr, parentWrapperTarget : pwt, parentWrapperSender : pws})) )
+								wrappers.push(wr);
+						}
 					}
-				}
 
-				for( let w of wrappers )
-					w.addTime(time);
+					for( let w of wrappers )
+						w.addTime(time);
+
+				}
 
 			}
 
@@ -2033,7 +2056,7 @@ class Effect extends Generic{
 				mTags = [mTags];
 				if( !Array.isArray(mTags) ){
 					console.error("Trying to run addMissingFxTag, but data.tag is not set", this);
-					return false;
+					mTags = [];
 				}
 				const mapTag = tag => {
 					if( typeof tag !== "string" )
@@ -2057,12 +2080,13 @@ class Effect extends Generic{
 			else if( this.type === Effect.Types.tieToRandomBondageDevice ){
 
 				if( this.data._device )
-					return;
+					continue;
 
 				const viable = game.dungeon.getActiveRoom().getBondageAssets(true);
-				if( !viable )
-					throw 'Error: No viable bondage assets found in room';
-
+				if( !viable ){
+					console.error('Error: No viable bondage assets found in room');
+					continue;
+				}
 				const asset = randElem(viable);
 				this.data._device = asset.id;
 
@@ -2115,7 +2139,7 @@ class Effect extends Generic{
 
 				if( !Array.isArray(this.data.tags) ){
 					console.error("addRandomTags called on", this, "but no tags set");
-					return false;
+					continue;
 				}
 
 				let viable = [];
@@ -2193,14 +2217,14 @@ class Effect extends Generic{
 
 
 		}
-
+			
 		return wrapperReturn;
 		
 	}
 
-
-
-
+	trigger( ...args ){
+		game.ui.runCaptureMessage(() => this._trigger(...args));
+	}
 
 	/* EVENT */
 	bindEvents(){

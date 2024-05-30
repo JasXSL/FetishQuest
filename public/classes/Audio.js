@@ -679,6 +679,7 @@ class AudioKit extends Generic{
 		let promises = [];
 		for( let sound of this.sounds )
 			promises.push(new AudioSound(sound.s, audio).load());
+
 		let loaded = await Promise.all(promises);
 		for( let i in this.sounds ){
 

@@ -212,8 +212,7 @@ export default class UI{
 		this.action_selected = null;
 		this.targets_selected = [];
 
-		this.captureActionMessage = false;	// Lets you caption statMessage classed message until the next non stat messaged one appears 
-		this.capturedMessages = [];
+		this.captureActionMessage = 0;		// Capture incoming texts and don't show them until a text is received with flush set. Use this.runMessageCapture(fn)
 		this.arrowHeld = false;				// Set when you pick an ability and determines if you're using drag and drop or not
 		this.mouseDown = false;
 		this.touch_start = new THREE.Vector2(0,0);	// Coordinates where touch was started (touchscreen only)
@@ -1400,7 +1399,7 @@ export default class UI{
 			rps = [];
 
 		return {
-			talk : rps.length || p.isActiveFollower(),
+			talk : (rps.length || p.isActiveFollower()) && !game.battle_active,
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p, true, encounter).length,
@@ -2528,12 +2527,24 @@ export default class UI{
 
 	/* CHAT */
 	// Flushes queued message
-	flushMessages(){
-		this.captureActionMessage = false;
-		let messages = this.capturedMessages.slice();
-		this.capturedMessages = [];	// prevents stack heap
-		for( let args of messages )
-			this.addText.apply(this, args);
+	flushMessages( messageGroups ){
+
+		let groups = [];
+		for( let itm of messageGroups ){
+			// Filter out subgroups and draw those last
+			if( !itm.args ){
+				if( itm.length )
+					groups.push(itm);
+				continue;
+			}
+			this.addText(...itm.args);
+
+		}
+
+		// Recurse the rest
+		for( let itm of groups )
+			this.flushMessages(itm);
+		
 	}
 
 	addSpeechBubble( player, text ){
@@ -2561,7 +2572,6 @@ export default class UI{
 			el.classList.toggle("ilToUpdate", false);
 			const asset = game.getPlayerAsset(id);
 			if( asset ){
-				console.log("Found", asset);
 				let sub = el.querySelector('span');
 				sub.innerText = asset.name;
 				sub.style.color = Asset.RarityColors[asset.rarity];
@@ -2575,13 +2585,55 @@ export default class UI{
 
 	}
 
+	runCaptureMessage( fn ){
+
+		++this.captureActionMessage; // Tracks how deep into recursion we are
+		const curGroup = this._captureGroup; // Store the current capture group
+		this._captureGroup = []; // Create a text capture group. Stores sub-arrays of arguments passed to addText
+		if( curGroup )
+			curGroup.push(this._captureGroup);
+
+		let out;
+		// run and capture stuff
+		try{
+			out = fn();
+		}
+		catch(err){
+			console.error(err);
+		}
+		
+		--this.captureActionMessage;
+		
+		// Finally flush out the capture group
+		if( !this.captureActionMessage ){
+
+			// Writing texts is heavy. Staggering it out over time makes the page more responsive
+			const grp = this._captureGroup;
+			setTimeout(() => {
+				this.flushMessages(grp);
+			}, 10);
+
+		}
+		this._captureGroup = curGroup;
+		
+		return out;
+
+	}
+
 	// Prints a message
 	// audioObj can be an object with {id:(str)soundKitId, slot:(str)armorSlot}
-	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture ){
+	// isHeadlinde determines where the text goes in a capturegroup, any text run via Text.runFromLibrary is a headline and gets unshifted instead of pushed on the stack
+	addText( text, evtType, attackerID, targetID, additionalClassName, disregardCapture, isHeadline = false ){
 
 		let gTypes = GameEvent.Types;
 		if( this.captureActionMessage && !disregardCapture ){
-			this.capturedMessages.push([...arguments]);
+			const obj = {
+				args : [...arguments],
+			};
+			if( isHeadline )
+				this._captureGroup.unshift(obj);
+			else
+				this._captureGroup.push(obj);
 			return;
 		}
 
@@ -2669,6 +2721,8 @@ export default class UI{
 
 		
 	}
+
+
 	
 	clear(){
 		this.text.html('');
@@ -2741,7 +2795,7 @@ export default class UI{
 			return this.modal.closeSelectionBox();
 
 		for( let item of items ){
-			this.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]]);
+			this.modal.addSelectionBoxItem(item.name+(item._stacks > 1 ? ' ['+(+item._stacks)+']' : ''), item.getTooltipText(), item.id, [Asset.RarityNames[item.rarity]], false);
 		}
 		if( playAnimation )
 			playAnimation("open");
@@ -3621,6 +3675,8 @@ export default class UI{
 
 	}
 
+
+
 	// TEMPLATES
 	// Sets the content of the button based on an action
 	// ignoreStats will hide cd/charges 
@@ -3763,7 +3819,9 @@ export default class UI{
 			'<strong>'+esc(wrapper.name)+'</strong><br />'+
 			'<em>'+
 				durText+
-				(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' );
+				(wrapper.stacks > 1 ? ' | '+wrapper.stacks+' stack'+(wrapper.stacks !== 1 ? 's':'') : '' )
+		;
+
 		if( wrapper.asset ){
 
 			const asset = target.getAssetById(wrapper.asset);

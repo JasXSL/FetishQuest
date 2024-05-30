@@ -4,7 +4,7 @@ export default class Generic{
 	constructor(data){
 
 		this._rebased = false;
-		this.id = this.g_guid();	// Random ID
+		this.id = this.constructor.no_id ? '' :this.g_guid();	// Random ID
 		this._e = '';			// This extends an asset
 
 	}
@@ -25,7 +25,7 @@ export default class Generic{
 		const n = this.constructor.name === "Game" ? this : new this.constructor();
 		for( let i in data ){
 
-			if( skip[i] )
+			if( skip[i] || (this.constructor.no_id && i === "id") )
 				continue;
 
 			if( this.hasOwnProperty(i) && typeof n[i] !== "function" && i !== "parent" ){
@@ -59,7 +59,7 @@ export default class Generic{
 		if( typeof this.rebase === "function" && Generic.auto_rebase )
 			this.rebase();
 
-		if( !this.id )
+		if( !this.constructor.no_id && !this.id )
 			console.error("ID missing for asset", this);
 
 	}
@@ -195,6 +195,8 @@ export default class Generic{
 	}
 
 	g_guid(){
+		if( this.constructor.no_id )
+			return;
 		return Generic.generateUUID();
 	}
 

@@ -260,7 +260,7 @@ export default class Player extends Generic{
 	// Data that should be saved to drive
 	save( full ){
 
-		if( window.game && game.is_host )
+		if( window.game && game.is_host && game.initialized )
 			this.updateAutoWrappers();
 
 		const out = {
@@ -689,13 +689,13 @@ export default class Player extends Generic{
 		if( event && event.effect )
 			this._ignore_effects.push(event.effect);
 		// Theres a recursion here when math is used in SV/Bon and to get SV/Bon you need math
-		vars[prefix+'SvPhysical'] = this.getSV(Action.Types.physical);
-		vars[prefix+'SvArcane'] = this.getSV(Action.Types.arcane);
-		vars[prefix+'SvCorruption'] = this.getSV(Action.Types.corruption);
+		vars[prefix+'SvPhysical'] = () => this.getSV(Action.Types.physical);
+		vars[prefix+'SvArcane'] = () => this.getSV(Action.Types.arcane);
+		vars[prefix+'SvCorruption'] = () => this.getSV(Action.Types.corruption);
 		
-		vars[prefix+'BonPhysical'] = this.getBon(Action.Types.physical);
-		vars[prefix+'BonArcane'] = this.getBon(Action.Types.arcane);
-		vars[prefix+'BonCorruption'] = this.getBon(Action.Types.corruption);
+		vars[prefix+'BonPhysical'] = () => this.getBon(Action.Types.physical);
+		vars[prefix+'BonArcane'] = () => this.getBon(Action.Types.arcane);
+		vars[prefix+'BonCorruption'] = () => this.getBon(Action.Types.corruption);
 		vars[prefix+'Lv'] = this.level;
 		vars[prefix+'HP'] = this.hp;
 		vars[prefix+'Off'] = this.getMomentum(Player.MOMENTUM.Off);
@@ -704,24 +704,24 @@ export default class Player extends Generic{
 		vars[prefix+'tReroll'] = this.tReroll;
 		vars[prefix+'Mom'] = this.getMomentum();
 		vars[prefix+'Arousal'] = this.arousal;
-		vars[prefix+'Team'] = this.getTeam();
+		vars[prefix+'Team'] = () => this.getTeam();
 		vars[prefix+'Size'] = this.size;
-		vars[prefix+'TeamPlayers'] = game.getTeamPlayers(this.getTeam()).length;
-		vars[prefix+'MaxHP'] = this.getMaxHP();
-		vars[prefix+'MaxArousal'] = this.getMaxArousal();
-		vars[prefix+'Money'] = this.getMoney();
+		vars[prefix+'TeamPlayers'] = () => game.getTeamPlayers(this.getTeam()).length;
+		vars[prefix+'MaxHP'] = () => this.getMaxHP();
+		vars[prefix+'MaxArousal'] = () => this.getMaxArousal();
+		vars[prefix+'Money'] = () => this.getMoney();
 		vars[prefix+'apSpentThisTurn'] = this._turn_ap_spent;
 		vars[prefix+'actionsUsedThisTurn'] = this._turn_action_used;
 		vars[prefix+'actionsUsedThisBattle'] = this._battle_action_used;
 		vars[prefix+'stdCombo'] = this._turn_std_combo;
 		vars[prefix+'aTypes'] = this._turn_atypes;
-		vars[prefix+'ButtSize'] = this.getGenitalSizeValue(stdTag.butt);
-		vars[prefix+'BreastSize'] = this.getGenitalSizeValue(stdTag.breasts);
-		vars[prefix+'PenisSize'] = this.getGenitalSizeValue(stdTag.penis);
+		vars[prefix+'ButtSize'] = () => this.getGenitalSizeValue(stdTag.butt);
+		vars[prefix+'BreastSize'] = () => this.getGenitalSizeValue(stdTag.breasts);
+		vars[prefix+'PenisSize'] = () => this.getGenitalSizeValue(stdTag.penis);
 		vars[prefix+'Turns'] = this._turns;
 		vars[prefix+'SecondWindUsed'] = this._dp;
-		vars[prefix+'SecondWindActive'] = this.isDownedProtected();
-		vars[prefix+'SecondWindMax'] = this.getMaxDownedProtect();
+		vars[prefix+'SecondWindActive'] = () => this.isDownedProtected();
+		vars[prefix+'SecondWindMax'] = () => this.getMaxDownedProtect();
 
 		
 		vars[prefix+'Talkative'] = this.talkative;
@@ -731,7 +731,7 @@ export default class Player extends Generic{
 		vars[prefix+'Emotive'] = this.emotive;
 		vars[prefix+'Intelligence'] = this.intelligence;
 		
-		vars[prefix+'Casting'] = +Boolean(this.isCasting()) || 0;
+		vars[prefix+'Casting'] = () => +Boolean(this.isCasting()) || 0;
 
 		vars[prefix+'UntappedBlock'] = this._untappedBlock;
 		vars[prefix+'BlockOnturnStart'] = this._blockOnTurnStart;
@@ -756,12 +756,12 @@ export default class Player extends Generic{
 		vars[prefix+'missedSinceLast'] = this.datTotalShort(this._missed_since_last);
 		vars[prefix+'missingSinceLast'] = this.datTotalShort(this._missing_since_last);
 		
-		vars[prefix+'NumMajor'] = this.getNumMajorEffects();
-		vars[prefix+'Major'] = this.getMajorEffects();
+		vars[prefix+'NumMajor'] = () => this.getNumMajorEffects();
+		vars[prefix+'Major'] = () => this.getMajorEffects();
 		vars[prefix+'LARange'] = this._last_arange;
 		vars[prefix+'LAType'] = this._last_atype;
 		
-		vars[prefix+"NumTaunts"] = this.getTaunting().length;		// nr players we're taunting
+		vars[prefix+"NumTaunts"] = () => this.getTaunting().length;		// nr players we're taunting
 
 		vars[prefix+'targetedSinceLast'] = objectSum(this._targeted_by_since_last.save());
 		for( let i in Action.Types ){
@@ -804,9 +804,9 @@ export default class Player extends Generic{
 			vars.se_TaHealingPointsReceivedSinceLast = this.healingPointsTakenSinceLastByPlayer(event.sender);
 
 			// Target's crit chance on sender ta_Crit_se
-			vars[prefix+'Crit_se'] = this.getCritDoneChance(event.sender);
+			vars[prefix+'Crit_se'] = () => this.getCritDoneChance(event.sender);
 
-			vars[prefix+'GrappledByS'] = +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
+			vars[prefix+'GrappledByS'] = () => +this.hasTagBy([stdTag.wrGrapple], event.sender) || 0;
 
 			vars[prefix+'AwareOfS'] = +this.isAware(event.sender);
 
@@ -829,7 +829,7 @@ export default class Player extends Generic{
 
 		for( let i in Asset.Slots ){
 			let slot = Asset.Slots[i];
-			vars[prefix+slot] = this.getEquippedAssetsBySlots(slot).length ? 1 : 0;
+			vars[prefix+slot] = () => this.getEquippedAssetsBySlots(slot).length ? 1 : 0;
 		}
 
 		let wrappers = this.getWrappers();
@@ -1861,13 +1861,13 @@ export default class Player extends Generic{
 			if( !layer.validate(event) )
 				continue;
 			layer.trigger(() => {
-				game.ui.drawPlayer(this);
+				game.ui.draw();
 			});
 			needRedraw = true;
 
 		}
 		if( needRedraw ){
-			game.ui.drawPlayer(this);			
+			game.ui.draw();			
 		}
 
 	}
@@ -2742,6 +2742,7 @@ export default class Player extends Generic{
 
 	// Auto exchanges money assets to the fewest amounts of coins
 	exchangeMoney( bank ){
+		
 		const copper = this.getMoney(bank);
 		let asset;
 		if( asset = this.getAssetByLabel('platinum', bank) )
@@ -4528,6 +4529,8 @@ export default class Player extends Generic{
 	getTempPassives(){
 
 		const fetched = new Map(); // id -> wrapper
+
+		// Might not be present when loading the dungeon
 		const check = game.encounter.passives.concat(game.dungeon.getPassives());
 		// Start by sanity checking
 		for( let wrapper of check ){
@@ -4540,6 +4543,7 @@ export default class Player extends Generic{
 			fetched.set(wrapper.id, wrapper);
 
 		}
+
 		// Then add new wrappers
 		fetched.forEach((wrapper, key) => {
 			// Passive already exists

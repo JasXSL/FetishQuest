@@ -224,18 +224,6 @@ export default class Roleplay extends Generic{
 
 	}
 
-
-	// Note: You probably want to call loadState before calling this unless it's the active RP 
-	appendMathVars( input, event ){
-
-		input['rp_targs'] = this._targetPlayers.length;
-
-		let v = this._vars;
-		for( let i in v )
-			Calculator.appendMathVar('rp_'+this.label+'_'+i, v[i], input, event);
-		
-	}
-
 	// Returns an array of Player objects of this._targetPlayers found in the game player list
 	getTargetPlayers(){
 		return this._targetPlayers.map(el => game.getPlayerById(el)).filter(el => el);
@@ -496,27 +484,10 @@ export default class Roleplay extends Generic{
 
 	}
 
-	// Returns an array of var_persistent RPs with state loaded onto them
+	// Returns an array of var_persistent RPs
 	static getPersistent(){
-
-		let out = [];
-		let all = this.getLib();
-		for( let i in all ){
-			let rp = all[i];
-			if( rp.vars_persistent ){
-				// If not already loaded
-				if( !rp.hasGameParent() ){
-					// Create a mini clone just for vars
-					rp = new Roleplay({
-						label : rp.label,
-						vars : rp.vars
-					});	
-					rp.loadState();
-				}
-				out.push(rp);
-			}
-		}
-		return out;
+ 
+		return Object.values(this.getLib()).filter(el => el.vars_persistent);
 
 	}
 

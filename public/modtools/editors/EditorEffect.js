@@ -56,6 +56,8 @@ export function asset(){
 
 	html += 'Note: Wrapper conditions here will target the wrapper this effect is bound to. Use the originalWrapper checkbox in wrapper conditions if you want to target any wrapper tied to the event that triggered.<br />';
 	html += 'Conditions: <div class="conditions"></div>';
+	html += 'Note: The above note doesn\'t affect subconditions.<br />';
+	html += 'Subconditions: <div class="subconditions"></div>';
 
 
 	this.setDom(html);
@@ -80,6 +82,7 @@ export function asset(){
 
 	// Conditions
 	this.dom.querySelector("div.conditions").appendChild(EditorCondition.assetTable(this, asset, "conditions"));
+	this.dom.querySelector("div.subconditions").appendChild(EditorCondition.assetTable(this, asset, "subconditions"));
 
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
@@ -179,13 +182,19 @@ export function help(){
 			'<td>Conditions</td>'+
 			'<td>Conditions for the effect to trigger or for a passive effect to be considered as enabled.</td>'+
 		'</tr>'+
-		'<h3>A note about Effects</h3>'+
-		'<p>If the target of the event that triggered the effect is the holder of the wrapper this effect is attached to, then it flips target/sender. So generally you want to flip so ta_ vars target the owner of the effect, whereas se_ will target the target of the effect. I don\'t remember why I made it this way, but I think it was important.</p>'+
-		'<p>By default, mathVar targets will be the target(s) set in the targets section. If you want to access the parent wrapper\'s sender or target, you have access to pws_ and pwt_. These stand for parentWrapperSender and parentWrapperTarget, and contain data about the effect parent wrapper\'s send and target.</p>'
+		'<tr>'+
+			'<td>Subconditions</td>'+
+			'<td>Conditions are always checked with sender/target being the same as the event that triggered the effect. However, if you use a target other than sender/target, and want to check conditions on the recipient, then you can use a subcondition. Sender of the subcondition is always the wrapper\'s owner.</td>'+
+		'</tr>'
 	;
 		
 
 	out += '</table>';
+
+	out += '<h3>A note about Effects</h3>'+
+		'<p>If the target of the event that triggered the effect is the holder of the wrapper this effect is attached to, then it flips target/sender. So generally you want to flip so ta_ vars target the owner of the effect, whereas se_ will target the target of the effect. I don\'t remember why I made it this way, but I think it was important.</p>'+
+		'<p>By default, mathVar targets will be the target(s) set in the targets section. If you want to access the parent wrapper\'s sender or target, you have access to pws_ and pwt_. These stand for parentWrapperSender and parentWrapperTarget, and contain data about the effect parent wrapper\'s send and target.</p>'
+	;
 	return out;
 
 };

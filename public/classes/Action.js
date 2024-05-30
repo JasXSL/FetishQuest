@@ -381,7 +381,6 @@ class Action extends Generic{
 				this.useOn(targs, true);
 				this._cast_targets = [];
 				finished = true;
-				game.ui.flushMessages();
 
 			}
 
@@ -588,36 +587,46 @@ class Action extends Generic{
 			this.allow_self
 		);
 
-		for( let p of pl ){
+		game.lockPlayersAndRun( ()=>{
+			
+		
+			for( let p of pl ){
 
-			if( debug )
-				console.debug("Testing against", p, ". Pass detrimental self-cast blocker: ", allowSelfCast);
-			if( 
-				(p !== parent || allowSelfCast) && 
-				p.checkActionFilter(parent, this) && 
-				!this.getDisabledEffectsAgainst(p).length &&
-				this.testGlobalConditions(p, isChargeFinish, debug) &&
-				(this.ignore_wrapper_conds || this.getViableWrappersAgainst(p, isChargeFinish, debug).length) && 
-				p.hasTargetableForAction(this)
-			)targets.push(p);
+				if( debug )
+					console.debug("Testing against", p, ". Pass detrimental self-cast blocker: ", allowSelfCast);
+				if( 
+					(p !== parent || allowSelfCast) && 
+					p.checkActionFilter(parent, this) && 
+					!this.getDisabledEffectsAgainst(p).length &&
+					(this.ignore_wrapper_conds ? // getViableWrappersAgainst checks global conditions, so we only need one of these
+						this.testGlobalConditions(p, isChargeFinish, debug) : 
+						this.getViableWrappersAgainst(p, isChargeFinish, debug).length
+					) && 
+					p.hasTargetableForAction(this)
+				)targets.push(p);
 
-			else if( debug ){
+				else if( debug ){
 
-				console.debug("Pass FAILED: ",
-					(p !== parent || allowSelfCast),
-					p.checkActionFilter(parent, this),
-					!this.getDisabledEffectsAgainst(p).length,
-					this.testGlobalConditions(p, isChargeFinish, debug),
-					(this.ignore_wrapper_conds || this.testWrapperConditions(p, isChargeFinish, debug).length),
-					"player was", p
-				);
+					console.debug("Pass FAILED: ",
+						(p !== parent || allowSelfCast),
+						p.checkActionFilter(parent, this),
+						!this.getDisabledEffectsAgainst(p).length,
+						this.testGlobalConditions(p, isChargeFinish, debug),
+						(this.ignore_wrapper_conds || this.testWrapperConditions(p, isChargeFinish, debug).length),
+						"player was", p
+					);
+
+				}
 
 			}
 
-		}
+		});
+
 		return targets;
 
 	}
+
+	
 
 	getConditionEvent( player, isChargeFinish ){
 		return new GameEvent({
@@ -861,10 +870,9 @@ class Action extends Generic{
 		return Player.getHitChance(this.getPlayerParent(), target, this);
 	}
 
-	// Uses this action on array targets. 
-	useOn( targets, isChargeFinish = false, netPlayer ){
+	_useOn(targets, isChargeFinish, netPlayer){
+
 		const pp = this.getPlayerParent();
-		
 		if( !this.castable(true, isChargeFinish) )
 			return;
 
@@ -983,7 +991,7 @@ class Action extends Generic{
 							action : this,
 							custom : {
 								resist : true
-							}
+							},
 						}).raise();
 						sender.onMissDone(target);
 						target.onMissReceived(sender);
@@ -1066,7 +1074,7 @@ class Action extends Generic{
 
 			if( this._crit ){
 
-				for( let n = 0; n<hits.length; ++n ){
+				for( let n = 0; n < hits.length; ++n ){
 
 					setTimeout(() => {
 						game.playFxAudioKitById(
@@ -1110,6 +1118,15 @@ class Action extends Generic{
 
 
 		return hits.length;
+
+	}
+
+	// Uses this action on array targets. 
+	useOn( ...args ){
+		
+		game.ui.runCaptureMessage(() => {
+			this._useOn(...args);
+		});
 
 	}
 
@@ -1257,6 +1274,7 @@ class Action extends Generic{
 	
 
 }
+
 
 Action.Detrimental = {
 	team : 2,		// Other team player is detrimental, own team is beneficial

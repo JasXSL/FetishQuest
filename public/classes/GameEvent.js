@@ -11,6 +11,7 @@ export default class GameEvent extends Generic{
 
 	static debugAll = false;
 	static idx = 0;
+	static no_id = true;
 
 	constructor(data){
 		super(data);		
@@ -214,7 +215,7 @@ GameEvent.Types = {
 	roomChanged : 'roomChanged',			// Whenever you change room
 	
 	rpStage : 'rpStage',	// Roleplay stage changed		
-	textTrigger : 'textTrigger',
+	textTrigger : 'textTrigger',			// Warning: TextTrigger should NEVER be tied to gameplay, as text adds are run async
 	explorationComplete : 'explorationComplete',	
 	sleep : 'sleep',		
 	stun : 'stun',

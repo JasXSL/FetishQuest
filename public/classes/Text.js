@@ -141,8 +141,6 @@ class Text extends Generic{
 		this.minExtraSender = 1;				// Minimum extra senders needed to allow this text
 		
 		this._chatPlayer = null;		// Cache of the chat player tied to this. Only set on a successful chat
-		this._cache_event = null;		// Cache of event type supplied in conditions. Should speed things up.
-		this._cache_action = null;		// Cache of the action involved, since most texts are tied to an action.
 		this._cache_crit = null;		// Set to true if it requires crit, false if it should not be a crit. remains null for either or
 
 
@@ -179,21 +177,7 @@ class Text extends Generic{
 		
 		for( let condition of this.conditions ){
 			
-			if( condition.type === Condition.Types.event ){
-				this._cache_event = {};
-				let evts = toArray(condition.data.event);
-				for( let n of evts)
-					this._cache_event[n] = true;
-			}
-			else if( condition.type === Condition.Types.actionLabel && !condition.conditions.length ){
-
-				this._cache_action = {};
-				let actions = toArray(condition.data.label);
-				for( let n of actions )
-					this._cache_action[n] = true;
-
-			}
-			else if( condition.type === Condition.Types.actionCrit ){
+			if( condition.type === Condition.Types.actionCrit ){
 				this._cache_crit = !condition.inverse;
 			}
 
@@ -659,13 +643,15 @@ class Text extends Generic{
 		}
 		else{
 
+			// text, evtType, attackerID, targetID, additionalClassName, disregardCapture, isHeadline
 			game.ui.addText(
-				text, 
-				event.type, 
-				event.sender ? event.sender.id : undefined,
-				targ ? targ.id : undefined,
-				'rpText',
-				~[GameEvent.Types.actionUsed, GameEvent.Types.actionCharged, GameEvent.Types.actionRiposte].indexOf(event.type) || this.alwaysOutput,
+				text, 											// Text
+				event.type, 									// evtType
+				event.sender ? event.sender.id : undefined,		// attackerID
+				targ ? targ.id : undefined,						// targetID
+				'rpText',										// additionalClassName
+				this.alwaysOutput,								// disregardCapture
+				true											// isHeadline
 			);
 
 			
@@ -747,6 +733,8 @@ class Text extends Generic{
 	}
 
 	// Helper for _cache_action
+	/*
+	Todo: Aliases should be fetched in the original scanner
 	testAliases( event ){
 		
 		if( !event.action && (!event.custom.original || !event.custom.original.action) )
@@ -767,6 +755,7 @@ class Text extends Generic{
 		return false;
 
 	}
+	*/
 
 	// Gets an un-shuffled list of extra senders, using sender as the original sender
 	getExtraSenders( sender ){
@@ -795,6 +784,7 @@ class Text extends Generic{
 		if( debug )
 			console.debug("Validating", this, "against", event, chatPlayer);
 
+		/*
 		if( this._cache_action && !this.testAliases(event) ){
 
 			if( debug )
@@ -802,7 +792,7 @@ class Text extends Generic{
 			return false;
 
 		}
-
+		*/
 		
 
 		if( this._cache_crit !== null ){
@@ -813,6 +803,8 @@ class Text extends Generic{
 			}
 		}
 
+		/*
+		// Todo: needs to scan for original as well
 		const original = event.custom.original;
 		if( 
 			this._cache_event && !this._cache_event[event.type] &&
@@ -822,7 +814,7 @@ class Text extends Generic{
 				console.debug("FAIL because this._cache_event:", this._cache_event, "tried finding", event.type, "original", original && original.type);
 			return false;
 		}
-
+		*/
 		
 
 		// Temporarily set. The proper set is after cloning in Text.getFromEvent
@@ -882,6 +874,7 @@ class Text extends Generic{
 
 		}
 
+		
 		if( !Condition.all(this.conditions, event, debug ) )
 			return false;
 
@@ -893,9 +886,10 @@ class Text extends Generic{
 				return false;
 
 		}
-
+		
 		if( debug )
-			console.debug("SUCCESS: ", this, "evt", event.clone());
+			console.debug("SUCCESS: ", this, "evt", event.clone(), event.text.clone(), event.text._chatPlayer, Condition.all(this.conditions, event, true));
+		
 		return true;
 
 	}
@@ -911,8 +905,40 @@ Text.SYNONYMS = SYNONYMS;
 // Returns the text that triggered, if any
 Text.getFromEvent = function( event, debug = false ){
 
+	// textTrigger event is reserved for chat only, and is mutually exclusive
+	const chat = event.type === GameEvent.Types.textTrigger;
+
 	let available = [];
-	let texts = glib._texts;
+
+	let maps = [];
+	let evtMap = glib._texts.get(event.type);
+	if( evtMap )
+		maps.push(evtMap);
+
+	if( event.custom.original && event.custom.original.type && !chat ) // Chat isn't allowed to trigger events from the origin
+		evtMap = glib._texts.get(event.custom.original.type);
+	
+	if( evtMap )
+		maps.push(evtMap);
+
+	// Arrays that contain the texts that pass initial speed filter
+	let arrays = [];
+
+	for( let map of maps ){
+
+		arrays.push(map.get('') || []); // We always need to grab conditions that don't require an action
+		if( event.action ){
+			arrays.push(map.get(event.action.label) || []); // if an action is set, we need to add the conditions that require this action
+			event.action.alias.forEach(el => arrays.push(map.get(el) || []));
+		}
+		if( event.custom?.original?.action ){
+			arrays.push(map.get(event.custom.original.action) || []); // If there's an original action, we need to check that too
+			event.custom.original.action.alias.forEach(el => arrays.push(map.get(el) || []));
+		}
+
+	}
+
+
 	const preText = event.text;		// Caching and restoring values is much faster than cloning
 
 
@@ -920,61 +946,76 @@ Text.getFromEvent = function( event, debug = false ){
 	if( event.type === GameEvent.Types.textTrigger )
 		testAgainst = game.getEnabledPlayers();
 
-	const chat = event.type === GameEvent.Types.textTrigger;
+	/*
+	Not needed anymore because GameLib enforces GameEvent.Types.textTrigger for chats
+	*/
+	
+	
 
 	const doDebug = debug === true;
 
 	let maxnr = 1;
-	for( let text of texts ){
-
-		event.text = text;				// Needed for validation
-		const debug = text.debug;
-
+	for( let texts of arrays ){
+	
 		for( let p of testAgainst ){
 
-			// Text disabled (should live here because RP can run text.validate on disabled texts)
-			if( !text.en ){
-				if( debug )
-					console.debug("Ignored ", text, "because disabled");
-				continue;
-			}
-			if( Boolean(text.chat) !== chat ){
-				if( debug )
-					console.debug("Ignored ", text, "because not valid chat", Boolean(text.chat), chat);
-				continue;
-			}
+			// Todo: Caching causes issues with chat conditions. I'll need to investigate why.
+			// We need to clean the cache for every player we're testing against
+			Condition.cacheAndRun(() =>{
 
-			// p is the chat player we're testing
-			if( chat && p && ((!p._debug_chat && !p.isNPC()) || p.hasUsedChat(text.id)) ){
+				for( let text of texts ){
 
-				if( debug )
-					console.debug("Ignored ", text, "because player", p, "is nonexistant, a PC or has used that chat");
-				continue;
+					event.text = text;				// Needed for validation
+					const debug = text.debug;
+					/*
+					EN filtering should happen in the GameLib
+					// Text disabled (should live here because RP can run text.validate on disabled texts)
+					if( !text.en ){
+						if( debug )
+							console.debug("Ignored ", text, "because disabled");
+						continue;
+					}
+					if( Boolean(text.chat) !== chat ){
+						if( debug )
+							console.debug("Ignored ", text, "because not valid chat", Boolean(text.chat), chat);
+						continue;
+					}
+					*/
 
-			}
+					// p is the chat player we're testing
+					if( text.chat && p && ((!p._debug_chat && !p.isNPC()) || p.hasUsedChat(text.id)) ){
 
-			if( !text.validate(event, doDebug, p) ){
+						if( debug )
+							console.debug("Ignored ", text, "because player", p, "is nonexistant, a PC or has used that chat");
+						continue;
 
-				if( chat && text.debug )
-					console.log("Validation failed on evt", event.clone(), "for text", text);
-				continue;
+					}
 
-			}
-			
-			// Not sure why ID here is required, cloning is a bit slow
-			const id = text.id;
-			text = text.clone();	// Clone it so we can set chat player
-			text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
-			if( p )
-				text._chatPlayer = p;
-			
-			available.push(text);
-			if( text.numTargets > maxnr )
-				maxnr = text.numTargets;
+					if( !text.validate(event, doDebug, p) ){
 
-			
+						if( text.chat && text.debug )
+							console.log("Validation failed on evt", event.clone(), "for text", text);
+						continue;
+
+					}
+					
+					// Not sure why ID here is required, cloning is a bit slow
+					const id = text.id;
+					text = text.clone();	// Clone it so we can set chat player
+					text.id = id;			// ID isn't saved on text (regenerated each load). So when cloning we have to re-apply it
+					if( p )
+						text._chatPlayer = p;
+					
+					available.push(text);
+					if( text.numTargets > maxnr )
+						maxnr = text.numTargets;
+
+					
+				}
+
+			}, true);
+
 		}
-
 	}
 
 	// Restore value
@@ -1057,10 +1098,12 @@ Text.runFromLibrary = function( event, debug = false ){
 
 		evt.target = evt.target.slice();
 		let t = evt.target;
+
 		// Try to trigger a text on each player
 		while( t.length ){
 
 			let text = this.getFromEvent( evt, debug );
+
 			// No text for this person
 			if( !text ){
 
@@ -1089,7 +1132,8 @@ Text.runFromLibrary = function( event, debug = false ){
 			}
 
 		}
-
+		
+		// only when starting/ending battles, and player first turns
 		if( this.CheckAllPlayerChatEvents.includes(event.type) || this.IndividualTargetsEvents.includes(event.type) ){
 			
 			const targetsOnly = this.IndividualTargetsEvents.includes(event.type);
@@ -1138,8 +1182,9 @@ Text.runFromLibrary = function( event, debug = false ){
 
 
 	});
+	
 
-}
+};
 
 // Weight templates
 Text.Weights = {

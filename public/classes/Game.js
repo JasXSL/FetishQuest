@@ -27,6 +27,7 @@ import Book from './Book.js';
 import { Logger } from './Logger.js';
 import AudioTrigger from './AudioTrigger.js';
 import Story from './Story.js';
+import Calculator from './Calculator.js';
 
 let VibHub = false;
 import('./VibHub.js').then(v => {
@@ -1329,11 +1330,27 @@ export default class Game extends Generic{
 		for( let f of this.factions )
 			out['fac_'+f.label] = f.standing;
 
-		const rps = Roleplay.getPersistent(); // This also loads state
-		rps.push(this.roleplay);
+		out['rp_targs'] = this.roleplay._targetPlayers.length;
+		
+		// This is faster than doing it with RP state loading
+		const rps = Roleplay.getPersistent();
+		rps.push(this.roleplay); // Make sure we overwrite with the active RP last
 		for( let rp of rps ){
-			rp.appendMathVars(out, event); 
+			
+			// Load default vars
+			for( let i in rp.vars )
+				Calculator.appendMathVar('rp_'+rp.label+'_'+i, rp.vars[i], out, event);
+
+			let st = this.state_roleplays.get(rp.label);
+			if( !st?.vars )
+				continue;
+			// Overwrite with state
+			for( let i in st.vars )
+				Calculator.appendMathVar('rp_'+rp.label+'_'+i, st.vars[i], out, event);
+		
 		}
+
+
 		// Dungeon vars
 		const dungeons = glib.getFull('Dungeon');
 		for( let d in dungeons )
@@ -1374,9 +1391,9 @@ export default class Game extends Generic{
 	async playFxAudioKitById(id, ...args ){
 
 		let kit = glib.audioKits[id];
-		if( !window.game )
-			kit = AudioKit.loadThis(window.mod.getAssetById('audioKits', id, true));
-		
+		if( !window.game ){
+			kit = AudioKit.loadThis(window.mod.getAssetById('audioKits', id, true), mod.mod.dummyGame);
+		}
 		if( !kit )
 			return console.error("Audio kit missing", id);
 		
@@ -2525,7 +2542,12 @@ export default class Game extends Generic{
 		if( !cached )
 			this._caches = true;
 
-		const out = fn();
+		let out;
+		try{
+			out = Condition.cacheAndRun( fn );
+		}catch(e){
+			console.error(e);
+		}		
 		if( !cached ){
 			this._caches = false;
 			for( let player of this.players )
@@ -3088,11 +3110,8 @@ export default class Game extends Generic{
 					continue;
 				}
 
-				this.ui.captureActionMessage = true;
-				
 				await pl.onTurnStart(); // May be async if the player was charging an action
-				this.ui.flushMessages();
-
+				
 				// pl._turns are added on turn end
 				if( !pl._turns ){
 
@@ -3108,7 +3127,6 @@ export default class Game extends Generic{
 			}
 
 			Wrapper.checkAllStayConditions();
-			this.ui.flushMessages();
 			this.onTurnChanged();
 			this.addSeconds(30);
 			
@@ -3208,8 +3226,7 @@ export default class Game extends Generic{
 			Game.net.playerUseAction(player, action, targets);
 			return true;
 
-		}else
-			this.ui.captureActionMessage = true;
+		}
 		
 		// Can't use caching here, or some texts will fail
 		if( !action )
@@ -3220,7 +3237,6 @@ export default class Game extends Generic{
 
 		this.save();
 		this.ui.draw();
-		this.ui.flushMessages();
 		this.checkEndTurn(); // Note: this is async, could this cause an issue?
 
 		return att;
@@ -4311,11 +4327,13 @@ export default class Game extends Generic{
 	}
 
 	exchangePlayerMoney( myPlayer, bank ){
+
 		if( this.isGameOver() )
 			return false;
 
 		if( !(myPlayer instanceof Player) )
 			myPlayer = this.getPlayerById(myPlayer);
+
 		if( !myPlayer )
 			throw "You have no player";
 		
@@ -4328,6 +4346,7 @@ export default class Game extends Generic{
 		this.playFxAudioKitById("exchange", myPlayer, myPlayer, undefined, true);
 		myPlayer.exchangeMoney( bank );
 		this.save();
+
 	}
 
 	saveShopState(shop){

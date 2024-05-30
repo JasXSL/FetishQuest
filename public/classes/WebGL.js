@@ -473,9 +473,10 @@ class WebGL{
 
 			let color = new THREE.Color();
 			color.r = color.g = color.b = .5;
-			if( this.stage && this.stage.room.getDirLight() ){
+			let dirLight = this.stage.room.getDirLight();
+			if( this.stage && dirLight ){
 
-				color.set(this.stage.room.getDirLight());
+				color.set(new THREE.Color(dirLight));
 
 			}
 			this.dirLight.color.copy(color);
@@ -764,7 +765,7 @@ class WebGL{
 			// Use fog from ambient light, or white
 			let color = new THREE.Color(0xFFFFFF);
 			if( this.stage.room && this.stage.room.getDirLight() )
-				color.set(this.stage.room.getDirLight());
+				color.set(new THREE.Color(this.stage.room.getDirLight()));
 			this.scene.fog.color.copy(color);
 
 		}

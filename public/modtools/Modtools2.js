@@ -152,6 +152,7 @@ export default class Modtools{
 		this.modDirty = document.querySelector("#modName > span.dirty");
 		this.datalists = document.getElementById("datalists");
 		this.dummyGame = new Game();
+		this.dummyGame.setupAudio();
 
 		this.dummyUploader = document.getElementById("dummyUploader");	// file input
 

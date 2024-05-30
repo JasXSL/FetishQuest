@@ -66,6 +66,12 @@ export function asset(){
 	html += '<label>Inverse <input type="checkbox" class="saveable" name="inverse" '+(dummy.inverse ? 'checked' : '')+' /></label>';
 	html += '<label>Any Player <input type="checkbox" class="saveable" name="anyPlayer" '+(dummy.anyPlayer ? 'checked' : '')+' /></label>';
 	html += '<label>Debug <input type="checkbox" class="saveable" name="debug" '+(dummy.debug ? 'checked' : '')+' /></label>';
+	html += '<label>Caching type ';
+		html += '<select class="saveable" name="ctype">';
+		for( let i in Condition.cTypes )
+			html += '<option value="'+Condition.cTypes[i]+'" '+(dummy.ctype === Condition.cTypes[i] ? 'selected' : '')+'>'+i+'</option>';
+		html += '</select>';
+	html += '</label>';
 
 
 
@@ -1382,6 +1388,10 @@ export function help(){
 		'<tr>'+
 			'<td>Debug</td>'+
 			'<td>Outputs debug info in the console. This may lead to a lot of spam, so keep it off unless you\'re working on developing the source code.</td>'+
+		'</tr>'+
+		'<tr>'+
+			'<td>Cache type</td>'+
+			'<td>Can be left to auto in most places. Caches the result of a condition when run multiple times, primarily for actions. Auto caches whenever the condition is set to caster. But you can force it. Especially when you are using formulas.</td>'+
 		'</tr>'+
 		'<tr>'+
 			'<td>Condition specific data</td>'+

@@ -2320,7 +2320,8 @@ export default class StaticModal{
 					const targ = event.target,
 						bank = event.target.classList.contains("bank")
 					;
-					game.exchangePlayerMoney(myPlayer, bank);
+					// Need to use game.getMyActivePlayer here since it may have changed since draw?
+					game.exchangePlayerMoney(game.getMyActivePlayer(), bank);
 
 				};
 
@@ -5786,7 +5787,7 @@ export default class StaticModal{
 			if( !exchangeButton._bound ){
 
 				exchangeButton.addEventListener('click', event => {
-					game.exchangePlayerMoney(myPlayer);
+					game.exchangePlayerMoney(game.getMyActivePlayer());
 					if( win )
 						win.refresh();
 				});
