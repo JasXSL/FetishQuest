@@ -224,6 +224,13 @@ export default class Asset extends Generic{
 			wrapper.caster = wrapper.victim = this.parent.id;
 		}
 	}
+	onUnequip(){
+		this.unbindEvents();
+	}
+
+	onDestroyed(){
+		this.unbindEvents();
+	}
 
 	onTimePassed(){
 
@@ -235,6 +242,11 @@ export default class Asset extends Generic{
 			this.parent.destroyAsset(this.id);
 
 		}
+	}
+
+	unbindEvents(){
+		for( let wrapper of this.wrappers )
+			wrapper.unbindEvents();
 	}
 
 	// override for Generic gettags
@@ -553,11 +565,13 @@ export default class Asset extends Generic{
 		}
 		html += this.getWeightReadable()+' ';
 		if( this.equippable() ){
+
 			html += '| ';
-			if(this.slots.length && !this.equipped)
+			if( this.slots.length && !this.equipped )
 				html+= '<strong>'+this.slots.map(el => el.toUpperCase()).join(' + ')+'</strong>';
-			else if(this.slots.length)
+			else if( this.slots.length )
 				html+= 'Equipped <strong>'+this.slots.map(el => el.toUpperCase()).join(' + ')+'</strong>';
+
 		}
 		html += '</em><br />';
 

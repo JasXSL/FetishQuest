@@ -51,6 +51,7 @@ export default class Condition extends Generic{
 
 		this._c = false;			// Cache response
 		this._cv = -1;				// Cache version
+		this._cs = null;			// Cached sender, if this mismatches the event when checking cache, uncache us
 
 		this.load(data);
 	}
@@ -189,8 +190,9 @@ export default class Condition extends Generic{
 
 	}
 	
-	onCacheResult( val ){
+	onCacheResult( event, val ){
 		
+		this._cs = event.sender;
 		this._cv = Condition.cachev;
 		this._c = val;
 
@@ -202,7 +204,7 @@ export default class Condition extends Generic{
 			debug = this.debug;
 
 		// We've cached this result
-		if( this.isCacheable()  && Condition.cachev === this._cv )
+		if( this.isCacheable()  && Condition.cachev === this._cv && event.sender === this._cs )
 			return this._c;
 		
 
@@ -224,7 +226,7 @@ export default class Condition extends Generic{
 			if( this.inverse )
 				out = !out;
 			
-			this.onCacheResult(out);
+			this.onCacheResult(event, out);
 			return out;
 
 		}
@@ -1401,7 +1403,7 @@ export default class Condition extends Generic{
 
 		if(debug)
 			console.debug("Condition DEBUG :: loop ended, success:", !this.anyPlayer, "anyPlayer", this.anyPlayer);
-		this.onCacheResult(!this.anyPlayer);
+		this.onCacheResult(event, !this.anyPlayer);
 		return !this.anyPlayer;
 
 	}

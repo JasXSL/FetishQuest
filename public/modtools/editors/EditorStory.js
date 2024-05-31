@@ -53,7 +53,8 @@ export function asset(){
 		html += '<label>Players always go first: <input type="checkbox" name="players_always_go_first" class="saveable" value=1 '+(dummy.players_always_go_first ? 'checked' : '')+' /></label>';
 	html += '</div>';
 
-	html += 'Description: <br /><textarea name="desc" class="saveable">'+esc(dummy.desc)+'</textarea>';
+	html += 'Short Description: <br /><textarea name="short" class="saveable">'+esc(dummy.short)+'</textarea>';
+	html += 'Full Description: <br /><textarea name="desc" class="saveable">'+esc(dummy.desc)+'</textarea>';
 
 	html += '<br />Selectable main characters: <div class="player_options"></div>';
 	html += '<br />NPCs to add on game start: <div class="npcs"></div>';

@@ -1477,7 +1477,7 @@ class Effect extends Generic{
 					amt *= wrapper.getStacks();
 				amt = Math.floor(amt);
 				game.ui.addText( t.getColoredName()+" "+(amt > 0 ? 'gained' : 'lost')+" "+Math.abs(amt)+" HP"+(wrapper.name ? ' from '+wrapper.name : '')+".", undefined, s.id, t.id, 'statMessage HP' );
-				t.addHP(amt, s, this, attackType, false, true);
+				t.addHP(amt, s, this, attackType, true, true);
 			}
 			else if( this.type === Effect.Types.addCopper ){
 				let amt = Calculator.run(

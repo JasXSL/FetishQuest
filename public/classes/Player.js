@@ -2144,10 +2144,12 @@ export default class Player extends Generic{
 	// if fromStacks is true, it only iterates once and adds amount to stacks instead of asset._stacks
 	// returns false on fail, or an array of all added assets on success
 	addAsset( asset, amount = 1, fromStacks = false, no_equip = false, resetid = true, toBank = false ){
+
 		if( !(asset instanceof Asset) ){
 			console.error("Trying to add non-asset. Did you mean to use addLibraryAsset?");
 			return false;
 		}
+		asset.onUnequip();
 		asset.equipped = false;
 
 		const out = {};
@@ -2354,11 +2356,11 @@ export default class Player extends Generic{
 				}
 
 				// Unbind events, since we only unbind existing events in rebindWrappers
-				for( let wrapper of asset.wrappers )
-					wrapper.unbindEvents();
+				asset.onUnequip();
 
-				if( asset.rem_unequip )
+				if( asset.rem_unequip ){
 					this.destroyAsset(asset.id);
+				}
 				asset.equipped = false;
 				this.onItemChange();
 				if( game.battle_active && byPlayer === this && !noText )
@@ -2472,6 +2474,7 @@ export default class Player extends Generic{
 					asset._stacks -= amount;
 				if( !amount || !this.assets[i].stacking || asset._stacks <= 0 )
 					this.assets.splice(i, 1);
+				asset.onDestroyed();
 				this.raiseInvChange();
 				this.rebindWrappers();
 				return true;
@@ -2551,9 +2554,11 @@ export default class Player extends Generic{
 				const stacks = this.assets[i]._stacks,
 					equipped = this.assets[i].equipped;
 				console.debug("Overwriting ", asset.label);
+				this.assets[i].onDestroyed();
 				this.assets[i] = lib[asset.label].clone(this);
 				this.assets[i]._stacks = stacks;
 				this.assets[i].equipped = equipped;
+				this.assets[i].onEquip();
 
 			}
 
@@ -2582,6 +2587,7 @@ export default class Player extends Generic{
 			return;
 		}
 
+		asset.onUnequip();
 		asset.equipped = false;		// Make sure it's not equipped
 		if( player.addAsset(asset) )
 			this.destroyAsset(id);
@@ -2742,7 +2748,7 @@ export default class Player extends Generic{
 
 	// Auto exchanges money assets to the fewest amounts of coins
 	exchangeMoney( bank ){
-		
+
 		const copper = this.getMoney(bank);
 		let asset;
 		if( asset = this.getAssetByLabel('platinum', bank) )
@@ -3284,6 +3290,9 @@ export default class Player extends Generic{
 		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
 
 		if( !wasDead && this.hp === 0 && !this.isDownedProtected() && this.canDownedProtect() && this._dp < this.getMaxDownedProtect() ){
+
+			if( !game.battle_active )
+				return false;
 
 			this._dpa = true; // Activate downed protection
 			++this._dp;

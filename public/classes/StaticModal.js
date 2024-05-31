@@ -2405,137 +2405,6 @@ export default class StaticModal{
 	
 				this.setTitle('Runeforging', smith.portrait);
 
-				// Output repairable
-				/*
-				const handleRepairableClick = event => {
-					
-					const assetId = event.currentTarget.dataset.id;
-					const asset = myPlayer.getAssetById(assetId);
-					if( !asset )
-						return;
-
-					game.uiClick(event.currentTarget);
-
-					const modal = game.ui.modal;
-					modal.prepareSelectionBox();
-					if( asset.isDamaged() ){
-
-						modal.addSelectionBoxItem( 
-							'Repair', 
-							'Repair this item', 
-							'repairItem',
-							[],// classes?
-							false
-						);
-
-					}
-
-					if( asset.colorable ){
-
-						modal.addSelectionBoxItem( 
-							'Dye', 
-							'Dye this item', 
-							'dyeItem',
-							[],// classes?
-							false
-						);
-
-					}
-
-					modal.onSelectionBox(async event => {
-			
-						let element = event.currentTarget,
-							id = $(element).attr('data-id')
-						;
-						game.uiClick(element);
-						if( id === 'repairItem' )
-							game.repairBySmith(smith, myPlayer, assetId);
-						else if( id === 'dyeItem' ){
-
-							const dummyAsset = asset.clone();
-							const div = await StaticModal.getGenericAssetButton(dummyAsset, 100);	// 100 is the cost of dye
-							this.dyeAssetWrapper.replaceChildren(div);
-							this.dyeOverlay.classList.toggle("hidden", false);
-							this.dyesRemoveButton.classList.toggle("hidden", !asset.color_tag);
-							this.dyesColorPicker.value = dummyAsset.getColor();
-							this.dyesColorName.innerText = dummyAsset.getColorTag();
-
-							const dummyPlayer = new Player();
-							dummyPlayer.replaceIconsByPlayer(myPlayer, false);
-							dummyPlayer.assets = myPlayer.getEquippedAssetsBySlots([
-								Asset.Slots.hands,
-								Asset.Slots.jewelleryCosmetic,
-								Asset.Slots.lowerBody,
-								Asset.Slots.lowerBodyCosmetic,
-								Asset.Slots.upperBodyCosmetic,
-							]).map(el => el.clone());
-							dummyPlayer.unequipAssetsBySlots( dummyAsset.slots, undefined, true, true );
-							dummyPlayer.assets.push( dummyAsset );
-							dummyAsset.equipped = true;
-
-
-							const refreshIcon = () => {
-								dummyPlayer.getActiveIcon().then(canvas => {
-									this.dyesPreview.replaceChildren(canvas);
-								});
-							};
-
-							this.dyesColorPicker.onchange = async () => {
-
-								dummyAsset.color = this.dyesColorPicker.value;
-								dummyAsset.color_tag = ntc.name(dummyAsset.color)[1];
-								this.dyesColorName.innerText = dummyAsset.getColorTag(); 
-								this.dyeAssetWrapper.replaceChildren(await StaticModal.getGenericAssetButton(dummyAsset, 100));
-								game.uiSelectUp(div);
-								refreshIcon();
-
-							};
-
-							this.dyesRemoveButton.onclick = () => {
-								game.dyeBySmith(smith, myPlayer, assetId, '');
-								this.dyeOverlay.classList.toggle('hidden', true);
-							};
-
-							this.dyeForm.onsubmit = event => {
-								event.preventDefault();
-								game.dyeBySmith(smith, myPlayer, assetId, dummyAsset.color);
-								this.dyeOverlay.classList.toggle('hidden', true);
-							};
-
-							refreshIcon();
-
-						}
-
-						modal.closeSelectionBox();
-						
-					});
-
-				};
-
-				const repairable = myPlayer.getAssets().filter(el => (el.isDamaged() && el.isDamageable()) || el.colorable);
-				this.empty.classList.toggle("hidden", Boolean(repairable.length));
-				this.assets.classList.toggle("hidden", !repairable.length);
-
-				//const money = myPlayer.getMoney();
-				const divs = [];				
-				for( let asset of repairable ){
-
-					const cost = asset.getRepairCost(smith);
-					let classes = [];
-					if( asset.isDamaged() )
-						classes.push("damaged");
-
-					const div = await StaticModal.getGenericAssetButton(
-						asset, 
-						asset.isDamaged() ? cost : undefined, 
-						classes.join(' ')
-					);
-					divs.push(div);
-					div.addEventListener('click', handleRepairableClick);
-					
-				}
-				this.assets.replaceChildren(...divs);
-				*/
 
 			});
 
@@ -3229,13 +3098,16 @@ export default class StaticModal{
 					div.append(sub);
 					sub.classList.add("subtitle");
 					let numPlayers = 'Any amount of players';
-					if( story.max_nr_player_options > 0 )
+					if( story.max_nr_player_options > 0 ){
 						numPlayers = 'Up to '+parseInt(story.max_nr_player_options)+" players";
+						if( story.max_nr_player_options === story.min_nr_player_options )
+							numPlayers = parseInt(story.max_nr_player_options)+" players";
+					}
 					sub.innerText = numPlayers;
 					
 					const p = document.createElement('p');
 					div.append(p);
-					p.innerText = story.desc;
+					p.innerText = story.short;
 
 				}
 				this.storiesWrapper.replaceChildren(...storyDivs);
@@ -4011,7 +3883,7 @@ export default class StaticModal{
 				if( !story )
 					story = glib.get('_MAIN_','Story', true);
 
-				
+				this.cData.gameName.value = story.name+' '+new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
 
 				const galleryPlayers = glib.getAllValues('PlayerGalleryTemplate');
 				const maxOpts = Math.min(4, story.max_nr_player_options) || 4;

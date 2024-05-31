@@ -250,7 +250,11 @@ class PlayerTemplate extends Generic{
 			item.restore();
 			let added = player.addAsset(item, undefined, undefined, true);
 			if( !this.no_equip && added ){
-				added.map(el => el.equipped = el.equippable());
+				added.map(el => {
+					el.equipped = el.equippable();
+					if( el.equipped )
+						el.onEquip();
+				});
 			}
 
 		}

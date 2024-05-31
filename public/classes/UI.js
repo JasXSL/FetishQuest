@@ -1399,7 +1399,7 @@ export default class UI{
 			rps = [];
 
 		return {
-			talk : (rps.length || p.isActiveFollower()) && !game.battle_active,
+			talk : (rps.length || p.isActiveFollower()) && !game.battle_active && !game.isInRoleplay(),
 			inspect : true,
 			loot : myActive && p.isLootableBy(myActive),
 			shop : myActive && game.getShopsByPlayer(p, true, encounter).length,
@@ -1660,10 +1660,6 @@ export default class UI{
 					hpElSpan = $('> span', hpEl),
 					armorEl = $('> span.armor', resourcesEl),
 					armorElSpan = $('> span', armorEl),
-					chestEl = $('> span.chest', resourcesEl),
-					chestElSpan = $('> span', chestEl),
-					legsEl = $('> span.legs', resourcesEl),
-					legsElSpan = $('> span', legsEl),
 			bgEl = $('> div.bg', contentEl),
 			shieldsEl = $('> div.shields', el),
 				shieldEl = $('> div.shield', shieldsEl),
@@ -1754,9 +1750,6 @@ export default class UI{
 
 		// Awareness
 		focusEl[0].classList.toggle('hidden', Boolean(p.isAware(myActive)));
-
-		// Armor
-		chestEl.add(legsEl).toggleClass('hidden', p.isTargetBeast());
 
 		const armorValueRaw = Math.round(p.getArmorPoints(false));
 		const armorValueModified = Math.round((1-p.getArmorDamageMultiplier(myActive))*100);

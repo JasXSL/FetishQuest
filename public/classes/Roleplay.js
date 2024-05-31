@@ -747,6 +747,8 @@ export class RoleplayStage extends Generic{
 
 		const ini = this.getInitiatingPlayer();
 		const rpTarg = this.parent.getTargetPlayers()[0];
+		if( this.name === 'none' )
+			return '';
 		if( this.name === '%T' )
 			return ini?.getColoredName() || '';
 		else if( this.name === '%P' )

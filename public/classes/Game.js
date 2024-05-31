@@ -1129,11 +1129,13 @@ export default class Game extends Generic{
 	// Sleep players, duration is in hours
 	sleep( player, dungeonAsset, duration, force = false, silent = false, ignore_rested = true ){
 
-		if( !player.isLeader() )
-			return false;
+		
 		
 		let sleepInteractions = [];
 		if( !force ){
+
+			if( !player.isLeader() )
+				return false;
 
 			if( !dungeonAsset || !dungeonAsset.interactions.length )
 				return false;

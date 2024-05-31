@@ -24,6 +24,7 @@ export default class Story extends Generic{
 		this.label = '';
 		this.name = '';
 		this.desc = '';
+		this.short = '';
 		this.icon = '';
 		
 		this.battle_won_hp_regen = 0.1;		// Amount of HP restored when winning a battle, multiplied by max HP
@@ -96,6 +97,7 @@ export default class Story extends Generic{
 			out.player_options = PlayerGalleryTemplate.saveThese(this.player_options, full);
 			out.npcs = Player.saveThese(this.npcs, full);
 			out.no_dmg_type_secondary = this.no_dmg_type_secondary; 
+			out.short = this.short;
 		}
 		if( full !== "mod" ){
 

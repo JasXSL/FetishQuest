@@ -2078,6 +2078,7 @@ class DungeonRoomAsset extends Generic{
 			Game.net.playerLoot( player, this, asset );
 			return;
 		}
+		asset.onUnequip();
 		asset.equipped = false;		// Make sure it's not equipped
 		asset.restore();
 		if( player.addAsset(asset) )

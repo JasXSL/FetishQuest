@@ -8,6 +8,7 @@
 	--iconOffEmpty : url(media/ui/triangle_empty.svg);
 	--iconDefEmpty : url(media/ui/square_empty.svg);
 	--iconUtiEmpty : url(media/ui/circle_empty.svg);
+	--uiBottomDistance : 8vh;
 }
 
 body, html{
@@ -1923,16 +1924,19 @@ div.scroll{
 		margin:0;
 	}
 	#mainMenu div.mainMenuOptions div.story p{
-		font-size:1.2vmax;
+		font-size:1.1vmax;
 		margin:0;
-		color:rgba(200,200,200,.8);
+		color: #EEE;
+		font-weight: normal;
 	}
 	#mainMenu div.mainMenuOptions div.story p.subtitle{
 		font-style: italic;
 		font-size:1vmax;
-		color:#CCC;
+		color:#AAA;
 		margin:0 0 1vmin 0;
 		padding:0;
+		margin:0;
+		font-weight: bold;
 	}
 	#mainMenu div.mainMenuOptions div.story div.bg{
 		position: absolute;
@@ -2088,7 +2092,7 @@ div.scroll{
 /* Players */
 	#ui > div.players{
 		position: absolute;
-		top:0; left:0; right:0; bottom:7.5vh;
+		top:0; left:0; right:0; bottom:var(--uiBottomDistance);
 		pointer-events: none;
 	}
 
@@ -2510,20 +2514,19 @@ div.scroll{
 		left:50%;
 		transform:translate(-50%,-50%);
 		color:#FFF;
-		font-size:1.6vmax;
+		font-size:1.4vmax;
 		cursor:default;
-		min-width:50%;
-		max-width:70%;
+		width:55%;
+		display:flex;
 	}
 
-	#roleplay > div.left{
-		width:20%;
-		transform:translateX(-101%);
+	#roleplay > div.left > div.portrait{
+		padding:0;
+		margin-right: 0;
 	}
 	#roleplay > div.right{
-		width:100%;
+		flex:1;
 	}
-	
 
 	#roleplay div.bg{
 
@@ -2540,10 +2543,8 @@ div.scroll{
 	}
 
 	#roleplay div.portrait{
-		position: absolute;
-		left:0;
-		width:10vmax; height:10vmax;
-		padding:0;
+		width:10vmax; 
+		height:10vmax;
 	}
 	#roleplay div.portrait div.bg{
 		position: absolute;
@@ -2778,7 +2779,7 @@ div.scroll{
 
 /* Text */
 	#ui > div.middle{
-		bottom:7.5vh;
+		bottom:var(--uiBottomDistance);
 		background:rgba(0,0,0,.5);
 		left:23vw;
 		right:23vw;
@@ -3513,7 +3514,7 @@ div.scroll{
 		background:none;
 		background: url(./media/ui/marble.jpg) repeat;
 		border-top:2vh groove rgba(255,255,255,.25);
-		height:8vh;
+		height:7.9vh;
 	}
 
 	#ui > div.actionbar > div.reroll{
