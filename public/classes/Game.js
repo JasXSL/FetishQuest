@@ -872,9 +872,9 @@ export default class Game extends Generic{
 			return;
 
 		this.playFxAudioKitById('questCompleted', undefined, undefined, undefined, true);
-		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name );
+		this.ui.questAcceptFlyout( 'Quest Completed:', quest.name, 'questFinish' );
 		if( Game.net.isInNetgameHost() )
-			Game.net.dmQuestAccepted( 'Quest Completed:', quest.name );
+			Game.net.dmQuestAccepted( 'Quest Completed:', quest.name, 'questFinish' );
 
 		const objectives = {
 			__time : this.time,
@@ -1827,10 +1827,10 @@ export default class Game extends Generic{
 		
 		this.playFxAudioKitById('explorationCompleted', undefined, undefined, undefined, true);
 		const name = labelToName(game.dungeon.label);
-		this.ui.questAcceptFlyout( 'Exploration Complete: ', name );
+		this.ui.questAcceptFlyout( 'Exploration Complete: ', name, 'questFinish' );
 
 		if( this.is_host && Game.net.id )
-			Game.net.dmQuestAccepted( 'Exploration Complete:', name );
+			Game.net.dmQuestAccepted( 'Exploration Complete:', name, 'questFinish' );
 
 		const players = this.getTeamPlayers(Player.TEAM_PLAYER);
 		const numRooms = this.dungeon.rooms.length;

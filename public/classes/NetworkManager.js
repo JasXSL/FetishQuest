@@ -1278,7 +1278,7 @@ class NetworkManager{
 		else if( task === NetworkManager.dmTasks.questAccepted ){
 
 			// {head:head, body:(str)body}
-			game.ui.questAcceptFlyout(args.head, args.body);
+			game.ui.questAcceptFlyout(args.head, args.body, args.fx);
 
 		}
 		else if( task === NetworkManager.dmTasks.hitfx ){
@@ -1798,10 +1798,9 @@ class NetworkManager{
 		}); 
 	}
 
-	dmQuestAccepted( head, body ){
+	dmQuestAccepted( head, body, fx = 'dmQuestAccepted' ){
 		this.sendHostTask(NetworkManager.dmTasks.questAccepted, {
-			head : head,
-			body: body,
+			head, body, fx
 		}); 
 	}
 
@@ -2100,7 +2099,7 @@ NetworkManager.dmTasks = {
 	stopSoundOnMesh : 'stopSoundOnMesh',			// {dungeonAsset:(str)dungeonAsset_uuid, id:(str)url/id, fade:(int)fade_ms}
 	raiseInteractOnMesh : 'raiseInteractOnMesh',	// {dungeonAsset:(str)dungeonAsset_uuid} - Triggers the mesh template onInteract function on a dungeon asset
 	hitfx : 'hitfx',								// {fx:hitfx, caster:(str)casterID, recipients:(arr)recipients, armor_slot:(str)armor_slot} - Triggers a hitfx
-	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text} - Draws the questStart info box. Also used for quest completed and other things
+	questAccepted : 'questAccepted',				// {head:(str)head_text, body:(str)body_text, fx:(str)fx} - Draws the questStart info box. Also used for quest completed and other things
 	dmRpOptionSelected : 'rpOptionSelected', 		// {id:(str)id} - An RP option has been selected, send it
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
 	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}

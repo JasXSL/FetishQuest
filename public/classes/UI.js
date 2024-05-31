@@ -2096,10 +2096,7 @@ export default class UI{
 		const 
 			map = $('div.button[data-id=map]', this.gameIcons),
 			inventory = $('div.button[data-id=inventory]', this.gameIcons),
-			quest = $('div.button[data-id=quest]', this.gameIcons),
-			settings = $('div.button[data-id=settings]', this.gameIcons),
-			help = $('div.button[data-id=help]', this.gameIcons),
-			mainMenu = $('div.button[data-id=mainMenu]', this.gameIcons)
+			help = $('div.button[data-id=help]', this.gameIcons)
 		;
 
 		inventory.toggleClass('hidden', !player);
@@ -3156,15 +3153,30 @@ export default class UI{
 		}, 1000);
 	}
 
-	questAcceptFlyout( title, body ){
+	questAcceptFlyout( title, body, fx = 'questStart' ){
 
 		const el = $("#questAccept");
 		$(".title", el).html(esc(title));
-		$(".questName", el).html(esc(body));
+		body = String(body);
+
+		let len = body.length;
+		let size = 6;
+		if( len )
+			size = 13/len;
+		size = Math.min(6, size*6);
+
+		$(".questName", el).css({'font-size' : size+'vw'}).text(body);
+
 		el.toggleClass('hidden', false);		
-		game.renderer.playFX(el,el,"questStart");
+		
+		const titleText = el[0].querySelector('object.bg').contentDocument.querySelector('#tspan43');
+		titleText.textContent = String(title).toUpperCase();
+
+		if( fx )
+			game.renderer.playFX(el,el,fx);
 		clearTimeout(this._hide_quest_accept);
 		this._hide_quest_accept = setTimeout(() => {
+			console.log("hiding accept");
 			el.toggleClass('hidden', true);
 		}, 3000);
 

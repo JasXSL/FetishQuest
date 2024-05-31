@@ -418,6 +418,33 @@ particles.quest_stars = {
 	color : "#AABBFF",	
 	opacity: 1,
 };
+particles.quest_stars_small = {
+	texture : textures.sparkle,
+	blending : THREE.AdditiveBlending,
+	rate : 0.01,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,10),
+	size : 3,
+	size_tween : [1,.1],
+	part_max_age : 1.5,
+	velocity : new Proton.Span(40,100),
+	color : "#FFFFFF",	
+	opacity: 1,
+	gravity : 3
+};
+particles.quest_smoke = {
+	texture : textures.smoke,
+	blending : THREE.AdditiveBlending,
+	rate : 0.05,
+	count : 1,
+	position : new Proton.SphereZone(0,0,0,50),
+	size : 100,
+	size_tween : [.5,1],
+	part_max_age : 2,
+	velocity : new Proton.Span(5,10),
+	color : "#FFFFFF",	
+	opacity: [0,.1,Proton.ease.easeFullSine],
+};
 
 particles.hitfx_levelup = {
 	texture : textures.levelup,
