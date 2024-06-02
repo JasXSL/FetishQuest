@@ -110,8 +110,8 @@ export function asset(){
 			if( this._multitrack )
 				this._multitrack.destroy();
 
-			// Need all 3 for it to function
-			if( !loopFile || !introFile || !outroFile )
+			// Need a loop for it to function
+			if( !loopFile )
 				return;
 
 			const tracks = [

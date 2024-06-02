@@ -128,6 +128,7 @@ export default class Game extends Generic{
 		this._looted_players = {};						// local only, contains id : true for players looted in this room
 		this._refreshMeshesOnGameData = false;			// Used in online games to refresh meshes when receiving game data from host
 		this._advancingTurn = false;
+		this._defeated = false;							// Set to true while doing punishments after a wipe.
 
 	}
 
@@ -754,6 +755,8 @@ export default class Game extends Generic{
 
 	async onEncounterLost( winningTeam ){
 		
+		this._defeated = true;
+
 		// Allow enemies to steal
 		let losers = shuffle(this.getPlayersNotOnTeam(winningTeam)),
 			armorSteal = losers.slice();
@@ -804,6 +807,8 @@ export default class Game extends Generic{
 			this.dungeon.goToRoom(losers[0], 0);
 
 		}
+
+		this._defeated = false;
 
 		this.ui.draw();
 	}
@@ -2852,7 +2857,7 @@ export default class Game extends Generic{
 		if( on === undefined )
 			this.battle_active = !this.battle_active;
 		else
-			this.battle_active = !!on;
+			this.battle_active = Boolean(on);
 
 		if( this.battle_active === pre )
 			return;
@@ -2974,17 +2979,20 @@ export default class Game extends Generic{
 		if( standing.length > 1 )
 			return false;
 
+		// Battle ended. Needs to go before players won to make sure they don't get killed after the battle ends.
+		this.toggleBattle( false );	// Saves if there's a change.
 
 		// Players won
 		if( standing[0] !== undefined && standing[0] === 0 ){
 			
-			// Restore 25% HP and MP at the end of the battle
-			this.getTeamPlayers(0).map(pl => pl.onBattleWon());
+			// There may be effects still in the buffer at this point such as debuff on death, so we'll probably want to restore the players last
+			setTimeout(() => {
+				this.getTeamPlayers(0).map(pl => pl.onBattleWon());
+			}, 10);
 
 		}
 
-		// Battle ended
-		this.toggleBattle( false );	// Saves if there's a change. Note: Async function, but the asynciness only happens when the turn is changed.
+		
 
 		// Needs to go after battle ended due to gameActions that restart the battle immediately
 		if( !this.encounter.completed ){
@@ -3439,22 +3447,32 @@ export default class Game extends Generic{
 	}
 
 	// Searches if a roleplay is present and available to a player
+	// player is the player we're checking, and id is the ID of the roleplay
 	getAvailableRoleplayForPlayerById( player, id ){
 
 		if( player instanceof Player )
 			player = player.id;
 
+		const pl = this.getPlayerById(player);
 		const roleplays = this.encounter.getRoleplays(player);
 		for( let ga of roleplays ){
 
 			const rp = ga.getDataAsRoleplay();
 			if( !rp )
 				continue;
-			if( rp.id === id && !rp.completed && !rp.completed && rp.validate(this.getPlayerById(player)) )
+			if( rp.id === id && !rp.completed && !rp.completed && rp.validate(pl) )
 				return rp;
 
 		}
 
+		const en = this.getEnabledPlayers();
+		for( let fo of en ){
+
+			if( fo.isFollower() && fo.follower.id === id && fo.follower.validate(pl) )
+				return fo.follower;
+	
+		}
+		
 	}
 
 	saveRPState( roleplay ){

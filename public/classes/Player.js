@@ -3289,10 +3289,7 @@ export default class Player extends Generic{
 		this.hp += amount;
 		this.hp = Math.floor( Math.max(0, Math.min(this.getMaxHP(), this.hp)) );
 
-		if( !wasDead && this.hp === 0 && !this.isDownedProtected() && this.canDownedProtect() && this._dp < this.getMaxDownedProtect() ){
-
-			if( !game.battle_active )
-				return false;
+		if( game.battle_active && !wasDead && this.hp === 0 && !this.isDownedProtected() && this.canDownedProtect() && this._dp < this.getMaxDownedProtect() ){
 
 			this._dpa = true; // Activate downed protection
 			++this._dp;
@@ -3313,7 +3310,8 @@ export default class Player extends Generic{
 			post += this.getBlock();
 
 		// Out of combat HP damage can occur, but players can't go under 1. Use SET HP instead if you want to kill someone through an RP.
-		if( !game.battle_active && this.hp <= 0 && this.getTeam() === Player.TEAM_PLAYER )
+		// This shouldn't be done while players are counting as defeated tho, since it revives them and prevents punishments.
+		if( !game.battle_active && !game._defeated && this.hp <= 0 && this.getTeam() === Player.TEAM_PLAYER )
 			this.hp = 1;
 
 		out.hp = this.hp-prehp;

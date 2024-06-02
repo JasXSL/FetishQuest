@@ -533,10 +533,10 @@ export default class UI{
 		this.gameIcons.toggleClass('hidden', hidden);
 		this.fct.toggleClass('hidden', hidden);
 		this.renderer.toggleClass('hidden', hidden);
+		this.blackScreen.toggleClass('hidden', hidden);
 
 		if( hidden ){
 
-			this.blackScreen.toggleClass('hidden', hidden);
 			this.multiCastPicker.toggleClass('hidden', hidden);
 			this.roleplay.toggleClass('hidden', hidden);
 			this.loadingScreen.toggleClass('hidden', hidden);
@@ -569,6 +569,7 @@ export default class UI{
 	// Toggles the UI overlay
 	toggle( visible ){
 
+		
 		if( visible !== undefined )
 			this.visible = Boolean(visible);
 		else
@@ -1473,7 +1474,7 @@ export default class UI{
 		else if( type === 'talk' ){
 
 			let rp = game.getRoleplaysForPlayer(p).shift();
-			if( !rp && p.isActiveFollower() )
+			if( !rp?.length && p.isActiveFollower() )
 				rp = p.follower;
 
 			if( rp )

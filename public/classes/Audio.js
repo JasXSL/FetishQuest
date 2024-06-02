@@ -386,7 +386,6 @@ class Audio{
 		this.musicActiveTrack = track; // Set up here so we can compare it later, but activeObj is set once it loads
 
 		const curLabel = this.musicActiveObj?.label;
-
 		// This track is already playing
 		if( curLabel === this.musicTracks[track]?._label )
 			return;
@@ -395,16 +394,20 @@ class Audio{
 		const nTrackPromise = this.musicTracks[track]; // This is a promise that resolves to the AudioMusic object
 		const nTrack = await nTrackPromise;
 
+
 		// The currently playing music has changed while we were loading
 		if( nTrackPromise?._label !== this.getActiveTrackLabel() )
 			return;
 
+
 		// Stop the previous track if it exists
 		let timeOffs = 0;
+		
 		if( this.musicActiveObj ){
 			
-			let minIntroTime = nTrack?.getIntroStartTime() || 0;
-			let ft = parseInt(nTrack?.fade);
+			
+			let minIntroTime = nTrack && nTrack.getIntroStartTime() || 0;
+			let ft = parseInt(nTrack?.fade) || 0;
 			if( this.musicActiveObj.fade_out )
 				ft = this.musicActiveObj.fade_out; // Fade out settings takes priority
 
@@ -420,23 +423,28 @@ class Audio{
 
 		}
 
+		
+
 		// a 0 timeoffs occurs when we stop a track that hasn't started, in that case we'll use the previously set entry time
 		// This isn't graceful. Should probably rewrite this to keep the previous playing one until the new one starts....
 		if( timeOffs > 0 )
 			this._nextStart = timeOffs;
+
 		// Also not graceful. But if the stopping point is in the past, we'll need to set it to NOW
 		if( this.getCurrentTime() > this._nextStart ){
 			this._nextStart = this.getCurrentTime();
 		}
+		
 
 		if( nTrack ){
 			//console.log("startingin", this._nextStart-this.getCurrentTime());
 			nTrack.play(this._nextStart || this.getCurrentTime());
 		}
-		
+
 		this.musicActiveObj = nTrack;
-		for( let fn of this._onTrackChanged )
+		for( let fn of this._onTrackChanged ){
 			fn(nTrack);
+		}
 
 	}
 
@@ -810,6 +818,9 @@ class AudioMusic extends Generic{
 
 	async activate( channel ){
 
+		if( !this.loop )
+			return false;
+
 		this.parent = channel;
 
 		const promises = [];
@@ -883,34 +894,42 @@ class AudioMusic extends Generic{
 
 
 	// Triggered just before each loop ends
-	scheduleLoop(){
+	scheduleLoop( playImmediate = false ){
 
 		const 
-			time = this.getCurrentTime(),
-			loopInPoint = this.getLoopStartTime(),
-			loopOutPoint = this.getLoopEndTime(),
-			loopDur = loopOutPoint-loopInPoint,
-			stOffs = this._started+loopInPoint, // Makes the first trigger negative, allowing it to play immediately
-			delta = time-stOffs,
-			curLoops = Math.floor(delta/loopDur)
+			time = this.getCurrentTime(),				// Current time
+			loopInPoint = this.getLoopStartTime(),		// In point of the loop sound
+			loopOutPoint = this.getLoopEndTime(),		// Out point of the loop sound
+			loopDur = loopOutPoint-loopInPoint,			// total duration of the loop
+			stOffs = this._started+loopInPoint 		// Start offset that needs to be added to the first loop
+										// Might go negative
 		;
+		let delta = time-stOffs;
+		if( playImmediate )
+			delta = 0; // Accounts for minor delays
+
+		let curLoops = Math.floor(delta/loopDur); 		// How many loops have we done?
+		if( playImmediate )								// 
+			curLoops = -1;
 
 		let nextStart = (curLoops+1)*loopDur-loopInPoint+stOffs;
+		if( nextStart < 0 )
+			nextStart += loopDur;
 		let nextTimer = nextStart+loopDur-time-0.8;
 
+		
 
 		// We stop here. 0.1 is a failsafe for float issues
 		if( this._stopped && nextStart+0.1 > this._stopped )
 			return;
 
-		// we start playing at -1
-		if( curLoops > -2 ){
-			const mainLoop = this.getMaster().createBufferSource();
-			mainLoop.buffer = this._buf_loop;
-			mainLoop.connect(this._gain_loop);
-			mainLoop.start(nextStart);
-			this._snd_loop = mainLoop;
-		}
+
+		const mainLoop = this.getMaster().createBufferSource();
+		mainLoop.buffer = this._buf_loop;
+		mainLoop.connect(this._gain_loop);
+		mainLoop.start(nextStart);
+		this._snd_loop = mainLoop;
+
 		clearTimeout(this._loopTimer);
 		this._loopTimer = setTimeout(() => this.scheduleLoop(), nextTimer*1000);
 
@@ -1029,23 +1048,22 @@ class AudioMusic extends Generic{
 			startTime = startTime-time;
 
 
-		this._started = time+startTime;
+		
 
-		// Play the intro if need be
+
+		// Play the intro. If there's no intro, we'll treat the main loop as the intro.
 		if( this.intro ){
-			
 			const intro = master.createBufferSource();
 			intro.buffer = this._buf_intro;
+			this._snd_intro = intro;
 			intro.connect(this._gain_intro);
 			intro.start(time+startTime);
-			this._snd_intro = intro;
-			//console.log("Starting", this.label, "at", time+startTime);
-
 		}
+		this._started = time+startTime;
 
-		//console.log("Play triggered on", this.label, "start time in", this._started-time, "startTime", startTime);
+		console.log("Started", this._started);
 
-		this.scheduleLoop();
+		this.scheduleLoop(!this.intro);
 
 	}
 
