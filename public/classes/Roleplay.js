@@ -540,7 +540,7 @@ RoleplayChatQueue.next = function(){
 		return;
 
 	const chat = this.queue.shift();
-	game.speakAs( chat.sender, chat.getText( chat.sender ) );
+	game.speakAs( chat.sender, chat.getText( chat.sender, true ) );
 	this.timer = setTimeout(() => {
 		
 		this.timer = false;
@@ -921,16 +921,29 @@ export class RoleplayStage extends Generic{
 
 	// Returns an unescaped string with the active text
 	// convertMe will replace /me at the start with the name of the sender
-	getText( convertMe = false ){
+	// When stripBrackets is, we'll remove all lines that start with [
+	getText( convertMe = false, stripBrackets = false ){
 		
-		const textEvt = this.getTextEvent();
-		if( convertMe ){
-
-			textEvt.text = textEvt.text.clone();
-			textEvt.text.text = textEvt.text.text.replace('/me', '%S');
-			
+		const textEvt = this.getTextEvent().clone();
+		
+		textEvt.text = textEvt.text.clone();
+		let text = textEvt.text.text;
+		if( convertMe )
+			text = text.replace('/me', '%S');
+		// Remove brackets if stripBrackets is true
+		if( stripBrackets )
+			text = text.split('\n').filter(el => el.charAt(0) != '[').join('\n').trim();
+		// Otherwise make brackets italic
+		else{
+			text = text.split('\n').map(el => {
+				if( el.charAt(0) !== '[' )
+					return el;
+				el = el.trim();
+				return '|em|'+el.substr(1,el.length-2)+'|/em|';
+			}).join('\n').trim();
 		}
 
+		textEvt.text.text = text;
 		const textOutput = textEvt.text.run(textEvt, true);
 		return textOutput;
 

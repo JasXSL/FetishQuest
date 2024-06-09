@@ -1823,6 +1823,7 @@ export default class UI{
 
 				el[0].dataset.id = a.id;
 				el.toggleClass('hidden', false);
+				el.toggleClass('detrimental', a.isDetrimentalTo(myActive));
 				bgEl.toggleClass('corr phys arc', false);
 				bgEl.toggleClass(Action.TypesCSS[a.type], true);
 				

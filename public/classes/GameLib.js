@@ -345,7 +345,7 @@ export default class GameLib{
 			let newConditionsArray = [];
 			for( let condition of text.conditions ){
 			
-				if( condition.type === Condition.Types.event ){
+				if( condition.type === Condition.Types.event && !text.chat ){ // Skip adding the event type conditions unless it's a chat. Chats are the only ones allowed to have an extra event condition, which is checked against the origitnal event.
 					
 					if( evtType != "" ){
 						console.error("Found double event conditions in text", text);
@@ -408,7 +408,8 @@ export default class GameLib{
 	
 			}
 
-			if( !evtType && text.chat )
+			// Chats are forced into the textTrigger event path.
+			if( text.chat )
 				evtType = GameEvent.Types.textTrigger;
 
 			if( !text.chat && evtType === GameEvent.Types.textTrigger ){

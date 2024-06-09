@@ -9,6 +9,8 @@
 	--iconDefEmpty : url(media/ui/square_empty.svg);
 	--iconUtiEmpty : url(media/ui/circle_empty.svg);
 	--uiBottomDistance : 8vh;
+	--colorBeneficial : #AFA;
+	--colorDetrimental: #FAA;
 }
 
 body, html{
@@ -2248,7 +2250,7 @@ div.scroll{
 	}
 	#ui > div.players div.charging > div.chAction{
 		animation: chargedAction ease-in-out 0.5s alternate infinite;
-		border: 0.5vmax solid #FA6;
+		border: 0.5vmax solid var(--colorBeneficial);
 		width: 5vmax;
 		height: 5vmax;
 		display:inline-block;
@@ -2257,6 +2259,9 @@ div.scroll{
 		background-color: rgba(0,0,0,.75);
 		border-radius:0.5vmax;
 
+	}
+	#ui > div.players div.charging > div.chAction.detrimental{
+		border-color: var(--colorDetrimental);
 	}
 
 
@@ -2565,6 +2570,10 @@ div.scroll{
 		font-weight: bold;
 		font-size:1.5vmax;
 	}
+	#roleplay div.text em{
+		font-size:1.2vmax;
+		color:#DDD;
+	}
 	
 	#roleplay div.responses > div.option{
 		width:90%;
@@ -2701,7 +2710,7 @@ div.scroll{
 		display:block;
 		width:5.5vh;
 		height:5.5vh;
-		border-color:#AFA;
+		border-color:var(--colorBeneficial);
 		border-width: 0.2vh;
 		padding:0.5vh;
 		font-size:1.5vh;
@@ -3836,7 +3845,7 @@ div.scroll{
 	div.action.detrimental,
 	#modal div.dmActionLearner.detrimental,
 	#ui > div.actionbar > div.actions div.action.detrimental{
-		border-color:#FAA;
+		border-color:--colorDetrimental;
 	}
 	div.action.disabled,
 	#ui > div.actionbar > div.actions > div.actionGroup > div.action.disabled,

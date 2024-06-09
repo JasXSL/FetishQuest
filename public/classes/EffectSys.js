@@ -654,11 +654,10 @@ class Wrapper extends Generic{
 		if( !parent.getColoredName )
 			console.error("Parent getColoredName missing", parent);
 		out = out.split('%knockdown').join(knockdown);
-		out = out.split('%caster').join(esc(caster.getColoredName()));
-		out = out.split('%target').join(esc(parent.getColoredName()));
-		out = out.split('%S').join(esc(caster.getColoredName()));
-		out = out.split('%T').join(esc(parent.getColoredName()));
-
+		out = out.split('%caster').join(stylizeText(caster.getColoredName()));
+		out = out.split('%target').join(stylizeText(parent.getColoredName()));
+		out = out.split('%S').join(stylizeText(caster.getColoredName()));
+		out = out.split('%T').join(stylizeText(parent.getColoredName()));
 		return out;
 
 	}

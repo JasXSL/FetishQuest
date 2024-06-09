@@ -1483,6 +1483,8 @@ export default class Game extends Generic{
 		const obj = {
 			[Audio.Tracks.ambient] : this.dungeon.music,
 			[Audio.Tracks.combat] : this.dungeon.music_combat,
+			[Audio.Tracks.room] : this.dungeon.getActiveRoom().music,
+			[Audio.Tracks.roomCombat] : this.dungeon.getActiveRoom().music_combat,
 			[Audio.Tracks.encounter] : this.encounter.music,
 			[Audio.Tracks.encounterCombat] : this.encounter.music_combat,
 			[Audio.Tracks.rp] : this.roleplay?.music,

@@ -915,7 +915,7 @@ Text.getFromEvent = function( event, debug = false ){
 	if( evtMap )
 		maps.push(evtMap);
 
-	if( event.custom.original && event.custom.original.type && !chat ) // Chat isn't allowed to trigger events from the origin
+	if( event.custom.original && event.custom.original.type && !chat ) // Chat is allowed to have multiple event types. But the primary path is ALWAYS GameEvent.Types.textTrigger
 		evtMap = glib._texts.get(event.custom.original.type);
 	
 	if( evtMap )

@@ -216,6 +216,10 @@ export function asset(){
 
 		const victim = new Player(pSettings);
 
+		pSettings.name = 'Victim Two';
+		pSettings.species = 'red panda';
+		const victim2 = new Player(pSettings);
+
 		pSettings.name = 'RP Victim';
 		const rp = new Player(pSettings);
 		pSettings.name = 'RP Second Victim';
@@ -227,7 +231,7 @@ export function asset(){
 		converted.text = textEditor.value.trim();
 		const out = converted.run( new GameEvent({
 			sender : attacker,
-			target : [victim],
+			target : [victim, victim2],
 			custom : {
 				rpTargets : [rp, rp2]
 			}

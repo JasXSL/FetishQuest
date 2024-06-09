@@ -355,6 +355,7 @@ export default class Asset extends Generic{
 		let out = this.equip_cost;
 		if( out < 0 )
 			out = Game.EQUIP_COST;
+		out *= this.slots.length;
 		if( this.parent instanceof Player )
 			out += this.parent.getGenericAmountStatPoints(Effect.Types.equipCost);
 

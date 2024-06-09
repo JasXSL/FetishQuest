@@ -2951,10 +2951,49 @@ export default class Player extends Generic{
 		];
 		if( type === Player.MOMENTUM.All ){
 
-			const n = amount/Math.abs(amount);	// Convert it to +1 or -1
-			for( let i = 0; i < Math.abs(amount); ++i )
-				amts[Math.floor(Math.random()*3)] += n;
-			
+			// Amts is always 0 here
+
+			// Positive amounts are easy, just keep adding
+			if( amount > 0 ){
+				
+				for( let i = 0; i < Math.abs(amount); ++i )
+					++amts[Math.floor(Math.random()*3)];
+
+			}
+			// Negative amounts are more complicated
+			else{
+
+				// Start with our current momentums
+				amts[0] = this.momOff;
+				amts[1] = this.momDef;
+				amts[2] = this.momUti;
+
+				// Create an array of valid indexes
+				let indices = [];
+				for( let n = 0; n < amts.length; ++n ){
+					if( amts[n] )
+						indices.push(n);
+				}
+				
+				for( let i = 0; i < Math.abs(amount); ++i ){
+					
+					// We've run out
+					if( !indices.length )
+						break;
+
+					let index = Math.floor(Math.random()*indices.length);
+					if( !--amts[indices[index]] )
+						indices.splice(index, 1); // This column has run out
+					
+				}
+
+				// Figure out how much to subtract from each column
+				amts[0] -= this.momOff;
+				amts[1] -= this.momDef;
+				amts[2] -= this.momUti;
+
+			}
+				
 		}
 		
 		this.momOff = Math.max(0, this.momOff+amts[0]);

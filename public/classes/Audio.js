@@ -9,20 +9,27 @@ class Audio{
 	static Tracks = {
 		ambient : 'ambient',
 		combat : 'combat',
+		room : 'room',
+		roomCombat : 'roomCombat',
 		encounter : 'encounter',
 		encounterCombat : 'encounterCombat',
 		rp : 'rp',
 	};
+	// Order of track to play, highest priority first
 	static TrackOrder = [
 		this.Tracks.rp,
 		this.Tracks.encounterCombat,
 		this.Tracks.encounter,
+		this.Tracks.roomCombat,
+		this.Tracks.room,
 		this.Tracks.combat,
 		this.Tracks.ambient,
 	];
+	// Which ones are considered combat? Not ordered
 	static TrackCombat = [
 		this.Tracks.combat,
-		this.Tracks.encounterCombat
+		this.Tracks.encounterCombat,
+		this.Tracks.roomCombat
 	];
 
 	static master;

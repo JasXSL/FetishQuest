@@ -725,6 +725,9 @@ class DungeonRoom extends Generic{
 		this.ambiance = '';			// if unset, use dungeon
 		this.ambiance_volume = -1;	// if less than 0, use dungeon
 
+		this.music = '';			// label of an asset, never turned to an object
+		this.music_combat = '';		// label of an asset, never turned to an object
+
 		this.lowpass = 0;			// Lowpass of audio. 0 uses parent
 		this.reverb = '';			// Reverb sound. Empty uses parent.
 		this.reverbWet = 0;			// Intensity of reverb. 0 uses parent
@@ -769,6 +772,8 @@ class DungeonRoom extends Generic{
 			reverbWet : this.reverbWet,
 			lowpass : this.lowpass,
 			sat : this.sat,
+			music : this.music,
+			music_combat : this.music_combat,
 		};
 
 		if( full ){

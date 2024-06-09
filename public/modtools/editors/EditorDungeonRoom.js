@@ -16,6 +16,7 @@ import GameAction from '../../classes/GameAction.js';
 import Generic from '../../classes/helpers/Generic.js';
 import stdTag from '../../libraries/stdTag.js';
 import Audio from '../../classes/Audio.js';
+import * as EditorAudioMusic from './EditorAudioMusic.js';
 import {GLTFExporter} from '../../ext/GLTFExporter.js';
 const DB = 'dungeonRooms',
 	CONSTRUCTOR = DungeonRoom,
@@ -161,11 +162,16 @@ export function asset(){
 	html += '<span title="Picks the first viable one when you enter, stays with it until respawn is triggered">Encounters:</span> <div class="encounters"></div>';
 	html += '<span title="Passives to apply to viable players">Passives:</span> <div class="passives"></div>';
 	
+	html += '<span title="">Ambient Music:</span> <div class="music"></div>';
+	html += '<span title="">Combat Music:</span> <div class="music_combat"></div>';
+
 	this.setDom(html);
 	
 	// Bind linked objects
 	this.dom.querySelector("div.encounters").appendChild(EditorEncounter.assetTable(this, asset, "encounters"));	
 	this.dom.querySelector("div.passives").appendChild(EditorWrapper.assetTable(this, asset, "passives"));	
+	this.dom.querySelector("div.music").appendChild(EditorAudioMusic.assetTable(this, asset, "music", true));
+	this.dom.querySelector("div.music_combat").appendChild(EditorAudioMusic.assetTable(this, asset, "music_combat", true));
 	// Tags
 	HelperTags.bind(this.dom.querySelector("div[name=tags]"), tags => {
 		HelperTags.autoHandleAsset('tags', tags, asset);
