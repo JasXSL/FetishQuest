@@ -2090,6 +2090,19 @@ export default class UI{
 
 	}
 
+	flashGameIcon( label ){
+
+		let base = this.gameIcons[0];
+		const el = base && base.querySelector('[data-id="'+label+'"]');
+		if( !el )
+			return;
+		if( el._timeout )
+			clearTimeout(el._timeout);
+		el.classList.toggle("flash", true);
+		el._timeout = setTimeout(() => {el.classList.toggle("flash", false);}, 200);
+
+	}
+
 	// bottom main menu
 	drawGameIcons(){
 
@@ -2098,10 +2111,12 @@ export default class UI{
 		const 
 			map = $('div.button[data-id=map]', this.gameIcons),
 			inventory = $('div.button[data-id=inventory]', this.gameIcons),
-			help = $('div.button[data-id=help]', this.gameIcons)
+			help = $('div.button[data-id=help]', this.gameIcons),
+			actions = $('div.button[data-id=actions]', this.gameIcons)
 		;
 
 		inventory.toggleClass('hidden', !player);
+		actions.toggleClass('hidden', !player);
 		map.toggleClass('highlighted', !this.visible);
 		help.toggleClass('highlight', !localStorage.helpClicked);
 
@@ -2122,6 +2137,10 @@ export default class UI{
 				else if( id === 'quest' ){
 					StaticModal.set('quests');
 					game.uiAudio( 'toggle_quests' );
+				}
+				else if( id === 'actions' ){
+					game.uiAudio( 'action_menu_b' );
+					StaticModal.set('actions');
 				}
 				else if( id === "mainMenu" ){
 					game.uiAudio( 'menu_generic' );
@@ -2169,19 +2188,6 @@ export default class UI{
 	updateMute(){
 		const mute = Boolean( !game.is_host && !game.getMyActivePlayer() && game.mute_spectators )
 		this.board.toggleClass("mute", mute);
-	}
-
-
-	gameIconPop( icon ){
-
-		icon = esc(icon);
-		
-		const tt = $("div[data-id='"+icon+"']", this.gameIcons);
-		tt.toggleClass('pop', true);
-		
-		clearTimeout(this.pgi[icon]);
-		this.pgi[icon] = setTimeout(() => tt.toggleClass('pop', false), 50);
-
 	}
 
 
@@ -2564,6 +2570,7 @@ export default class UI{
 			el.classList.toggle("ilToUpdate", false);
 			const asset = game.getPlayerAsset(id);
 			if( asset ){
+
 				let sub = el.querySelector('span');
 				sub.innerText = asset.name;
 				sub.style.color = Asset.RarityColors[asset.rarity];
@@ -2717,6 +2724,7 @@ export default class UI{
 
 	
 	clear(){
+		this.grappleLines.remove();
 		this.text.html('');
 	}
 
@@ -3380,44 +3388,26 @@ export default class UI{
 				const size = 1.0/scale*98;
 				div.style = 'width:'+size+'%; height:'+size+'%';
 
-				let exitMarker = document.createElement('img');
-				exitMarker.src = '/media/wrapper_icons/exit-door.svg';
-				div.append(exitMarker);
-
-				let shopMarker = document.createElement('img');
-				shopMarker.src = '/media/wrapper_icons/hanging-sign.svg';
-				div.append(shopMarker);
-
-				let talkMarker = document.createElement('img');
-				talkMarker.src = '/media/wrapper_icons/conversation.svg';
-				div.append(talkMarker);
-
 				if( !room ){
 					div.classList.add('empty');
 					continue;
 				}
+
+				let marker = room.icon;
+				if( !marker && room.getExitDoor() ){
+					marker = 'hanging-sign';
+				}
+
+				if( marker ){
+					let customMarker = document.createElement('img');
+					customMarker.src = '/media/wrapper_icons/'+marker+'.svg';
+					div.append(customMarker);
+				}
+
 				if( room.id === game.dungeon.getActiveRoom().id )
 					div.classList.add('current');
 
-				let services = {};
-				// Populate services with services that exist in this room
-				if( room.encounters instanceof Encounter ){
-
-					for( let pl of room.encounters.players ){
-						
-						let sub = this.getViableInteractionsOnPlayer(pl, room.encounters);
-						for( let i in sub ){
-							if( sub[i] )
-								services[i] = true;
-						}
-
-					}
-
-				}
-
-				exitMarker.classList.toggle('hidden', !room.getExitDoor());
-				shopMarker.classList.toggle('hidden', !( services.shop || services.repair || services.gym || services.altar || services.rent || services.talk ));
-				talkMarker.classList.toggle('hidden', !(services.talk));
+				
 			}
 
 		}

@@ -222,6 +222,8 @@ GameEvent.Types = {
 	orgasm : 'orgasm', 	// Quicker way of checking wrapper added and wrapper overwhelming orgasm
 	diceRoll : 'diceRoll', // Rolled a dice in an RP
 	knockdown : 'knockdown', // Run when a player is knocked down
+
+	gameStart : 'gameStart', // Raised when a new game has started
 };
 
 // Event data fields can be read in math vars by using evt_<var>. Ex shielding enchant checks for healingDone and adds block equal to "evt_overAmount"

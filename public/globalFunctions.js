@@ -228,8 +228,8 @@ function stylizeText( txt ){
 
 		let a = t.split('$');
 		let url = a.shift();
-		a = '<span data-il="'+esc(url)+'" class="ilToUpdate tooltipParent itemLink"><span>ITEM</span><div class="tooltip"></div></span>';
-		out+=a;
+		a = '<span data-il="'+esc(url)+'" class="ilToUpdate tooltipParent itemLink"><span>ITEM</span><div class="tooltip"></div></span>'+a.join('');
+		out += a;
 
 	}
 	// $ITM9dk9BMUgxe$

@@ -28,6 +28,7 @@ import { Logger } from './Logger.js';
 import AudioTrigger from './AudioTrigger.js';
 import Story from './Story.js';
 import Calculator from './Calculator.js';
+import Tutorial from './Tutorial.js';
 
 let VibHub = false;
 import('./VibHub.js').then(v => {
@@ -157,6 +158,7 @@ export default class Game extends Generic{
 
 		
 		this.full_initialized = true;
+		Tutorial.init();
 		// Bind events
 		GameEvent.on(GameEvent.Types.playerDefeated, event => {
 
@@ -202,6 +204,8 @@ export default class Game extends Generic{
 				}
 				
 			}
+
+			Tutorial.onEvent(event);
 
 		});
 
@@ -403,7 +407,8 @@ export default class Game extends Generic{
 		if( allowInsert ){
 			await this.saveToDB(sd);
 			await this.initialize();
-			this.load();
+			await this.load();
+			new GameEvent({type:GameEvent.Types.gameStart, target:this.players[0]}).raise();
 		}
 		// Save
 		else{
@@ -694,7 +699,17 @@ export default class Game extends Generic{
 
 	getMaxLevel(){
 		
-		return this.story.max_level;
+		if( this.story.max_level > 0 )
+			return this.story.max_level;
+		return 14;
+
+	}
+
+	getMaxActionSlots(){
+		
+		if( this.story.max_action_slots > 0 )
+			return this.story.max_action_slots;
+		return 8;
 
 	}
 
@@ -888,6 +903,7 @@ export default class Game extends Generic{
 			objectives[objective.label] = objective._amount;
 		
 		this.completed_quests.set(quest.label, objectives);
+		this.ui.flashGameIcon( 'inventory' );
 	
 
 		this.save();
@@ -899,11 +915,30 @@ export default class Game extends Generic{
 
 		this.ui.questAcceptFlyout( 'Quest Started:', quest.name );
 		this.playFxAudioKitById('questPickup', undefined, undefined, undefined, true);
-		this.ui.gameIconPop('quest');
 		if( Game.net.isInNetgameHost() )
 			Game.net.dmQuestAccepted( 'Quest Started:', quest.name );
+		this.ui.flashGameIcon( 'inventory' );
 
 	}
+
+	// Action isn't present when received in netgame atm
+	onActionLearned( player, action ){
+
+		if( !(player instanceof Player) )
+			return;
+
+		if( player === this.getMyActivePlayer() ){
+			game.ui.flashGameIcon( 'actions' );
+		}
+
+		if( Game.net.isInNetgameHost() && player.netgame_owner !== 'DM' ){
+			
+			Game.net.dmActionLearned(player, action);
+
+		}
+
+	}
+
 	// A quest objective value has changed. QuestObjective can be either a label or a QuestObjective object
 	onObjectiveChanged( questObjective, amount ){
 
@@ -920,6 +955,8 @@ export default class Game extends Generic{
 		this.renderer.drawActiveRoom(); // Update active room
 		if( this.is_host )
 			Game.net.dmQuestObjectiveChanged(questObjective.label, amount);
+		this.ui.flashGameIcon( 'inventory' );
+
 
 	}
 	// Raised before a room changes
@@ -1014,9 +1051,9 @@ export default class Game extends Generic{
 		if( !(player instanceof Player) )
 			return;
 
-
-		if( player === this.getMyActivePlayer() )
-			this.ui.gameIconPop('inventory');
+		if( player === this.getMyActivePlayer() ){
+			game.ui.flashGameIcon( 'inventory' );
+		}
 
 		if( Game.net.isInNetgameHost() && player.netgame_owner !== 'DM' ){
 			
@@ -2459,8 +2496,7 @@ export default class Game extends Generic{
 		if( asset.loot_sound )
 			this.playFxAudioKitById(asset.loot_sound, fromPlayer, toPlayer, undefined, true );
 		
-		let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName()+(!asset.stacking ? " their " : " "+amount+"x ")+asset.name+"!";
-		this.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
+		
 		
 		const assetWrappers = fromPlayer.getAssetWrappers(asset.id).map(el => {
 			el = el.clone();
@@ -2470,6 +2506,11 @@ export default class Game extends Generic{
 			return el;
 		});
 		const inserts = toPlayer.addAsset(asset, amount, true);	// Note that this will reset ID
+
+		if( inserts.length ){
+			let text = fromPlayer.getColoredName()+" hands "+toPlayer.getColoredName() + (!asset.stacking ? " their " : " "+amount+"x ") + '$ITM'+inserts[0].id+"$!";
+			this.ui.addText( text, undefined, fromPlayer.id, toPlayer.id, 'statMessage important' );
+		}
 		for( let wrapper of assetWrappers )
 			toPlayer.addWrapper(wrapper);
 		

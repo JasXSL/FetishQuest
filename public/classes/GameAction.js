@@ -792,14 +792,14 @@ export default class GameAction extends Generic{
 			asset.restore();
 
 			const amount = isNaN(parseInt(this.data.amount)) ? 1 : parseInt(this.data.amount);
-			if( this.data.alert )
-				game.ui.addText( player.getColoredName()+" received "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
-				
 			let addedAssets;
 			if( amount > 0 )
 				addedAssets = pl.addAsset( asset, amount );	// note that this resets id
 			else if( amount < 0 )
 				pl.destroyAssetsByLabel(asset.label, Math.abs(amount));
+
+			if( addedAssets?.length && this.data.alert )
+				game.ui.addText( player.getColoredName()+" received $ITM"+addedAssets[0].id+"$.", undefined, player.id,  player.id, 'statMessage important' );
 
 			if( addedAssets && this.data.equip )
 				addedAssets.map(el => pl.equipAsset(el.id, pl, true));
@@ -828,9 +828,9 @@ export default class GameAction extends Generic{
 				// Todo: add assets
 				let asset = assets[0].clone();
 				asset.restore();
-				pl.addAsset(asset, 1);
-				if( this.data.alert )
-					game.ui.addText( player.getColoredName()+" received "+asset.name+".", undefined, player.id,  player.id, 'statMessage important' );
+				let addedAssets = pl.addAsset(asset, 1);
+				if( this.data.alert && addedAssets.length )
+					game.ui.addText( player.getColoredName()+" received $ITM"+addedAssets[0].id+"$.", undefined, player.id,  player.id, 'statMessage important' );
 
 				
 

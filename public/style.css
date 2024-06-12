@@ -867,7 +867,7 @@ div.scroll{
 		padding:2vmax;
 	}
 
-	#inventory div[data-id="Actions"] div.titleSpan{
+	#actions div[data-id="Actions"] div.titleSpan{
 		text-align: center;
 		padding: 2vmax;
 		border: 1px #666 solid;
@@ -876,7 +876,7 @@ div.scroll{
 		border-radius: 0.5vmax;
 	}
 
-	#inventory div[data-id="Actions"] div.titleSpan > span,
+	#actions div[data-id="Actions"] div.titleSpan > span,
 	#gym div.titleSpan > span{
 		position: absolute;
 		font-size: 1.25vmax;
@@ -932,7 +932,7 @@ div.scroll{
 	}
 
 	#gym div.action,
-	#inventory div[data-id="Actions"] div.action{
+	#actions div[data-id="Actions"] div.action{
 		background-size: cover;
 		overflow: visible;
 		display: inline-block;
@@ -946,11 +946,11 @@ div.scroll{
 		display:none;
 	}
 	*/
-	#inventory div[data-id="Actions"] div.action > div.hotkey{
+	#actions div[data-id="Actions"] div.action > div.hotkey{
 		display:block;
 	}
 	#gym div.action > div.uses,
-	#inventory div[data-id="Actions"] div.action > div.uses{
+	#actions div[data-id="Actions"] div.action > div.uses{
 		display:block;
 		position:absolute;
 		color:#FAA;
@@ -2675,10 +2675,6 @@ div.scroll{
 		from{box-shadow:0 0 2vmax 1vmax rgba(255,255,100, 1);}
 		to{box-shadow:0 0 1vmax 0.5vmax rgba(255,255,100, 1);}
 	}
-	#gameIcons > div.pop{
-		transition:none;
-		transform:scale(1.3, 1.3);
-	}
 	div.interaction.highlight,
 	#gameIcons > div.highlight{
 		animation:gameIconsHighlight 1s alternate infinite ease-in-out;		
@@ -2760,6 +2756,16 @@ div.scroll{
 	#mainMenuToggle > div.highlighted{
 		border-color: #ADF;
 		background-color:#9AD;
+	}
+	#gameIcons > div.button{
+		transition: all 0.5s ease-in;
+	}
+
+	#gameIcons > div.flash{
+		transform: scale(1.3, 1.3);
+		transition: all 0.1s ease-out;
+		border-color:#9D9;
+		box-shadow: 0 0 0.5vmax #9F9;
 	}
 	#gameIcons > div.autoWidth{
 		width:auto;

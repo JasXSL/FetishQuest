@@ -142,7 +142,7 @@ export default class Player extends Generic{
 
 		this.actionGroups = [];					// Contains PlayerActionGroup objects. Built on the fly
 		
-		
+
 		this.class = null;
 		this._stun_diminishing_returns = 0;		// Rounds you can't be stunned
 
@@ -2156,7 +2156,7 @@ export default class Player extends Generic{
 		asset.onPlacedInWorld();
 		for( let i = 0; i<amount && (!fromStacks || i<1); ++i ){
 			// Needs to be its own object
-			const a = asset.clone(this);
+			let a = asset.clone(this);
 
 			if( resetid )
 				a.g_resetID();	// Buying stacks will bork everything otherwise
@@ -2169,12 +2169,15 @@ export default class Player extends Generic{
 			let n = a._stacks;
 			if( fromStacks )
 				n = amount;
-			if( a.stacking && exists )
+			if( a.stacking && exists ){
+				a = exists; // replace a with exists to make sure we return the correct ID. Otherwise it returns a non-existing id.
 				exists._stacks += n;
+			}
 			else{
 				a._stacks = n;
 				this.assets.push(a);
 			}
+
 			if( !toBank && a.equippable() && !game.battle_active && !no_equip ){
 
 				// Potions auto equip out of combat
@@ -2201,7 +2204,7 @@ export default class Player extends Generic{
 		}
 		this.raiseInvChange();
 		if( !toBank )
-			game.onInventoryAdd( this, asset );
+			game.onInventoryAdd( this, asset );		
 		return Object.values(out);
 
 	}
@@ -3971,6 +3974,10 @@ export default class Player extends Generic{
 			this.activateAction(ac.id);
 		}
 
+		if( !silent && !this.isNPC() ){
+			game.onActionLearned(this, action);
+		}
+
 		this.rebindWrappers();
 
 		return true;
@@ -4972,7 +4979,7 @@ export default class Player extends Generic{
 		let out = level;
 		if( level > 4 )
 			out = 4+Math.floor((level-4)/2);
-		return Math.min(this.MAX_ACTION_SLOTS, out);
+		return Math.min(game.getMaxActionSlots(), out);
 	}
 	static getLevelForActionSlot( index ){
 
@@ -5243,6 +5250,7 @@ export default class Player extends Generic{
 
 	}
 
+
 }
 
 Player.AI_ENABLED = true;	// AI art enabled or not
@@ -5252,9 +5260,8 @@ Player.TEAM_ENEMY = 1;
 Player.MAX_MOMENTUM = 12;	// Hardcoded limit. Technically can go up to 26 without violating Number.MAX_SAFE_INTEGER
 							// The reason for this is that the array is packed into a single int made up of 2-bit values when transferred
 
-
-Player.MAX_ACTION_SLOTS = 8;
 Player.MISSING_ART = 'media/characters/missing_art.jpg';
+
 
 // Momentum types
 Player.MOMENTUM = {

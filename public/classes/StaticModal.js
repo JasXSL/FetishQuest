@@ -493,11 +493,6 @@ export default class StaticModal{
 			.setProperties(function(){
 
 				const actives = this.actives = this.getTabDom('Actions');
-				
-				let html = '';
-				for( let i=0; i < Player.MAX_ACTION_SLOTS; ++i )
-					html += UI.Templates.actionButton;
-				$("div.slots > div.slotsWrapper", actives).html(html);
 				this.money = $('div.myMoney', actives)[0];
 				this.purchasable = $("div.right > div.purchasable", actives);
 				this.available = $("div.left > div.available", actives);
@@ -4349,41 +4344,9 @@ export default class StaticModal{
 
 			});
 
-
-		// Inventory
-		this.add(new this("inventory", "Inventory"))
+		// Actions
+		this.add(new this("actions", "Actions"))
 			.addRefreshOn(["players"])
-			.addTab("Inventory", () => {
-				return `
-					<div class="inventory flexTwoColumns">
-						<div class="left">
-
-							<h3>Equipment</h3>
-							<div class="equipment"><!-- Worn assets here --></div>
-							
-							<h3>Toolbelt</h3>
-							<div class="toolbelt"><!-- Toolbelt assets here --></div>
-
-							<h3>Cosmetic</h3>
-							<div class="cosmetic"><!-- Cosmetic assets here --></div>
-
-							<br />
-							<div class="progressBar weight">
-								<div class="bar" style="width:0%;"><!-- Set width here base on percentage --></div>
-								<span class="content"><!-- Progress bar text here --></span>
-							</div>
-
-						</div>
-
-						<div class="right">
-							<div class="inventory mainInventory">
-								<!-- Inventory assets here -->
-							</div>
-							<br /><input type="button" value="+ Add Item" class="addInventory blue devtool" />
-						</div>
-					</div>
-				`;
-			})
 			.addTab("Actions", () => {
 				return `
 					<div class="slots titleSpan">
@@ -4395,55 +4358,13 @@ export default class StaticModal{
 						<div class="available"></div>
 					</div>`;
 			})
-			
-			.addTab("Library", () => {
-				return `
-					<p>This is your party's shared recollection of stories.</p>
-					<div class="library flexAuto">
-						<div class="noBooks">You have not read any books yet</div>
-						<div class="books hidden"></div>
-					</div>
-				`;
-			})
 			.setProperties(function(){
 				
-				const main = this.getTabDom('Inventory')[0];
-
 				const actives = this.actives = this.getTabDom('Actions');
 
-				let html = '';
-				for( let i=0; i < Player.MAX_ACTION_SLOTS; ++i )
-					html += UI.Templates.actionButton;
-				$("div.slots > div.slotsWrapper", actives).html(html);
-
 				this.actions = {
-					activeButtons : $("div.slots > div.slotsWrapper > div.action", actives),
 					available : $("div.titleSpan > div.available", actives),
-				};
-
-				this.main = {
-					equipment : main.querySelector('div.equipment'),
-					toolbelt : main.querySelector('div.toolbelt'),
-					cosmetic : main.querySelector('div.cosmetic'),
-					weight : main.querySelector('div.weight'),
-					weightBar : main.querySelector('div.weight div.bar'),
-					weightContent : main.querySelector('div.weight span.content'),
-					mainInventory : main.querySelector('div.mainInventory'),
-					addInventory : main.querySelector('input.addInventory'),
-				};
-
-				// Can bind this here since it's a static item
-				this.main.addInventory.addEventListener('click', () => {
-					StaticModal.setWithTab('assetLibrary', 'Library', game.getMyActivePlayer());
-				});
-
-
-				const library = this.getTabDom('Library')[0];
-				this.library = {
-					noBooks : library.querySelector('div.noBooks'),
-					books : library.querySelector('div.books')
-				};
-								
+				};								
 
 			})
 			.setDraw(async function(){
@@ -4452,17 +4373,24 @@ export default class StaticModal{
 				if( !player )
 					return;
 
-				this.setTitle("Inventory", player.portrait);
+				// Have to redraw the whole block because the slots are defined by the game itself now
+				let maxSlots = window.game.getMaxActionSlots();
+				let html = '';
+				for( let i=0; i < maxSlots; ++i )
+					html += UI.Templates.actionButton;
+				const dom = this.getTabDom('Actions');
+				$("div.slots > div.slotsWrapper", dom).html(html);
+				const actives = $("div.slots > div.slotsWrapper > div.action", dom);
 
 				// Actions
 					this.toggleTab('Actions', player === game.getMyActivePlayer());
-					this.actions.activeButtons.toggleClass("detrimental disabled", false);
+					actives.toggleClass("detrimental disabled", false);
 					
 					// Active actions
 					const numSlots = player.getNrActionSlots();
-					for( let i = 0; i<Player.MAX_ACTION_SLOTS; ++i ){
+					for( let i = 0; i < maxSlots; ++i ){
 
-						const el = $(this.actions.activeButtons[i]);
+						const el = $(actives[i]);
 						
 
 						let action = player.getActionAtSlot(i);
@@ -4514,7 +4442,7 @@ export default class StaticModal{
 					}
 
 					// Bind stuff
-					this.actions.activeButtons.off('click').on('click', event => {
+					actives.off('click').on('click', event => {
 						
 						const el = $(event.currentTarget),
 							id = el.attr('data-id');
@@ -4537,7 +4465,88 @@ export default class StaticModal{
 
 				//
 				
+			});
+
+		// Inventory
+		this.add(new this("inventory", "Inventory"))
+			.addRefreshOn(["players"])
+			.addTab("Inventory", () => {
+				return `
+					<div class="inventory flexTwoColumns">
+						<div class="left">
+
+							<h3>Equipment</h3>
+							<div class="equipment"><!-- Worn assets here --></div>
+							
+							<h3>Toolbelt</h3>
+							<div class="toolbelt"><!-- Toolbelt assets here --></div>
+
+							<h3>Cosmetic</h3>
+							<div class="cosmetic"><!-- Cosmetic assets here --></div>
+
+							<br />
+							<div class="progressBar weight">
+								<div class="bar" style="width:0%;"><!-- Set width here base on percentage --></div>
+								<span class="content"><!-- Progress bar text here --></span>
+							</div>
+
+						</div>
+
+						<div class="right">
+							<div class="inventory mainInventory">
+								<!-- Inventory assets here -->
+							</div>
+							<br /><input type="button" value="+ Add Item" class="addInventory blue devtool" />
+						</div>
+					</div>
+				`;
+			})
+			.addTab("Library", () => {
+				return `
+					<p>This is your party's shared recollection of stories.</p>
+					<div class="library flexAuto">
+						<div class="noBooks">You have not read any books yet</div>
+						<div class="books hidden"></div>
+					</div>
+				`;
+			})
+			.setProperties(function(){
 				
+				const main = this.getTabDom('Inventory')[0];
+
+				this.main = {
+					equipment : main.querySelector('div.equipment'),
+					toolbelt : main.querySelector('div.toolbelt'),
+					cosmetic : main.querySelector('div.cosmetic'),
+					weight : main.querySelector('div.weight'),
+					weightBar : main.querySelector('div.weight div.bar'),
+					weightContent : main.querySelector('div.weight span.content'),
+					mainInventory : main.querySelector('div.mainInventory'),
+					addInventory : main.querySelector('input.addInventory'),
+				};
+
+				// Can bind this here since it's a static item
+				this.main.addInventory.addEventListener('click', () => {
+					StaticModal.setWithTab('assetLibrary', 'Library', game.getMyActivePlayer());
+				});
+
+
+				const library = this.getTabDom('Library')[0];
+				this.library = {
+					noBooks : library.querySelector('div.noBooks'),
+					books : library.querySelector('div.books')
+				};
+								
+
+			})
+			.setDraw(async function(){
+
+				const player = game.getMyActivePlayer();
+				if( !player )
+					return;
+
+				this.setTitle("Inventory", player.portrait);
+
 				// Inventory
 
 					this.main.weightBar.style = 'width:'+Math.max(0, Math.min(100, player.getCarriedWeight()/player.getCarryingCapacity()*100))+'%';

@@ -1068,8 +1068,6 @@ class AudioMusic extends Generic{
 		}
 		this._started = time+startTime;
 
-		console.log("Started", this._started);
-
 		this.scheduleLoop(!this.intro);
 
 	}

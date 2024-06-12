@@ -124,6 +124,7 @@ export function asset(){
 		html += '<label>Name: <input type="text" name="name" class="saveable" value="'+esc(dummy.name)+'" autocomplete="chrome-off" /></label>';
 		html += '<label>Random Event <input type="checkbox" class="saveable" name="expEvt" '+(dummy.expEvt ? 'checked' : '')+' /></label><br />';
 		html += '<label>Always Recheck Encounter <input type="checkbox" class="saveable" name="enc_recheck" '+(dummy.enc_recheck ? 'checked' : '')+' /></label><br />';
+		html += '<label title="Same as wrapper icons, use a label from game-icons.net">Minimap Icon: <input type="text" name="icon" class="saveable" value="'+esc(dummy.icon)+'" autocomplete="chrome-off" /></label>';
 		
 		html += '<label>Outdoors <input type="checkbox" class="saveable" name="outdoors" '+(dummy.outdoors ? 'checked' : '')+' /></label><br />';
 		html += '<label title="Lets you change the loading zoom, 0 for auto">Zoom: <input type="number" min=0 step=1 name="zoom" class="saveable" value="'+esc(dummy.zoom)+'" /></label>';

@@ -10,6 +10,7 @@ import Asset from './Asset.js';
 import Quest from './Quest.js';
 import Book from './Book.js';
 import Dungeon from './Dungeon.js';
+import Action from './Action.js';
 
 // Game specific
 class NetworkManager{
@@ -1215,6 +1216,16 @@ class NetworkManager{
 			game.onInventoryAdd(player);
 
 		}
+		else if( task === NetworkManager.dmTasks.actionLearned ){
+
+			let player = game.getPlayerById(args.player),
+				asset = args.action	// Not used atm, but can in the future
+			;
+			game.onActionLearned(player);
+
+		}
+
+		
 
 		else if( task === NetworkManager.dmTasks.blackScreen )
 			game.ui.toggleBlackScreen();
@@ -1821,6 +1832,23 @@ class NetworkManager{
 		});
 
 	}
+	dmActionLearned( player, action ){
+
+		if( !(player instanceof Player) )
+			throw 'Invalid player passed to dmActionLearned';
+		if( !(action instanceof Action) )
+			throw 'Invalid action passed to dmActionLearned';
+		
+		// Don't send to self
+		if( player.netgame_owner === 'DM' )
+			return;
+
+		this.sendHostTaskTo(player.netgame_owner, NetworkManager.dmTasks.actionLearned, {
+			player : player.id,
+			action : action.id,
+		});
+
+	}
 
 	// Tells a player to open a shop window for a shop in the cell by label
 	// Player is a player object
@@ -2104,6 +2132,7 @@ NetworkManager.dmTasks = {
 	blackScreen : 'blackScreen',					// void - Triggers a black screen visual
 	floatingCombatText : 'floatingCombatText',		// {amount:(int)amount, player:(str)player_id, type:(str)type, crit:(bool)crit}
 	inventoryAdd : 'inventoryAdd',					// {player:(str)player_uuid, asset:(str)asset_uuid} Raises the game.onInventoryAdd event
+	actionLearned : 'actionLearned',				// {player:(str)player_id, action:(str)action_id} Raises the game.onActionLearned event
 	openShop : 'openShop',							// {shop:(str)shop_label} Asks the player to open the shop window for a shop in the cell
 	loadedCells : 'loadedCells',					// {cells:{netgame_id:(int)cells}}
 	inMenu : 'inMenu',								// {in:{netgame_id:(int)menu}}

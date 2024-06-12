@@ -36,10 +36,11 @@ export default class Story extends Generic{
 		this.players_always_go_first = false;	// If true, players will always go first
 		this.limit_random_encounters = [];	// Limits the game to only include these random encounters
 
-		this.max_level = 14;
+		this.max_level = -1;				// Use -1 for default
 		this.freeze_time = false;			// 
 		this.leveled_gear = false;			// Removes levels from equipment
 		this.no_exp = false;				// Removes experience
+		this.max_action_slots = -1;			// Use -1 for default
 
 		this.disable_awareness = false;		// Disables awareness system
 		this.death_actions = [];			// Game actions to run on death.
@@ -88,6 +89,7 @@ export default class Story extends Generic{
 			disable_awareness : this.disable_awareness,
 			no_multiplayer_dmg_increase : this.no_multiplayer_dmg_increase,
 			no_exp : this.no_exp,
+			max_action_slots : this.max_action_slots,
 		};
 
 		if( full ){

@@ -223,6 +223,7 @@ export function asset(){
 		pSettings.name = 'RP Victim';
 		const rp = new Player(pSettings);
 		pSettings.name = 'RP Second Victim';
+		pSettings.color = '#FFA';
 		const rp2 = new Player(pSettings);
 
 		
