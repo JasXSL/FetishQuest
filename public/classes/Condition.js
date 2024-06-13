@@ -390,6 +390,8 @@ export default class Condition extends Generic{
 				success = eventWrapper && eventWrapper.hasTag(this.data.tags);
 
 			}
+			else if( this.type === T.wrapperUsesPassivesSlot )
+				success = eventWrapper && eventWrapper.usesPassivesSlot();
 			else if( this.type === T.actionTag ){
 				// Searches any attached action for a tag
 				success = event.action && event.action.hasTag(this.data.tags);
@@ -553,6 +555,9 @@ export default class Condition extends Generic{
 				const data = toArray(this.data.type);
 				success = event.action && data.indexOf(event.action.type) !== -1; 
 			}
+			else if( this.type === T.actionStandard ){
+				success = event.action && event.action.std;
+			}
 			else if( this.type === T.effectLabel ){
 				let data = this.data.label;
 				if( !Array.isArray(data) )
@@ -575,6 +580,10 @@ export default class Condition extends Generic{
 					(t.label.startsWith('fo_') && data.indexOf(t.label.substr(3)) !== -1)
 				); // Both follower and non follower is valid
 
+			}
+			else if( this.type === T.targetIsMyActivePlayer ){
+				const active = game.getMyActivePlayer();
+				success = t && active && t.id === active.id; 
 			}
 			else if( this.type === T.enabledPlayerLabel ){
 
@@ -1707,7 +1716,9 @@ Condition.Types = {
 	diceRollCritSuccess : 'diceRollCritSuccess',
 	diceRollCritFail : 'diceRollCritFail',
 	turnNumber : 'turnNumber',
-
+	targetIsMyActivePlayer : 'targetIsMyActivePlayer',
+	wrapperUsesPassivesSlot : 'wrapperUsesPassivesSlot',
+	actionStandard : 'actionStandard',
 };
 
 
@@ -1741,6 +1752,7 @@ Condition.descriptions = {
 	[Condition.Types.actionGroup] : '{group:(str)group} - Action belongs to this group',
 	[Condition.Types.effectLabel] : '{label:(arr)(str)label}',
 	[Condition.Types.wrapperLabel] : '{label:(arr)(str)label, originalWrapper:(bool)=false} - Checks if the wrapper tied to the event has a label',
+	[Condition.Types.wrapperUsesPassivesSlot] : '{} - Wrapper tied to the event goes in the passive slot. Currently used for wrappers that use the out of combat timer.',
 	[Condition.Types.wrapperStacks] : '{amount:(int)(str)stacks, operation:(str)">" "<" "=", originalWrapper:(bool)=false, label:wrapperLabel=_EVT_WRAPPER_} - Operation is = by default. Leave label undefined to use the event wrapper. Amount can be a math var.',
 	[Condition.Types.hasWrapper] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false} - Checks if the player has a wrapper with this label',
 	[Condition.Types.hasEffect] : '{label:(arr)(str)label, byCaster:(bool)byCaster=false}',
@@ -1829,6 +1841,8 @@ Condition.descriptions = {
 	[Condition.Types.diceRollCritSuccess] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has rolled a 20',
 	[Condition.Types.diceRollCritFail] : 'void - Requires roleplayStageOption in event. Checks if the RP stage option has rolled a 1',
 	[Condition.Types.turnNumber] : '{turn:(int)turn} - Checks if all targets are on a specific turn',
+	[Condition.Types.targetIsMyActivePlayer] : '{} - Checks if target is your active player',
+	[Condition.Types.actionStandard] : '{} - Requires Action in event. Checks if the action is set as standard',
 };
 
 

@@ -56,6 +56,7 @@
 		import Roleplay from './classes/Roleplay.js';
 		import RoleplayChatQueue from './classes/Roleplay.js';
 		import PlayerIconState from './classes/PlayerIconState.js';
+		import Tutorial from './classes/Tutorial.js';
 		
 		Audio.begin();
 
@@ -88,6 +89,7 @@
 			gRoleplay : Roleplay,
 			gRoleplayChatQueue : RoleplayChatQueue,
 			gPlayerIconState : PlayerIconState,
+			gTutorial : Tutorial,
 		};
 		
 		for( let i in globals )
@@ -293,6 +295,10 @@
 	</div>
 
 	<div id="tooltip" class="hidden"></div>
+	<div id="tutorialWidget" class="hidden">
+		<div class="arrow"></div>
+		<div class="content">This is a tutorial.</div>
+	</div>
 	
 	<div id="blackScreen"></div>
 

@@ -2791,6 +2791,49 @@ div.scroll{
 
 /**/
 
+/* Tutorial */
+
+	#tutorialWidget{
+		position: fixed;
+		padding:0.5vmax;
+		user-select: none;
+		background:#FA0;
+		color: #310;
+		box-shadow: 0.2vmax 0.2vmax 0.5vmax #000;
+		border: 0.2vmax solid #DDD;
+		border-radius: 0.5vmax;
+	}
+	#tutorialWidget:hover{
+		border-color:#FFF; 
+		cursor:pointer;
+	}
+	#tutorialWidget > div.arrow{
+		position: absolute;
+		bottom:0; left:50%;
+		transform:translate(-50%,60%) rotate(45deg);
+		background:#FA0;
+		border: 0.2vmax solid #DDD;
+		width:1vmax; height:1vmax;
+		border-left:none;
+		border-top:none;
+	}
+	#tutorialWidget:hover > div.content{
+		border-color: #FFF;
+		
+	}
+	#tutorialWidget > div.content{
+		margin:0.5vmax;
+		font-size: 1.3vmax;
+		font-weight: bold;
+		max-width:20vw;
+		text-align: center;
+	}
+	
+
+	
+
+/**/
+
 
 /* Text */
 	#ui > div.middle{

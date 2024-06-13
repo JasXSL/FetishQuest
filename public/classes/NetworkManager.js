@@ -278,13 +278,15 @@ class NetworkManager{
 		
 
 		return new Promise(res => {
-			this.io.emit('host', '', id => {
+			this.io.emit('host', '', async id => {
 				if( id ){
 
 					this.public_id = id;
 					this._last_push = game.getSaveData();
-					glib.autoloadMods();
+					await glib.autoloadMods();
 					this.updateWindowLeaveStatus();
+
+					new GameEvent({target:game.players[0], type:GameEvent.Types.netgameHosted}).raise();
 
 				}
 				else

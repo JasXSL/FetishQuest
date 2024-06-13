@@ -29,6 +29,7 @@ import Collection from './helpers/Collection.js';
 import LoadingTip from './LoadingTip.js';
 import Story from './Story.js';
 import PlayerIconState from './PlayerIconState.js';
+import Tutorial, { TutorialStep } from './Tutorial.js';
 
 /* DB Asset special fields: 
 	_mParent : {type:libraryTableName, label:label/id} 
@@ -107,7 +108,9 @@ export default class Mod extends Generic{
 		this.armorEnchants = [];
 		this.story = [];
 		this.playerIconStates = [];
-		
+		this.tutorial = [];
+		this.tutorialStep = [];
+
 		this.load(data);
 	}
 
@@ -190,6 +193,8 @@ export default class Mod extends Generic{
 			bookPages : this.bookPages,
 			books : this.books,
 			armorEnchants : this.armorEnchants,
+			tutorial : this.tutorial,
+			tutorialStep : this.tutorialStep,
 		};
 
 		// When saved from the modtools, trim out any extended asset values that are equal to the same values in MAIN
@@ -832,6 +837,8 @@ export default class Mod extends Generic{
 			obj = new constructor(asset),
 			useID = Mod.UseID.includes(table)
 		;
+
+		console.log("Cloning", obj, "useid", useID);
 
 		if( useID )
 			obj.id = Generic.generateUUID();
@@ -2155,6 +2162,8 @@ Mod.getLibTypes = function(){
 		'texts' : Text,
 		'gallery' : PlayerGalleryTemplate,
 		'loadingTip' : LoadingTip,
+		'tutorial' : Tutorial,
+		'tutorialStep' : TutorialStep,
 	};
 }
 
@@ -2193,7 +2202,8 @@ Mod.UseID = [
 	'roleplayStageOptionGoto',
 	'bookPages',
 	'loadingTip',
-	'playerIconStates'
+	'playerIconStates',
+	'tutorialStep'
 ];
 
 Mod.getNames = async function( force ){

@@ -203,7 +203,14 @@ GameEvent.Types = {
 	encounterLost : 'encounterLost',		
 	assetUsed : 'assetUsed',				
 	inventoryChanged : 'inventoryChanged',		
+	inventoryReceived : 'inventoryReceived',		
 	encounterEnemyDefeated : 'encounterEnemyDefeated',		
+
+	questStarted : 'questStarted',
+	questFinished : 'questFinished',
+	questObjectiveChanged : 'questObjectiveChanged',
+
+	actionLearned : 'actionLearned',
 
 	encounterStarted : 'encounterStarted',	
 	blockExpired : 'blockExpired',
@@ -223,6 +230,8 @@ GameEvent.Types = {
 	diceRoll : 'diceRoll', // Rolled a dice in an RP
 	knockdown : 'knockdown', // Run when a player is knocked down
 
+	netgameHosted : 'netgameHosted', // Raised on the host when putting the session online
+
 	gameStart : 'gameStart', // Raised when a new game has started
 };
 
@@ -239,8 +248,10 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.sleep] : '{duration:(int)hours}',
 	[GameEvent.Types.interrupt] : 'A charged action was interrupted',			// 
 	[GameEvent.Types.inventoryChanged] : 'Inventory has changed',			// 
+	[GameEvent.Types.inventoryReceived] : 'Player has received an asset',			// 
 	[GameEvent.Types.actionCharged] : 'Used a charged action',	// 
 	[GameEvent.Types.actionUsed] : 'target(is an array of targets here) {resist:true(on resist)}. Note that when this is used in an event check, a wrapper and effect is added by the checker',			//* 
+	[GameEvent.Types.actionLearned] : 'Sender/target are the same. Raised when a player learns an action.',			//* 
 	[GameEvent.Types.actionRiposte] : 'target is the player that cast the original spell, sender is the original victim',
 	[GameEvent.Types.reroll] : 'target is the player who rerolled',
 
@@ -271,7 +282,9 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.battleStarted] : 'Battle has started. This event is raised by and against all players.',
 	[GameEvent.Types.battleEnded] : 'Battle has ended. This event is raised by and against all players.',
 	[GameEvent.Types.playerFirstTurn] : 'Player has started their first turn. Raised with sender being the player whose turn it is, and targets being all enabled enemies',
-
+	[GameEvent.Types.questStarted] : 'A quest has been started',
+	[GameEvent.Types.questFinished] : 'A quest has been started',
+	[GameEvent.Types.questObjectiveChanged] : 'A quest has been changed',
 	[GameEvent.Types.encounterDefeated] : 'encounter, Raised when the players defeat an encounter. Generally you want to attach a .quest to it with the quest checking a condition',			// 
 	[GameEvent.Types.encounterEnemyDefeated] : 'Raised for each defeated enemy in an encounter. Sender is the first player on the winning team, but should not be relied on. This event already checks that they were hostile.',			// 
 	[GameEvent.Types.encounterLost] : 'encounter, Same as encounterDefeated but players lost',					// 
@@ -292,6 +305,7 @@ GameEvent.TypeDescs = {
 	[GameEvent.Types.orgasm] : 'sender, target. Target has orgasmed.',			
 	[GameEvent.Types.diceRoll] : 'sender, target. Target has rolled a dice.',			
 	[GameEvent.Types.knockdown] : 'sender, target. Target has been knocked down.',
+	[GameEvent.Types.netgameHosted] : 'Raised on the host when putting the game online.',
 
 };
 

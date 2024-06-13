@@ -16,6 +16,7 @@ import stdTag from '../libraries/stdTag.js';
 import Generic from './helpers/Generic.js';
 import PlayerClass from './PlayerClass.js';
 import PlayerGalleryTemplate from './templates/PlayerGalleryTemplate.js';
+import Tutorial from './Tutorial.js';
 
 export default class StaticModal{
 
@@ -791,6 +792,8 @@ export default class StaticModal{
 				return `
 					Difficulty: <input type="range" min=-5 max=5 step=1 value=0 name="difficulty" />		
 					Preferred enemy sex: <div class="preferredGender labelFlex"></div>
+					<div class="option button" data-action="tutorials"><input type="checkbox" /><span> Tutorials</span></div>
+					<div class="option button" data-action="resetTutorials">Reset Tutorials</div>
 				`;
 			})
 			.addTab("DM", () => {
@@ -851,7 +854,9 @@ export default class StaticModal{
 				const gameplay = this.getTabDom('Gameplay');
 				this.gameplay = {
 					difficulty : $("input[name=difficulty]", gameplay),
-					gender : $("div.preferredGender", gameplay)
+					gender : $("div.preferredGender", gameplay),
+					tutorials : $("div[data-action=tutorials]", gameplay),
+					resetTutorials : $("div[data-action=resetTutorials]", gameplay),
 				};
 
 				const dm = this.getTabDom('DM');
@@ -901,6 +906,23 @@ export default class StaticModal{
 				this.gameplay.difficulty.on('input', event => {
 					game.difficulty = +$(event.currentTarget).val();
 					game.save();
+				});
+				this.gameplay.tutorials.on('click', event => {
+
+					const enableTutorials = !Tutorial.enabled();
+					Tutorial.setEnabled(enableTutorials);
+					$("input", event.currentTarget).prop("checked", enableTutorials);
+
+
+				});
+				this.gameplay.resetTutorials.on('click', event => {
+					Tutorial.reset();
+					
+					this.gameplay.resetTutorials.text("Tutorials have been reset!");
+					clearTimeout(this.gameplay.resetTutorials_timer);
+					this.gameplay.resetTutorials_timer = setTimeout(() => {
+						this.gameplay.resetTutorials.text("Reset Tutorials");
+					}, 3000);
 				});
 
 				// DM
@@ -1061,6 +1083,7 @@ export default class StaticModal{
 				$("input", this.dm.toggle).prop('checked', ui.showDMTools());
 				this.dm.toggleBattle.text(game.battle_active ? 'End Battle' : 'Start Battle').toggleClass('hidden',  game.teamsStanding().length < 2 && !game.battle_active);
 
+				$("input", this.gameplay.tutorials).prop('checked', Tutorial.enabled());
 				
 				$("input", this.video.enableBubbles).prop('checked', !+localStorage.hide_bubbles);
 				$("input", this.video.enableAI).prop('checked', !+localStorage.disable_ai);

@@ -2198,10 +2198,12 @@ export default class Player extends Generic{
 			
 			a.inBank = Boolean(toBank);
 			
+			new GameEvent({type:GameEvent.Types.inventoryReceived, sender:this, target:this, asset:a}).raise();
 
 			out[a.id] = a;
 
 		}
+		
 		this.raiseInvChange();
 		if( !toBank )
 			game.onInventoryAdd( this, asset );		

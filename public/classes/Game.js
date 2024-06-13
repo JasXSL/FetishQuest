@@ -158,7 +158,7 @@ export default class Game extends Generic{
 
 		
 		this.full_initialized = true;
-		Tutorial.init();
+		
 		// Bind events
 		GameEvent.on(GameEvent.Types.playerDefeated, event => {
 
@@ -229,7 +229,7 @@ export default class Game extends Generic{
 			ga.trigger( game.players[0], undefined, false, game.players[0], true );
 		this.story.onGameStart();
 
-		
+		setTimeout(Tutorial.init.bind(Tutorial), 1000); // Give it a bit to load. This is an ugly hack, but should work for now. But it basically requires a UI draw to not fuck things up.
 		/*
 		Todo: Uncomment when chrome unfucks their console
 		window.onerror = error => {
@@ -908,6 +908,11 @@ export default class Game extends Generic{
 
 		this.save();
 		
+		new GameEvent({
+			target : this.getTeamPlayers(),
+			type : GameEvent.Types.questCompleted,
+			quest : quest,
+		}).raise();
 
 	}
 	// Only put visuals here, use addQuest for data
@@ -918,6 +923,12 @@ export default class Game extends Generic{
 		if( Game.net.isInNetgameHost() )
 			Game.net.dmQuestAccepted( 'Quest Started:', quest.name );
 		this.ui.flashGameIcon( 'inventory' );
+
+		new GameEvent({
+			target : this.getTeamPlayers(),
+			type : GameEvent.Types.questStarted,
+			quest : quest,
+		}).raise();
 
 	}
 
@@ -936,6 +947,13 @@ export default class Game extends Generic{
 			Game.net.dmActionLearned(player, action);
 
 		}
+
+		new GameEvent({
+			sender:player, 
+			target:player, 
+			type:GameEvent.Types.actionLearned, 
+			action:action
+		}).raise();
 
 	}
 
@@ -957,6 +975,11 @@ export default class Game extends Generic{
 			Game.net.dmQuestObjectiveChanged(questObjective.label, amount);
 		this.ui.flashGameIcon( 'inventory' );
 
+		new GameEvent({
+			target : this.getTeamPlayers(),
+			type : GameEvent.Types.questObjectiveChanged,
+			quest : quest,
+		}).raise();
 
 	}
 	// Raised before a room changes

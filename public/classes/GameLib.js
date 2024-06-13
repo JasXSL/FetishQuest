@@ -80,6 +80,9 @@ const load_order = [
 	'quests',
 	'gallery',
 	'loadingTip',
+
+	'tutorial',
+	'tutorialStep',
 	
 ];
 
@@ -144,6 +147,8 @@ export default class GameLib{
 		this._texts = new Map();		// Texts are mapped event, actionLabel. If Action isn't applicable, use ''. If the text is a chat, and no event is defined, it automatically goes into GameEvent.Types.textTrigger 
 		this.gallery = {};				// Player gallery
 		this.loadingTip = {};
+		this.tutorial = {};		// On load, converted to a map. event -> [tutorial...]
+		this.tutorialStep = {};
 	}
 
 	async loadMainMod(){
@@ -438,6 +443,21 @@ export default class GameLib{
 
 		}
 
+		// Handle tutorials
+		const ex = this.tutorial;
+		this.tutorial = new Map();
+		for( let i in ex ){
+
+			const tut = ex[i];
+			let arr = this.tutorial.get(tut.event);
+			if( !Array.isArray(arr) ){
+				arr = [];
+				this.tutorial.set(tut.event, arr);
+			}
+			arr.push(tut);
+
+		}
+
 		console.log("Failed texts:", JSON.stringify(failedTexts));
 
 		console.log(n, "assets prepared");
@@ -452,6 +472,10 @@ export default class GameLib{
 
 	// Tries to auto load enabled mods
 	async autoloadMods(){
+
+		// Revert to array
+		if( this.tutorial instanceof Map )
+			this.tutorial = [];
 
 		let hasMainOverride = false;	// If a mod is named MAIN, we won't load the MAIN mod
 		

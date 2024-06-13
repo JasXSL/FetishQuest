@@ -54,6 +54,9 @@ import * as EditorBookPage from './editors/EditorBookPage.js';
 import * as EditorFetish from './editors/EditorFetish.js';
 import * as EditorArmorEnchant from './editors/EditorArmorEnchant.js';
 import * as EditorGraph from './editors/EditorGraph.js';
+import * as EditorTutorial from './editors/EditorTutorial.js';
+import * as EditorTutorialStep from './editors/EditorTutorialStep.js';
+
 import Generic from '../classes/helpers/Generic.js';
 import ModRepo from '../classes/ModRepo.js';
 import Condition from '../classes/Condition.js';
@@ -117,6 +120,8 @@ const DB_MAP = {
 	"books" : { listing : EditorBook.list, asset : EditorBook.asset, icon : 'archive-register', help : EditorBook.help },
 	"bookPages" : { listing : EditorBookPage.list, asset : EditorBookPage.asset, icon : 'folded-paper', help : EditorBookPage.help },
 	"fetishes" : { listing : EditorFetish.list, asset : EditorFetish.asset, icon : 'love-mystery', help : EditorFetish.help },
+	"tutorial" : { listing : EditorTutorial.list, asset : EditorTutorial.asset, icon : 'help', help : EditorTutorial.help },
+	"tutorialStep" : { listing : EditorTutorialStep.list, asset : EditorTutorialStep.asset, icon : 'pin', help : EditorTutorialStep.help },
 };
 
 

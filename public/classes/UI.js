@@ -121,6 +121,8 @@ export default class UI{
 		this.modal = new Modal(this);					// Variable modal. It's slower and should really only be used for dm tools and yes/no.
 		this.initialized = false;
 
+		this.onNextDraw = [];							// Functions to call after next draw
+
 		this.board = $("#ui");
 		this.content = $("#content");
 		this.players = $("#ui > div.players");
@@ -585,6 +587,10 @@ export default class UI{
 	}
 
 
+	bindOnNextDraw(fn){
+		this.onNextDraw.push(fn);
+		this.draw();
+	}
 
 
 	/* MAIN BOARD */
@@ -643,6 +649,8 @@ export default class UI{
 
 		});
 		
+		for( let fn of this.onNextDraw )
+			fn();
 
 	}
 
@@ -1851,6 +1859,7 @@ export default class UI{
 		const blockDisabled = p.isBlockDisabled();
 
 		shieldEl.toggleClass('disabled', blockDisabled);
+		shieldsEl.toggleClass('active', Boolean(blocking));
 
 		if( !blocking && shieldEl.hasClass("spawn") )
 			shieldEl.toggleClass('die', true);
