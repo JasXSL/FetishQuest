@@ -132,6 +132,7 @@ export function asset(){
 		html += '<label title="Set to -1 to use dungeon ambiance vol">Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=-1 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
 		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
+		html += '<label title="Outdoor only. Overrides time of day, in seconds between 86400, or -1 to use dungeon.">Time of day override: <input type="number" step=1 min=-1 max=86400 name="tod_override" class="saveable" value="'+esc(dummy.tod_override)+'" /></label>';
 		html += '<label title="Use 0 to use dungeon default.">Saturation: <input type="number" name="sat" class="saveable" step=0.01 min=0 max=2 value="'+esc(dummy.sat)+'" /></label>';
 
 		html += '<label>Room Mesh: <select class="roomBaseAsset">';
@@ -546,6 +547,11 @@ class Editor{
 			this.draw();
 		});
 
+		const todOverride = win.dom.querySelector('input[name=tod_override]');
+		todOverride.addEventListener('change', () => {
+			this.room.tod_override = Math.trunc(todOverride.value) || 0;
+			this.draw();
+		});
 
 		const saturation = win.dom.querySelector('input[name=sat]');
 		saturation.addEventListener('change', () => {
@@ -1053,14 +1059,19 @@ class Editor{
 		if( this.gl.stage )
 			this.gl.stage.destructor();
 
-		console.log("Room", this.room);
 		let stage = new Stage(this.room, this.gl, true);
 		this.gl.resetStage( stage );
 		await stage.draw();
 		stage.toggle( true );
 
+		let time = this.room.getTodOverride()/3600;
+		if( time < 0 )
+			time = 12;
+
 		this.gl.toggleOutdoors( this.room.outdoors );
-		this.gl.updateFog( 12 );
+		this.gl.setOutdoorTime( time );
+		this.gl.updateWeather( this.room.parent.getRainOverride() < 0 ? undefined : this.room.parent.getRainOverride() );
+
 
 		this.bindMeshes();
 		this.updateWants();

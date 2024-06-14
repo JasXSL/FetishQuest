@@ -384,8 +384,9 @@ class WebGL{
 		// currentCache stores objects used in the current dungeon
 		this.currentCache = [];					// Stores the cached assets we're currently using in the active dungeon. Needed because putting an item from this.assetCache into a scene rips it out of this.assetCache. We use it this to put items back.
 
-		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) in the last cell. 
+		this.cache_rain = 0;				// value of rain between 0 (no rain) and 1 (heavy rain) since the lass call to updateWeather. 
 											// If this has changed on cell entry, redraw rain.
+		this.cache_hour = 0;				// Cache of hour since the last call
 
 		$(window).on('resize', () => {
 			this.updateSize();
@@ -394,6 +395,8 @@ class WebGL{
 		
 		this._last_rc = 0;					// MS last raycast
 
+		
+		
 		// Player markers
 		this.playerMarkers = [];	// Holds playermarker objects, these are added on the fly and not removed. Opting instead to overwrite them on a room change
 
@@ -487,13 +490,17 @@ class WebGL{
 
 	setOutdoorTime( hours ){
 
-		this.updateFog( hours );
+		
+		
 
 		// Clock should start at 0.75 because 0.0 is morning
 		hours = hours/24 - 0.25;
 		if( hours < 0 )
 			hours += 1.0;
 		
+		this.cache_hour = hours;
+		this.updateFog();
+
 		const daytime = 1.0/24*10;	// 06-16
 		if( hours < daytime )
 			hours = Math.sin(hours*Math.PI*1.2)*.4;
@@ -546,13 +553,16 @@ class WebGL{
 	updateWeather( force ){
 		if( this.loading )
 			return;
-		if( !window.game )
-			return;
+
+		let rain = 0;
+		if( window.game )
+			rain = game.getRain();
+
+
 		const proton = this.proton;
-		let rain = game.getRain();
 		if( !isNaN(force) )
 			rain = force;
-		// No need to change
+		// Only update on change
 		if( rain !== this.cache_rain || force ){
 
 			this.cache_rain = rain;
@@ -649,7 +659,7 @@ class WebGL{
 					proton.addEmitter(emitter);
 				*/
 			}
-			this.updateFog( game.getHoursOfDay() );
+			this.updateFog();
 
 		}
 
@@ -690,7 +700,7 @@ class WebGL{
 		this.lightningTimer = setTimeout(() => this.triggerLightning(), 10000+Math.random()*60000);
 
 		// Trigger flash
-		const rain = game.getRain();
+		const rain = this.cache_rain;
 		if( rain >= 0.85 ){
 			this.lightningLight.visible = true;
 			await delay(Math.ceil(50+Math.random()*150));
@@ -698,16 +708,17 @@ class WebGL{
 			await delay(Math.ceil(500+Math.random()*3000));
 		}
 		// Play sound
-		if( !window.game )
+		if( window.game )
 			game.audio_ambient.play( '/media/audio/ambiance/lightning_'+Math.floor(Math.random()*4)+'.ogg', Math.pow(rain,4), false );
-		
+	
 	}
 
 	// Updates fog and saturation
-	updateFog( currentHour ){
+	updateFog(){
 
+		const currentHour = this.cache_hour;
 		
-		const rain = window.game ? game.getRain() : 0;
+		const rain = this.cache_rain;
 		this.scene.fog.density = !rain ? this.stage.room.getFog() || 0.0001 : this.stage.room.getFog() + 0.0001+rain*0.0008;
 		
 		this.hueSaturation.uniforms.saturation.value = this.stage.room.getSaturation()-1.0;
@@ -1068,7 +1079,7 @@ class WebGL{
 			this.roomEnterCameraTween();
 
 		}
-		this.updateFog( game.getHoursOfDay() );
+		this.updateFog( game.getHoursOfDay(true) );
 		
 		this._loadingRoom = false;
 
@@ -2126,9 +2137,11 @@ class Stage{
 			this.onObjStart(obj);
 
 		if( this.room && this.room.outdoors ){
+
 			this.parent.toggleOutdoors(true);
-			let time = window.game ? game.getHoursOfDay() : 10;
+			let time = window.game ? game.getHoursOfDay(true) : 10;
 			this.parent.setOutdoorTime(time);
+
 		}
 		else
 			this.parent.toggleOutdoors(false);
@@ -2141,7 +2154,7 @@ class Stage{
 
 	onTimeChanged(){
 		if( this.room && this.room.outdoors ){
-			this.parent.setOutdoorTime(game.getHoursOfDay());
+			this.parent.setOutdoorTime(game.getHoursOfDay(true));
 		}
 		this.parent.updateWeather();
 	}

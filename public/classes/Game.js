@@ -1184,12 +1184,23 @@ export default class Game extends Generic{
 	}
 
 	// returns a value between 0 and 1 from midnight to midnight
-	getDayPercentage(){
+	getDayPercentage( useDungeonOverride = false ){
+
 		const day = 3600*24;
-		return (this.time%day)/day;
+		let time = this.time;
+		if( useDungeonOverride ){
+			
+			let tod = this.dungeon.getActiveRoom().getTodOverride();
+			if( tod >= 0 )
+				time = tod;
+
+		}
+		return (time%day)/day;
+
 	}
-	getHoursOfDay(){
-		return this.getDayPercentage()*24;
+	// useDungeonOverride is just for WebGL to alter the lighting
+	getHoursOfDay( useDungeonOverride = false ){
+		return this.getDayPercentage( useDungeonOverride )*24;
 	}
 	// Sleep players, duration is in hours
 	sleep( player, dungeonAsset, duration, force = false, silent = false, ignore_rested = true ){
@@ -4635,7 +4646,11 @@ export default class Game extends Generic{
 		if( !this.dungeon.getActiveRoom().outdoors && !allowIndoor )
 			return 0;
 
-		let rain = this.rain;
+		let rain = this.dungeon.getRainOverride();
+		if( rain < 0 )
+			rain = this.rain;
+
+
 		// Fade over 2 min
 		let started = this.rain_started, startVal = this.rain_start_val;
 

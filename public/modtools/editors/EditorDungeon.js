@@ -34,11 +34,15 @@ export function asset(){
 		html += '<label title="-1 = auto">Difficulty: <input type="number" min=-1 step=0.01 name="difficulty" class="saveable" value="'+esc(dummy.difficulty)+'" /></label>';
 		html += '<label title="Doesn\'t draw the back icon on doors">Free roam <input type="checkbox" class="saveable" name="free_roam" '+(dummy.free_roam ? 'checked' : '')+' /></label><br />';
 		
+		
 		html += '<label title="Use a low value like less than 0.001. Use 0 for default.">Fog override: <input type="number" name="fog" min=0 max=1 class="saveable" value="'+esc(dummy.fog)+'" /></label>';
 		html += '<label title="Indoors only. Hex code such as #AA33AA">Ambient light: <input type="text" name="dirLight" class="saveable" value="'+esc(dummy.dirLight)+'" /></label>';
+		html += '<label title="Outdoor only. Overrides time of day, in seconds between 86400, or -1 to use dungeon.">Time of day override: <input type="number" step=1 min=-1 max=86400 name="tod_override" class="saveable" value="'+esc(dummy.tod_override)+'" /></label>';
+		html += '<label title="Outdoor only. Overrides game rain setting. Negative value disables">Rain override: <input type="number" step=0.01 min=-1 max=1 name="rain_override" class="saveable" value="'+esc(dummy.rain_override)+'" /></label>';
 		html += '<label>Ambiance: <input type="text" name="ambiance" class="saveable" value="'+esc(dummy.ambiance)+'" /></label>';
 		html += '<label>Ambiance volume <span class="valueExact"></span>: <input type="range" name="ambiance_volume" min=0 max=1 step=0.1 class="saveable" value="'+esc(dummy.ambiance_volume)+'" /></label>';
 		html += '<label>Saturation: <input type="number" name="sat" class="saveable" step=0.01 min=0 max=2 value="'+esc(dummy.sat)+'" /></label>';
+		
 		html += '<div class="labelFlex">';
 			html += '<label>Reverb type: <select name="reverb" class="saveable">'+
 				'<option value="none">None</option>'+
