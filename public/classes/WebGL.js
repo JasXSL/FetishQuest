@@ -88,6 +88,16 @@ class WebGL{
 		this.iconRendererTimer = false;
 		this.iconRendererActive = true;
 
+		this.compass = document.createElement('canvas');
+		this.compass.width = 128;
+		this.compass.height = 128;
+		let url = 'media/wrapper_icons/thrust.svg';
+		this.compassCtx = this.compass.getContext('2d');
+		this.compassImage = new Image();
+		this.compassImage.width = 128;
+		this.compassImage.height = 128;
+		this.compassImage.src = url;
+
 
 		// SPELL EFFECTS / ARROW
 		this.fxScene = new THREE.Scene();
@@ -490,15 +500,14 @@ class WebGL{
 
 	setOutdoorTime( hours ){
 
-		
-		
+		this.cache_hour = hours;
 
 		// Clock should start at 0.75 because 0.0 is morning
 		hours = hours/24 - 0.25;
 		if( hours < 0 )
 			hours += 1.0;
 		
-		this.cache_hour = hours;
+		
 		this.updateFog();
 
 		const daytime = 1.0/24*10;	// 06-16
@@ -845,6 +854,19 @@ class WebGL{
 			for( let fn of this.runAfterRender )
 				fn();
 			this.runAfterRender = [];
+		}
+
+		if( this.compassImage.complete ){
+			
+			this.compassCtx.clearRect(0, 0, 128, 128);
+			let rotRadians = this.camera.rotation.z;
+			this.compassCtx.save();
+			this.compassCtx.translate(64,64);
+			this.compassCtx.rotate(-rotRadians);
+			this.compassCtx.drawImage(this.compassImage, -64, -64, 128,128);
+			this.compassCtx.restore();
+			//this.compassCtx.drawImage(this.compassImage, 0, 0, 256, 256);
+
 		}
 
 	}

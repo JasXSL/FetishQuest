@@ -978,7 +978,7 @@ export default class Game extends Generic{
 		new GameEvent({
 			target : this.getTeamPlayers(),
 			type : GameEvent.Types.questObjectiveChanged,
-			quest : quest,
+			quest : questObjective.parent,
 		}).raise();
 
 	}

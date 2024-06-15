@@ -525,6 +525,10 @@ export default class UI{
 			this.drawGrapples();
 		});		
 
+		document.querySelector("#miniMap > div.top > div.minimize")
+			.replaceChildren(game.renderer.compass);
+			
+
 
 	}
 

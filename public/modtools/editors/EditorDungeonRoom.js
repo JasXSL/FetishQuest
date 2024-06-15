@@ -1070,7 +1070,7 @@ class Editor{
 
 		this.gl.toggleOutdoors( this.room.outdoors );
 		this.gl.setOutdoorTime( time );
-		this.gl.updateWeather( this.room.parent.getRainOverride() < 0 ? undefined : this.room.parent.getRainOverride() );
+		this.gl.updateWeather( this.room.parent.getRainOverride() < 0 || !this.room.outdoors ? undefined : this.room.parent.getRainOverride() );
 
 
 		this.bindMeshes();

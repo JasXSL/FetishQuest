@@ -4207,7 +4207,7 @@ div.scroll{
 		height: 20vmax;
 		font-size:1vmax;
 		user-select: none;
-		/*pointer-events: none;*/
+		pointer-events: none;
 	}
 
 	#miniMap > div.top{
@@ -4241,8 +4241,17 @@ div.scroll{
 
 	}
 
-	#miniMap.on > div.top > div.minimize{
+	#miniMap > div.top > div.minimize{
 		background:#ACA;
+		height: 2vmax;
+		padding:0;
+		resize:both;
+	}
+	#miniMap > div.top > div.minimize > canvas{
+		object-fit: contain;
+		top:0; left:0;
+		max-height:100%;
+		aspect-ratio: 1;
 	}
 
 	#miniMap > div.top > div:not(.zLevel){
