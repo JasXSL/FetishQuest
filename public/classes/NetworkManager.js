@@ -11,6 +11,7 @@ import Quest from './Quest.js';
 import Book from './Book.js';
 import Dungeon from './Dungeon.js';
 import Action from './Action.js';
+import Tutorial, { TutorialStep } from './Tutorial.js';
 
 // Game specific
 class NetworkManager{
@@ -21,11 +22,12 @@ class NetworkManager{
 		this.io = null;
 		this.id = null;				// our netplayer id
 		this.public_id = null;		// outward facing shareable id
-		this.players = [];			// {id:id, name:name}
+		this.players = new Map();			//	NetworkPlayer objects
 		this._last_push = null;
 		this._pre_push_time = 0;		// Time of last push
 		this.timer_reconnect = null;
 		this.comparer = new Comparer();
+		this.eventBuffer = new Map();
 
 		this.gf_players = [];
 		this.gf_connected = false;
@@ -82,17 +84,16 @@ class NetworkManager{
 		// Player left
 		this.io.on('playerLeft', data => {
 
-			for( let i in this.players ){
-				if( this.players[i].id === data.id ){
+			const player = this.players.get(data.id);
+			if( !player )
+				return;
 
-					game.uiAudio( 'player_disconnect' );
-					game.ui.addText( this.players[i].name+" has left the game.", undefined, undefined, undefined, 'dmInternal' );
-					delete this.in_menu[data.id];
-					delete this.load_status[data.id];
-					this.players.splice(i, 1);
+			game.uiAudio( 'player_disconnect' );
+			game.ui.addText( player.name+" has left the game.", undefined, undefined, undefined, 'dmInternal' );
+			delete this.in_menu[data.id];
+			delete this.load_status[data.id];
+			this.players.delete(data.id);
 
-				}
-			}
 			game.ui.draw();
 			this.handleEvent('playerLeft');
 
@@ -106,7 +107,7 @@ class NetworkManager{
 				
 				if( !this.getPlayerById(player.id) ){
 
-					this.players.push(player);
+					this.players.set(player.id, new NetworkPlayer(player));
 
 					if( game.is_host ){
 
@@ -208,7 +209,7 @@ class NetworkManager{
 		this.gf_connected = false;
 		this.public_id = null;
 		this.id = null;
-		this.players = [];
+		this.players = new Map();
 		this.io.disconnect();
 		this.io = null;
 
@@ -234,7 +235,7 @@ class NetworkManager{
 
 			this.io.emit('leave', '', async () => {
 
-				this.players = [];			// {id:id, name:name}
+				this.players = new Map();			// {id:id, name:name}
 				this._pre_push_time = 0;		// Time of last push
 				
 				clearTimeout(this.timer_reconnect);
@@ -243,8 +244,7 @@ class NetworkManager{
 				this.in_menu = {DM : false};
 				this._last_push = {};
 				this.public_id = null;
-				this.players = [];
-
+				
 				if( !game.is_host ){
 			
 					await Game.load();
@@ -389,6 +389,7 @@ class NetworkManager{
 
 	}
 
+	// handles a GameEvent
 	handleEvent( evt, data ){
 
 		let evts = this.eventBindings[evt];
@@ -670,19 +671,28 @@ class NetworkManager{
 	/* PLAYER MANAGEMENT */
 	// Gets the name of a network manager player
 	getPlayerNameById(id){
-		for( let player of this.players ){
-			if( player.id === id )
-				return player.name;
-		}
+
+		const player = this.getPlayerById(id);
+		if( player )
+			return player.name;
 		return '';
+
 	}
 
 	// Returns a this.players object by id
 	getPlayerById( id ){
-		for( let p of this.players ){
-			if( p.id === id )
-				return p;
-		}
+		return this.players.get(id);
+	}
+
+	getTutorialPlayers(){
+
+		if( !this.isInNetgameHost() )
+			return [];
+
+		return Array.from(this.players.values()).filter(el => {
+			return el.name !== 'DM' && el.tut_en && el.tut.length;
+		});
+
 	}
 
 	// Takes a netplayer ID and returns an array of players controlled by them
@@ -1123,6 +1133,41 @@ class NetworkManager{
 				}
 
 			}
+			// Player has asked about our tutorial capabilities
+			else if( task === PT.getSupportedTuts ){
+				this.dmSupportedTuts(netPlayer);
+			}
+			else if( task === PT.acceptedTuts ){
+
+				let pl = this.getPlayerById(netPlayer);
+				if( !pl || !Array.isArray(args.ids) )
+					return;
+
+				pl.tut = args.ids.map(el => String(el));
+
+			}
+			else if( task === PT.tutEn ){
+				let pl = this.getPlayerById(netPlayer);
+				if( !pl )
+					return;
+				pl.tut_en = Boolean(args.en);
+
+			}
+			else if( task === PT.activePlayer ){
+
+				// make sure they actually own their active player
+				let id = args.id;
+				const np = this.getPlayerById(netPlayer);
+				if( !np )
+					return;
+				np.active = '';
+				const pl = game.getPlayerById(id);
+				if( !pl )
+					return;
+				if( pl.netgame_owner === netPlayer )
+					np.active = id;
+
+			}
 
 		}catch(err){
 
@@ -1131,6 +1176,26 @@ class NetworkManager{
 			console.error("Received data was ", data);
 
 		}
+
+	}
+
+	onFullGameReceived(){
+
+		game.ui.updateMute();				// Update whether the game is muting spectators
+		this.playerGetSupportedTuts();		// Fetch a list of tutorials that the host can provide
+		this.playerToggleTutorials();		// Enable/disable tutorials based on our settings
+
+	}
+
+	// We have been assigned an active player after having none
+	onActivePlayerAssigned(){
+
+		// Emulate a new game event. Note that this is entirely clientside. New game events can't be loaded by the host.
+		Tutorial.onEvent(new GameEvent({
+			type : GameEvent.Types.gameStart,
+			target : game.getMyActivePlayer(),
+		}));
+		this.playerActivePlayer(game.getMyActivePlayer().id);
 
 	}
 
@@ -1149,9 +1214,13 @@ class NetworkManager{
 			
 			if( this.debug )
 				console.debug("FULL GAME", JSON.parse(JSON.stringify(args)));
+
+			let pre = game.getMyActivePlayer();
 			//game.ui.destructor();
 			game.load(args);
 			game.renderer.loadActiveDungeon();
+
+			
 
 			// Load in custom libraries that are needed
 			glib.actionLearnable = {};
@@ -1165,7 +1234,10 @@ class NetworkManager{
 				.map(a => glib.dungeons[a.label] = a)
 			;
 
-			game.ui.updateMute();
+			this.onFullGameReceived();
+			if( !pre && game.getMyActivePlayer() )
+				this.onActivePlayerAssigned();
+
 		}
 
 		// Visual effect
@@ -1380,6 +1452,41 @@ class NetworkManager{
 			game.ui.rollDice(args.dice, args.roll, args.mod);
 
 		}
+		// Make a list of tutorials the DM provides that we haven't completed
+		else if( task === NetworkManager.dmTasks.supportedTuts ){
+
+			let ids = args.ids;
+			if( !Array.isArray(ids) )
+				return;
+
+			// Reply with a list of tutorials we haven't completed
+			let out = ids.filter(id => !Tutorial.hasCompletedStep(id));
+			this.playerAcceptedTuts(out);
+
+		}
+		else if( task === NetworkManager.dmTasks.tut ){
+
+			// prevent DM from fucking with us if we turn off tutorials
+			if( !Tutorial.enabled() )
+				return;
+
+			if( !Array.isArray(args.steps) )
+				return;
+
+			let steps = TutorialStep.loadThese(args.steps); // When received via netcode, steps are objects
+			// we'll have to do a little sneaky here by appending the tutorial steps to glib if they don't already exist
+			for( let step of steps ){
+				
+				const id = step.id;
+				if( !id )
+					continue;
+				if( !glib.tutorialStep[id] )
+					glib.tutorialStep[id] = step;
+
+			}
+			Tutorial.addStages(steps.map(el => el.id)); // Need to add via IDs
+
+		}
 
 	}
 
@@ -1418,14 +1525,17 @@ class NetworkManager{
 
 		this._pre_push_time = now;
 
+		let pre = game.getMyActivePlayer();
+
 		let gameCombatPre = game.battle_active;
 		let dungeonPreId = game.dungeon.id;
 
-		console.log("Loading", data, "onto", game);
 		// Load data in
 		game.loadFromNet(data);
-		game.ui.draw();		
+		game.ui.draw();
 
+		if( !pre && game.getMyActivePlayer() )
+			this.onActivePlayerAssigned();
 		
 		// DETECT CHANGES
 
@@ -1704,6 +1814,34 @@ class NetworkManager{
 		});
 	}
 
+	// request an array of tutorials that the host can provide
+	playerGetSupportedTuts(){
+		this.sendPlayerAction(NetworkManager.playerTasks.getSupportedTuts, {});
+	}
+	// Tells host which tutorial steps we can accept
+	playerAcceptedTuts( ids = [] ){
+		if( !Array.isArray(ids) )
+			return;
+
+		this.sendPlayerAction(NetworkManager.playerTasks.acceptedTuts, {
+			ids
+		});
+
+	}
+	playerToggleTutorials(){
+		const en = Tutorial.enabled();
+
+		this.sendPlayerAction(NetworkManager.playerTasks.tutEn, {
+			en
+		});
+	}
+
+	playerActivePlayer( id ){
+		this.sendPlayerAction(NetworkManager.playerTasks.activePlayer, {
+			id
+		});
+	}
+
 
 
 	/* OUTPUT TASKS DM */
@@ -1769,6 +1907,28 @@ class NetworkManager{
 			console.debug("JSON encoding", JSON.stringify(fullGame).length);
 		this.sendHostTaskTo( target, NetworkManager.dmTasks.sendFullGame, fullGame);
 		
+	}
+
+	// Send a list of tutorials that we can provide
+	dmSupportedTuts( target ){
+
+		let out = [];
+		for( let i in glib.tutorialStep )
+			out.push(glib.tutorialStep[i].id);
+		
+		this.sendHostTaskTo( target, NetworkManager.dmTasks.supportedTuts, {
+			ids : out
+		});
+
+	}
+
+	// Send a tutorial to a player
+	dmTut( steps ){
+
+		this.sendHostTask(NetworkManager.dmTasks.tut, {
+			steps : steps.map(el => el.save())
+		});
+
 	}
 
 	// All the args are strings
@@ -1959,6 +2119,49 @@ class NetworkManager{
 
 }
 
+export class NetworkPlayer{
+
+	constructor( data ){
+		
+		if( typeof data !== "object" )
+			data = {};
+
+		this.id = data.id;
+		this.name = data.name;
+		this.tut = [];						// Unsent tutorials
+		this.tut_en = false;				// We can send tutorials to this player
+		this.active = '';					// ID of player we're controlling.
+
+	}
+
+	runTutorialSteps( steps = [] ){
+
+		if( !this.tut_en )
+			return;
+
+		let out = [];
+		for( let step of steps ){
+			
+			const pos = this.tut.indexOf(step);
+			if( pos === -1 )
+				continue;
+
+			const obj = glib.get(step, 'TutorialStep');
+			if( !obj )
+				continue;
+			out.push(obj);
+			this.tut.splice(pos, 1);
+
+		}
+		// send the steps to the client
+		if( out.length )
+			Game.net.dmTut(out);
+
+	}
+
+
+}
+
 
 // Group finder player
 class GfPlayer{
@@ -2144,6 +2347,8 @@ NetworkManager.dmTasks = {
 	questObjectiveChanged : 'questObjectiveChanged', // {label:(str)objective_label, amount:(int)value}
 	refreshMeshes : 'refreshMeshes',				// void - Refresh all meshes in the active room
 	diceRoll : 'diceRoll',							// {dice:(int)req, roll:(int)rolled_nr, mod:(int)roll_modifier}
+	supportedTuts : 'supportedTuts',				// {ids:(arr)ids...} - List of tutorial steps that the host can offer
+	tut : 'tut',									// {steps:(arr)steps} - Force trigger tutorial steps if the player has tutorials enabled
 };
 
 // Player -> DM
@@ -2174,8 +2379,12 @@ NetworkManager.playerTasks = {
 	inMenu : 'inMenu',					// {in:(int)menu}
 	getLargeAsset : 'getLargeAsset',		// {player:(str)player_uuid, type:(str)type, label:(str)label} - Fetches a large DB asset from the host. Currently used for books, because they're a bit too heavy to send along to all players constantly. On success, sends DM->Player getLargeAsset
 	useAssetGameAction : 'useAssetGameAction',	// {player:(str)player_uuid, label:(str)label} - Tries to use a game action from Asset.game_actions by label
-	transmogrify : 'transmogrify',		// {mogger : player_offering_transmogs, player : player_transmogging, baseAsset : asset to transmogrify onto, targetAsset : asset to use for the looks}
-	rerollMomentum : 'rerollMomentum',	// {player:(str)sender_id, type:(int)momentum_type_from, to:(int)momentum_type_to}
+	transmogrify : 'transmogrify',				// {mogger : player_offering_transmogs, player : player_transmogging, baseAsset : asset to transmogrify onto, targetAsset : asset to use for the looks}
+	rerollMomentum : 'rerollMomentum',			// {player:(str)sender_id, type:(int)momentum_type_from, to:(int)momentum_type_to}
+	acceptedTuts : 'acceptedTuts',				// {ids:(arr)ids} - IDs of tutorial steps that you can push to this player. Turning tutorials off sends an empty array.
+	getSupportedTuts : 'getSupportedTuts',		// {} - Request that the host send supportedTuts
+	tutEn : 'tutEn',							// {en:(bool)enabled} - Sets if the client has tutorials enabled
+	activePlayer : 'activePlayer',				// {id:(str)id} - Set when a netplayer changes their active player. Don't rely too much on this since active player is clientside. But it's used in tutorials.
 };
 
 export default NetworkManager;

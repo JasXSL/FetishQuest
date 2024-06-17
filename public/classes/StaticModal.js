@@ -1125,7 +1125,7 @@ export default class StaticModal{
 					}
 
 					let divs = [];
-					for( let player of Game.net.players ){
+					for( let player of Game.net.players.values() ){
 
 						const div = document.createElement('div');
 						div.classList.add('netgame', 'player');

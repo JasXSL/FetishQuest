@@ -206,6 +206,7 @@ export default class Game extends Generic{
 			}
 
 			Tutorial.onEvent(event);
+			//Game.net.onEvent(event);
 
 		});
 
@@ -3116,10 +3117,14 @@ export default class Game extends Generic{
 
 	// Sets your active player
 	setMyPlayer( id ){
+
 		this.my_player = id;
 		localStorage.my_player = id;
 		this.ui.draw();
 		this.save();
+		if( Game.net.isInNetgameNotHost() )
+			Game.net.playerActivePlayer(id);
+
 	}
 
 	getTurnPlayers(){
@@ -3248,10 +3253,12 @@ export default class Game extends Generic{
 
 		const players = this.getTurnPlayers();
 		for( let pl of players ){
+
 			if( this.isMyPlayer(pl) && this.isTurnPlayer(pl) ){
 				this.setMyPlayer(pl.id);
 				break;
 			}
+
 		}
 
 	}

@@ -1274,7 +1274,7 @@ export default class UI{
 
 			options.push({id:'',name:'NPC'});
 			options.push({id:'DM',name:'YOU'});
-			for( let player of Game.net.players ){
+			for( let player of Game.net.players.values() ){
 				if( player.name !== 'DM' )
 					options.push(player);
 			}

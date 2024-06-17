@@ -2,7 +2,9 @@
 // Generally tied to DungeonAsset and Roleplay
 // Handles interactions
 import Condition from './Condition.js';
+import Game from './Game.js';
 import GameEvent from './GameEvent.js';
+import { NetworkPlayer } from './NetworkManager.js';
 import Generic from './helpers/Generic.js';
 
 /*
@@ -40,6 +42,7 @@ export default class Tutorial extends Generic{
 		this.queue = [];
 		this.active = false;
 		this.clear();
+		Game.net.playerGetSupportedTuts(); // Need to renegotiate our tutorials
 
 	}
 
@@ -48,11 +51,14 @@ export default class Tutorial extends Generic{
 	}
 
 	static setEnabled( enabled ){
+
 		localStorage.disable_tutorials = +!enabled;
 		if( !enabled )
 			this.clear(false);
 		else
 			this.drawActiveStep();
+		Game.net.playerToggleTutorials(enabled);
+
 	}
 
 	static hasCompletedStep( id ){
@@ -72,19 +78,36 @@ export default class Tutorial extends Generic{
 
 	}
 
-	static addStages( ids ){
+	// viableNetPlayers is true if it should run on all players. If it's an array, it should only run on those players. A "DM" entry in the array means to run locally.
+	static addStages( ids, viableNetPlayers = true ){
 
-		ids = ids.filter( el => {
-			return !this.hasCompletedStep(el) && !this.queue.includes(el) && el !== this.active;
-		});
-		
-		if( !ids.length )
-			return;
+		const hostingNetgame = Game.net.isInNetgameHost();
 
-		this.queue.push(...ids);
+		// If true, it means run on ALL players
+		if( viableNetPlayers === true && hostingNetgame )
+			viableNetPlayers = Game.net.getTutorialPlayers();
 
-		this.saveQueue();
-		this.advance();
+
+		// First run on myself locally
+		if( viableNetPlayers === true || viableNetPlayers.includes('DM') ){
+			const myIds = ids.filter( el => {
+				return !this.hasCompletedStep(el) && !this.queue.includes(el) && el !== this.active;
+			});
+			if( myIds.length ){
+				this.queue.push(...myIds);
+				this.saveQueue();
+				this.advance();
+			}
+		}
+
+		if( hostingNetgame ){
+			// Then check the netplayers
+			for( let netPlayer of viableNetPlayers ){
+				if( netPlayer instanceof NetworkPlayer )
+					netPlayer.runTutorialSteps(ids);
+			}
+
+		}
 
 	}
 
@@ -102,16 +125,16 @@ export default class Tutorial extends Generic{
 		}
 
 		// Find the dom element
-		const el = step.getTargetElement();
-		
-		if( !el || el.offsetParent === null ){
-			this.advance(true);
-			return;
+		let arrow = step.arrow;
+		let el = step.getTargetElement();
+		if( !el || el.offsetParent === null ){ // Fall back to main menu if target isn't found
+			el = document.getElementById('gameIcons');
+			arrow = false;
 		}
 
 		this.widget.querySelector("div.content").innerText = step.text;
 		this.widget.classList.toggle("hidden", false);
-		this.widget.querySelector('div.arrow').classList.toggle('hidden', !step.arrow);
+		this.widget.querySelector('div.arrow').classList.toggle('hidden', !arrow);
 
 		// Position it
 		const dimensions = el.getBoundingClientRect();
@@ -201,17 +224,24 @@ export default class Tutorial extends Generic{
 	}
 
 	static onEvent( event ){
-		if( !this.enabled() )
+
+		const enabled = this.enabled();
+		if( !Game.net.isInNetgameHost() && !enabled )
 			return;
 
-		const arr = glib.tutorial.get(event.type);
+		const arr = glib._tutorial.get(event.type);
 		if( !arr )
 			return;
 
+		
+
 		for( let tutorial of arr ){
-			if( tutorial.validate(event) ){
-				this.addStages(tutorial.steps);
-			}
+
+			const valid = tutorial.validate(event);
+			if( valid === false )
+				continue;
+			this.addStages(tutorial.steps, valid);
+
 		}
 
 	}
@@ -225,6 +255,10 @@ export default class Tutorial extends Generic{
 		this.conditions = [];
 		this.event = GameEvent.Types.gameStart;
 
+		this._conditions = [];			// Check these. As they'll have the myActivePlayer condition broken out
+		this._playerSpecific = false;			// Set to true when a myActivePlayer condition is present, in which case it's only run against active players
+		this._playerSpecificSender = false;		// Specifies that the above setting should be checked for the sender instead of target
+
 		this.load(data);
 	}
 
@@ -232,14 +266,21 @@ export default class Tutorial extends Generic{
 	save( full ){
 
 		const out = {
-			id : this.id,
-			conditions : Condition.saveThese(this.conditions, full),
+			
 			label : this.label,
 			steps : this.steps.slice(),
-			event : this.event,
+			
 		};
 
+
 		if( full ){
+			out.id = this.id;
+			out.conditions = Condition.saveThese(this.conditions, full);
+			out.event = this.event;
+		}
+		// Sending to netgame
+		else{
+			out.steps = this.steps.map( el => glib.get('TutorialStep', el) );
 		}
 
 		if( full !== "mod" ){}
@@ -257,16 +298,55 @@ export default class Tutorial extends Generic{
 
 	rebase(){
 		this.g_rebase();	// Super
+
+		this._conditions = [];
+		for( let cond of this.conditions ){
+
+			if( cond.type === Condition.Types.targetIsMyActivePlayer ){
+				this._playerSpecific = true;
+				this._playerSpecificSender = cond.caster;
+			}
+			else
+				this._conditions.push(cond);
+
+		}
+
 	}
 
 	isCompleted(){
+
+		const netgameHost = Game.net.isInNetgameHost();
+		let players;
+		if( netgameHost )
+			players = Game.net.getTutorialPlayers();
+
+		// See if we have at least one incomplete step
 		for( let step of this.steps ){
+
 			if( !this.constructor.hasCompletedStep(step) )
 				return false;
+
+			// we're hosting a netgame, so we'll need to check all the players that have tutorials enabled
+			if( netgameHost && players && players.length ){
+
+				for( let player of players ){
+					if( player.tut.includes(step) )
+						return false;
+				}
+
+			}
+
+
 		}
+
+		
+
 		return true;
+
 	}
 
+	// Returns an array of netplayers, or true if we're not in a netgame
+	// Always returns false on failure
 	validate( evt ){
 
 		if( evt.type !== this.event )
@@ -275,7 +355,43 @@ export default class Tutorial extends Generic{
 		if( this.isCompleted() )
 			return false;
 
-		return Condition.all(this.conditions, evt);
+		if( !Condition.all(this._conditions, evt) )
+			return false;
+
+		// Check which players to run against
+		if( this._playerSpecific ){
+
+			let targArr = toArray(evt.target);
+			if( this._playerSpecificSender )
+				targArr = toArray(evt.sender);
+
+			targArr = targArr.filter(el => el.netgame_owner).map(el => el.id);
+
+			let out = [];
+			// The netplayer MUST be included as an event target in order to run
+			const players = Game.net.getTutorialPlayers();
+			for( let player of players ){
+				
+				if( targArr.includes(player.active) )
+					out.push(player);
+
+			}
+
+
+			// A special case is needed for the host
+			const hostPlayer = game.getMyActivePlayer();
+			if( hostPlayer && targArr.includes(hostPlayer.id) )
+				out.push('DM');
+
+			if( !out.length )
+				return false;
+
+			return out;
+
+		}
+
+		return true;
+
 
 	}
 

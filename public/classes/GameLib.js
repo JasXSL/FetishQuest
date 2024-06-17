@@ -147,7 +147,8 @@ export default class GameLib{
 		this._texts = new Map();		// Texts are mapped event, actionLabel. If Action isn't applicable, use ''. If the text is a chat, and no event is defined, it automatically goes into GameEvent.Types.textTrigger 
 		this.gallery = {};				// Player gallery
 		this.loadingTip = {};
-		this.tutorial = {};		// On load, converted to a map. event -> [tutorial...]
+		this.tutorial = {};				// Use the _tutorial cache for searching
+		this._tutorial = new Map();
 		this.tutorialStep = {};
 	}
 
@@ -444,15 +445,14 @@ export default class GameLib{
 		}
 
 		// Handle tutorials
-		const ex = this.tutorial;
-		this.tutorial = new Map();
-		for( let i in ex ){
+		this._tutorial = new Map();
+		for( let i in this.tutorial ){
 
-			const tut = ex[i];
-			let arr = this.tutorial.get(tut.event);
+			const tut = this.tutorial[i];
+			let arr = this._tutorial.get(tut.event);
 			if( !Array.isArray(arr) ){
 				arr = [];
-				this.tutorial.set(tut.event, arr);
+				this._tutorial.set(tut.event, arr);
 			}
 			arr.push(tut);
 
